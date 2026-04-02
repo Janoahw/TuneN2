@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.production
+*.log
+.turbo/
+.expo/
+ios/
+android/
+coverage/
+.DS_Store
+
+docs/
+.github/
+.vscode/
