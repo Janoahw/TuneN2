@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { colors } from '@/theme';
 
 const changePasswordSchema = z
   .object({
@@ -43,9 +44,9 @@ function getPasswordStrength(password: string): { label: string; color: string; 
   if (/[0-9]/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  if (score <= 2) return { label: 'Weak', color: '#FF4757', width: '33%' };
-  if (score <= 3) return { label: 'Medium', color: '#FFA502', width: '66%' };
-  return { label: 'Strong', color: '#00D68F', width: '100%' };
+  if (score <= 2) return { label: 'Weak', color: colors.error, width: '33%' };
+  if (score <= 3) return { label: 'Medium', color: colors.warning, width: '66%' };
+  return { label: 'Strong', color: colors.success, width: '100%' };
 }
 
 export default function ChangePasswordScreen() {
@@ -73,8 +74,7 @@ export default function ChangePasswordScreen() {
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message || 'Something went wrong. Please try again.';
+      const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
       if (message.toLowerCase().includes('current password')) {
         setError('currentPassword', { message });
       } else {
@@ -164,11 +164,7 @@ export default function ChangePasswordScreen() {
 
             <View style={{ height: 8 }} />
 
-            <Button
-              title="Update Password"
-              onPress={handleSubmit(onSubmit)}
-              loading={loading}
-            />
+            <Button title="Update Password" onPress={handleSubmit(onSubmit)} loading={loading} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -177,7 +173,7 @@ export default function ChangePasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0F' },
+  safe: { flex: 1, backgroundColor: colors.bgPrimary },
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
@@ -196,19 +192,19 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 28,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   form: {
     marginBottom: 24,
   },
   divider: {
     height: 1,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.bgTertiary,
     marginVertical: 8,
   },
   strengthWrapper: {
@@ -221,7 +217,7 @@ const styles = StyleSheet.create({
   strengthTrack: {
     flex: 1,
     height: 4,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.bgTertiary,
     borderRadius: 2,
     overflow: 'hidden',
   },

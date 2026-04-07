@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { colors } from '@/theme';
 
 const forgotSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -40,8 +41,7 @@ export default function ForgotPasswordScreen() {
       setSentEmail(values.email);
       setSent(true);
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message || 'Something went wrong. Please try again.';
+      const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
       setError('root', { message });
     } finally {
       setLoading(false);
@@ -91,9 +91,7 @@ export default function ForgotPasswordScreen() {
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>Forgot Password</Text>
-            <Text style={styles.subtitle}>
-              Enter your email and we'll send you a reset link
-            </Text>
+            <Text style={styles.subtitle}>Enter your email and we'll send you a reset link</Text>
           </View>
 
           {/* Form */}
@@ -113,11 +111,7 @@ export default function ForgotPasswordScreen() {
               <View /> // placeholder so layout stays stable
             )}
 
-            <Button
-              title="Send Reset Link"
-              onPress={handleSubmit(onSubmit)}
-              loading={loading}
-            />
+            <Button title="Send Reset Link" onPress={handleSubmit(onSubmit)} loading={loading} />
           </View>
 
           {/* Footer */}
@@ -133,7 +127,7 @@ export default function ForgotPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0F' },
+  safe: { flex: 1, backgroundColor: colors.bgPrimary },
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
@@ -148,7 +142,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 28,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   header: {
     marginBottom: 32,
@@ -157,12 +151,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     lineHeight: 24,
   },
   form: {
@@ -173,7 +167,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   footerLink: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -195,18 +189,18 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 12,
   },
   successSubtitle: {
     fontSize: 16,
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
   },
   emailHighlight: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
     fontWeight: '600',
   },
   successFooter: {

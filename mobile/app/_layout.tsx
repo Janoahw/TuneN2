@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuthStore } from '@/stores/authStore';
+import { colors } from '@/theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,7 +28,7 @@ function RootLayoutInner() {
   if (!isInitialized) {
     return (
       <View style={styles.splash}>
-        <ActivityIndicator size="large" color="#6C5CE7" />
+        <ActivityIndicator size="large" color={colors.accentPrimary} />
       </View>
     );
   }
@@ -38,7 +39,7 @@ function RootLayoutInner() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#0A0A0F' },
+          contentStyle: { backgroundColor: colors.bgPrimary },
         }}
       />
     </>
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   splash: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: colors.bgPrimary,
     justifyContent: 'center',
     alignItems: 'center',
   },

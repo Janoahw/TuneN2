@@ -1,12 +1,6 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Pressable,
-  type TextInputProps,
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, type TextInputProps } from 'react-native';
+import { colors } from '@/theme';
 import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form';
 
 interface InputProps extends Omit<TextInputProps, 'value' | 'onChangeText'> {
@@ -47,8 +41,8 @@ export function Input({
         {icon && <Text style={styles.icon}>{icon}</Text>}
         <TextInput
           style={[styles.input, style]}
-          placeholderTextColor="#666680"
-          selectionColor="#6C5CE7"
+          placeholderTextColor={colors.textTertiary}
+          selectionColor={colors.accentPrimary}
           secureTextEntry={secureTextEntry}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
@@ -94,23 +88,23 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#141420',
+    backgroundColor: colors.bgSecondary,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E1E2E',
+    borderColor: colors.bgTertiary,
     paddingHorizontal: 16,
   },
   inputFocused: {
-    borderColor: '#6C5CE7',
+    borderColor: colors.accentPrimary,
   },
   inputError: {
-    borderColor: '#FF4757',
+    borderColor: colors.error,
   },
   icon: {
     fontSize: 18,
@@ -119,7 +113,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     paddingVertical: 16,
   },
   rightIcon: {
@@ -128,7 +122,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: '#FF4757',
+    color: colors.error,
     marginTop: 6,
     marginLeft: 4,
   },

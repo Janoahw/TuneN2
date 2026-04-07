@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '@/theme';
 
 export default function LibraryScreen() {
   return (
@@ -18,11 +19,11 @@ export default function LibraryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0A0F' },
+  container: { flex: 1, backgroundColor: colors.bgPrimary },
   content: { flex: 1, padding: 24 },
-  heading: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', marginBottom: 32 },
+  heading: { fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginBottom: 32 },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 100 },
   emptyIcon: { fontSize: 64, marginBottom: 16 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#FFFFFF', marginBottom: 8 },
-  emptySubtitle: { fontSize: 14, color: '#A0A0B0', textAlign: 'center' },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary, marginBottom: 8 },
+  emptySubtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center' },
 });

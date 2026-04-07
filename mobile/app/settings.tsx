@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
+import { colors } from '@/theme';
 
 interface SettingsRowProps {
   icon: string;
@@ -98,7 +99,7 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0F' },
+  safe: { flex: 1, backgroundColor: colors.bgPrimary },
   scroll: {
     padding: 24,
     paddingBottom: 48,
@@ -116,27 +117,27 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 28,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666680',
+    color: colors.textTertiary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 12,
     marginTop: 8,
   },
   card: {
-    backgroundColor: '#141420',
+    backgroundColor: colors.bgSecondary,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E1E2E',
+    borderColor: colors.bgTertiary,
     marginBottom: 24,
     overflow: 'hidden',
   },
@@ -162,10 +163,10 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   rowLabelDanger: {
-    color: '#FF4757',
+    color: colors.error,
   },
   rowRight: {
     flexDirection: 'row',
@@ -174,16 +175,16 @@ const styles = StyleSheet.create({
   },
   rowValue: {
     fontSize: 14,
-    color: '#666680',
+    color: colors.textTertiary,
   },
   chevron: {
     fontSize: 22,
-    color: '#666680',
+    color: colors.textTertiary,
     fontWeight: '300',
   },
   separator: {
     height: 1,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.bgTertiary,
     marginLeft: 48,
   },
   logoutRow: {
@@ -200,6 +201,6 @@ const styles = StyleSheet.create({
   logoutLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FF4757',
+    color: colors.error,
   },
 });

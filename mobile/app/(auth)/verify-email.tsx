@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { api } from '@/services/api';
+import { colors } from '@/theme';
 
 const COOLDOWN_SECONDS = 60;
 
@@ -54,18 +55,12 @@ export default function VerifyEmailScreen() {
 
           {/* Actions */}
           <View style={styles.actions}>
-            <Button
-              title="I've verified my email"
-              onPress={handleVerified}
-              variant="primary"
-            />
+            <Button title="I've verified my email" onPress={handleVerified} variant="primary" />
 
             <View style={{ height: 16 }} />
 
             {cooldown > 0 ? (
-              <Text style={styles.cooldownText}>
-                Resend available in {cooldown}s
-              </Text>
+              <Text style={styles.cooldownText}>Resend available in {cooldown}s</Text>
             ) : (
               <Button
                 title="Resend Email"
@@ -93,7 +88,7 @@ export default function VerifyEmailScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#0A0A0F',
+    backgroundColor: colors.bgPrimary,
   },
   container: {
     flex: 1,
@@ -112,19 +107,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 16,
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
   },
   emailHighlight: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
     fontWeight: '600',
   },
   actions: {
@@ -132,7 +127,7 @@ const styles = StyleSheet.create({
   },
   cooldownText: {
     fontSize: 14,
-    color: '#666680',
+    color: colors.textTertiary,
     textAlign: 'center',
     paddingVertical: 16,
   },

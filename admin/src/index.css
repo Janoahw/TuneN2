@@ -1,1 +1,43 @@
 @import "tailwindcss";
+
+@theme {
+  /* Surfaces — use as bg-surface, bg-surface-alt, etc. */
+  --color-surface: #0D0D0F;
+  --color-surface-alt: #1A1A1F;
+  --color-surface-raised: #252530;
+  --color-surface-elevated: #2E2E3A;
+  --color-surface-overlay: rgba(255, 255, 255, 0.05);
+  --color-surface-highlight: rgba(255, 255, 255, 0.1);
+
+  /* Content — use as text-content, text-content-muted, etc. */
+  --color-content: #F5F5F7;
+  --color-content-muted: #A1A1AA;
+  --color-content-subtle: #6B6B76;
+
+  /* Accent — use as bg-accent, text-accent, border-accent, etc. */
+  --color-accent: #8B5CF6;
+  --color-accent-hover: #7C3AED;
+  --color-accent-warm: #F97316;
+  --color-accent-cool: #06B6D4;
+
+  /* Semantic */
+  --color-success: #22C55E;
+  --color-warning: #EAB308;
+  --color-error: #EF4444;
+
+  /* Border — use as border-edge, border-edge-focus */
+  --color-edge: #2E2E3A;
+  --color-edge-focus: #8B5CF6;
+
+  /* Typography */
+  --font-primary: 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+}

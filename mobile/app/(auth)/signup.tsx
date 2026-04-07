@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
+import { colors } from '@/theme';
 
 const signupSchema = z.object({
   displayName: z.string().min(1, 'Display name is required').max(100, 'Max 100 characters'),
@@ -37,9 +38,9 @@ function getPasswordStrength(password: string): { label: string; color: string; 
   if (/[0-9]/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  if (score <= 2) return { label: 'Weak', color: '#FF4757', width: '33%' };
-  if (score <= 3) return { label: 'Medium', color: '#FFA502', width: '66%' };
-  return { label: 'Strong', color: '#00D68F', width: '100%' };
+  if (score <= 2) return { label: 'Weak', color: colors.error, width: '33%' };
+  if (score <= 3) return { label: 'Medium', color: colors.warning, width: '66%' };
+  return { label: 'Strong', color: colors.success, width: '100%' };
 }
 
 export default function SignupScreen() {
@@ -173,7 +174,7 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0F' },
+  safe: { flex: 1, backgroundColor: colors.bgPrimary },
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
@@ -186,12 +187,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#A0A0B0',
+    color: colors.textSecondary,
   },
   form: {
     marginBottom: 24,
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
   strengthTrack: {
     flex: 1,
     height: 4,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.bgTertiary,
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -220,23 +221,23 @@ const styles = StyleSheet.create({
     width: 52,
   },
   formError: {
-    color: '#FF4757',
+    color: colors.error,
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 12,
-    backgroundColor: 'rgba(255,71,87,0.1)',
+    backgroundColor: colors.errorBgSubtle,
     padding: 12,
     borderRadius: 12,
   },
   terms: {
     fontSize: 12,
-    color: '#666680',
+    color: colors.textTertiary,
     textAlign: 'center',
     lineHeight: 18,
     marginBottom: 24,
   },
   termsLink: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
     fontWeight: '600',
   },
   footer: {
@@ -245,11 +246,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     fontSize: 14,
   },
   footerLink: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
     fontSize: 14,
     fontWeight: '600',
   },

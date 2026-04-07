@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors, spacing, radius } from '@/theme';
 
 function Section({ title }: { title: string }) {
   return (
@@ -28,19 +29,24 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0A0F' },
-  scroll: { padding: 24 },
-  heading: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', marginBottom: 4 },
-  subtitle: { fontSize: 14, color: '#A0A0B0', marginBottom: 32 },
-  section: { marginBottom: 32 },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#FFFFFF', marginBottom: 16 },
+  container: { flex: 1, backgroundColor: colors.bgPrimary },
+  scroll: { padding: spacing[6] },
+  heading: { fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginBottom: spacing[1] },
+  subtitle: { fontSize: 14, color: colors.textSecondary, marginBottom: spacing[8] },
+  section: { marginBottom: spacing[8] },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: spacing[4],
+  },
   placeholder: {
-    backgroundColor: '#1A1A2E',
-    borderRadius: 12,
-    padding: 32,
+    backgroundColor: colors.bgSecondary,
+    borderRadius: radius.lg,
+    padding: spacing[8],
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2A2A3E',
+    borderColor: colors.borderDefault,
   },
-  placeholderText: { color: '#666', fontSize: 14 },
+  placeholderText: { color: colors.textTertiary, fontSize: 14 },
 });

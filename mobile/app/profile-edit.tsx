@@ -20,12 +20,10 @@ import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { useUpdateProfile, useUploadAvatar, useUserProfile } from '@/hooks/useUser';
+import { colors } from '@/theme';
 
 const editProfileSchema = z.object({
-  displayName: z
-    .string()
-    .min(1, 'Display name is required')
-    .max(100, 'Max 100 characters'),
+  displayName: z.string().min(1, 'Display name is required').max(100, 'Max 100 characters'),
 });
 
 type EditProfileForm = z.infer<typeof editProfileSchema>;
@@ -154,7 +152,7 @@ export default function ProfileEditScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0F' },
+  safe: { flex: 1, backgroundColor: colors.bgPrimary },
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
@@ -173,12 +171,12 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 28,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   avatarSection: {
     alignItems: 'center',
@@ -189,22 +187,22 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 3,
-    borderColor: '#6C5CE7',
+    borderColor: colors.accentPrimary,
   },
   avatarPlaceholder: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.bgTertiary,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#6C5CE7',
+    borderColor: colors.accentPrimary,
   },
   avatarInitials: {
     fontSize: 40,
     fontWeight: '700',
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
   },
   changePhotoOverlay: {
     position: 'absolute',
@@ -214,11 +212,11 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#6C5CE7',
+    backgroundColor: colors.accentPrimary,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#0A0A0F',
+    borderColor: colors.bgPrimary,
   },
   changePhotoText: {
     fontSize: 16,
@@ -227,7 +225,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
     fontWeight: '600',
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
   },
   form: {
     marginBottom: 24,

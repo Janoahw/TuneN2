@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
+import { colors } from '@/theme';
 
 const resetSchema = z
   .object({
@@ -41,9 +42,9 @@ function getPasswordStrength(password: string): { label: string; color: string; 
   if (/[0-9]/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
 
-  if (score <= 2) return { label: 'Weak', color: '#FF4757', width: '33%' };
-  if (score <= 3) return { label: 'Medium', color: '#FFA502', width: '66%' };
-  return { label: 'Strong', color: '#00D68F', width: '100%' };
+  if (score <= 2) return { label: 'Weak', color: colors.error, width: '33%' };
+  if (score <= 3) return { label: 'Medium', color: colors.warning, width: '66%' };
+  return { label: 'Strong', color: colors.success, width: '100%' };
 }
 
 export default function ResetPasswordScreen() {
@@ -67,8 +68,7 @@ export default function ResetPasswordScreen() {
       await api.post('/auth/reset-password', { token, password: values.password });
       setSuccess(true);
     } catch (err: any) {
-      const message =
-        err?.response?.data?.message || 'Something went wrong. Please try again.';
+      const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
       setError('root', { message });
     } finally {
       setLoading(false);
@@ -118,9 +118,7 @@ export default function ResetPasswordScreen() {
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>Set New Password</Text>
-            <Text style={styles.subtitle}>
-              Choose a strong password for your account
-            </Text>
+            <Text style={styles.subtitle}>Choose a strong password for your account</Text>
           </View>
 
           {/* Form */}
@@ -168,11 +166,7 @@ export default function ResetPasswordScreen() {
 
             <View style={{ height: 8 }} />
 
-            <Button
-              title="Reset Password"
-              onPress={handleSubmit(onSubmit)}
-              loading={loading}
-            />
+            <Button title="Reset Password" onPress={handleSubmit(onSubmit)} loading={loading} />
           </View>
 
           {/* Footer */}
@@ -188,7 +182,7 @@ export default function ResetPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0F' },
+  safe: { flex: 1, backgroundColor: colors.bgPrimary },
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
@@ -203,7 +197,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 28,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
   },
   header: {
     marginBottom: 32,
@@ -212,12 +206,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     lineHeight: 24,
   },
   form: {
@@ -233,7 +227,7 @@ const styles = StyleSheet.create({
   strengthTrack: {
     flex: 1,
     height: 4,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.bgTertiary,
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -251,7 +245,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   footerLink: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -273,13 +267,13 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 12,
   },
   successSubtitle: {
     fontSize: 16,
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
   },

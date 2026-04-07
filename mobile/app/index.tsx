@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { router, Redirect } from 'expo-router';
 import { useAuthStore } from '@/stores/authStore';
+import { colors, fontSizes, fontWeights, spacing, radius } from '@/theme';
 
 export default function SplashScreen() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -22,10 +23,32 @@ export default function SplashScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0A0A0F', padding: 24 },
-  logo: { fontSize: 64, marginBottom: 8 },
-  brand: { fontSize: 48, fontWeight: '800', color: '#FFFFFF', marginBottom: 8, letterSpacing: -0.5 },
-  tagline: { fontSize: 16, color: '#A0A0B0', marginBottom: 48, textAlign: 'center' },
-  button: { backgroundColor: '#6C5CE7', paddingVertical: 16, paddingHorizontal: 48, borderRadius: 24 },
-  buttonText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.bgPrimary,
+    padding: spacing[6],
+  },
+  logo: { fontSize: 64, marginBottom: spacing[2] },
+  brand: {
+    fontSize: 48,
+    fontWeight: fontWeights.extrabold,
+    color: colors.white,
+    marginBottom: spacing[2],
+    letterSpacing: -0.5,
+  },
+  tagline: {
+    fontSize: fontSizes.base,
+    color: colors.textSecondary,
+    marginBottom: 48,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: colors.accentPrimary,
+    paddingVertical: spacing[4],
+    paddingHorizontal: 48,
+    borderRadius: radius['2xl'],
+  },
+  buttonText: { color: colors.white, fontSize: fontSizes.md, fontWeight: fontWeights.bold },
 });

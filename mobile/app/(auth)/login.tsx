@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
+import { colors } from '@/theme';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -143,7 +144,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0A0A0F' },
+  safe: { flex: 1, backgroundColor: colors.bgPrimary },
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
@@ -161,12 +162,12 @@ const styles = StyleSheet.create({
   brand: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     letterSpacing: -0.5,
   },
   tagline: {
     fontSize: 14,
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     marginTop: 4,
   },
   form: {
@@ -175,20 +176,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666680',
+    color: colors.textTertiary,
     marginBottom: 24,
   },
   formError: {
-    color: '#FF4757',
+    color: colors.error,
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 12,
-    backgroundColor: 'rgba(255,71,87,0.1)',
+    backgroundColor: colors.errorBgSubtle,
     padding: 12,
     borderRadius: 12,
   },
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   forgotText: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -210,10 +211,10 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#1E1E2E',
+    backgroundColor: colors.bgTertiary,
   },
   dividerText: {
-    color: '#666680',
+    color: colors.textTertiary,
     paddingHorizontal: 16,
     fontSize: 14,
   },
@@ -228,19 +229,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#141420',
+    backgroundColor: colors.bgSecondary,
     paddingVertical: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E1E2E',
+    borderColor: colors.bgTertiary,
   },
   socialIcon: {
     fontSize: 18,
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontWeight: '700',
   },
   socialLabel: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -250,11 +251,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    color: '#A0A0B0',
+    color: colors.textSecondary,
     fontSize: 14,
   },
   footerLink: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
     fontSize: 14,
     fontWeight: '600',
   },

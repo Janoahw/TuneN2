@@ -1,10 +1,5 @@
-import {
-  Text,
-  Pressable,
-  StyleSheet,
-  ActivityIndicator,
-  type ViewStyle,
-} from 'react-native';
+import { Text, Pressable, StyleSheet, ActivityIndicator, type ViewStyle } from 'react-native';
+import { colors } from '@/theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
@@ -41,7 +36,7 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'secondary' ? '#6C5CE7' : '#FFFFFF'}
+          color={variant === 'secondary' ? colors.accentPrimary : colors.white}
           size="small"
         />
       ) : (
@@ -73,12 +68,12 @@ const styles = StyleSheet.create({
 
 const variantStyles: Record<ButtonVariant, ViewStyle> = StyleSheet.create({
   primary: {
-    backgroundColor: '#6C5CE7',
+    backgroundColor: colors.accentPrimary,
   },
   secondary: {
     backgroundColor: 'transparent',
     borderWidth: 1.5,
-    borderColor: '#6C5CE7',
+    borderColor: colors.accentPrimary,
   },
   ghost: {
     backgroundColor: 'transparent',
@@ -87,12 +82,12 @@ const variantStyles: Record<ButtonVariant, ViewStyle> = StyleSheet.create({
 
 const textVariantStyles = StyleSheet.create({
   primary: {
-    color: '#FFFFFF',
+    color: colors.white,
   },
   secondary: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
   },
   ghost: {
-    color: '#6C5CE7',
+    color: colors.accentPrimary,
   },
 });
