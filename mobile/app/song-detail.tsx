@@ -7,6 +7,7 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -14,6 +15,10 @@ import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
 import { useSong } from '@/hooks/useSong';
+import { useOwnership, usePurchaseSong, useDownloadUrl } from '@/hooks/usePurchase';
+import { useAuthStore } from '@/stores/authStore';
+import * as FileSystem from 'expo-file-system';
+import { useState } from 'react';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const COVER_SIZE = SCREEN_WIDTH - spacing[4] * 2;
@@ -36,6 +41,11 @@ function formatDuration(seconds?: number | null): string {
 export default function SongDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: song, isLoading } = useSong(id!);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { data: owned, isLoading: ownershipLoading } = useOwnership(id!);
+  const purchaseMutation = usePurchaseSong();
+  const downloadMutation = useDownloadUrl();
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
 
   if (isLoading || !song) {
     return (
@@ -48,6 +58,61 @@ export default function SongDetailScreen() {
   }
 
   const artistName = song.artist?.user?.displayName ?? song.artist?.artistName ?? 'Unknown Artist';
+
+  const handlePurchase = async () => {
+    if (!isAuthenticated) {
+      router.push('/(auth)/login' as any);
+      return;
+    }
+    try {
+      const result = await purchaseMutation.mutateAsync(id!);
+      if (result.purchased) {
+        Alert.alert('Success', `"${result.songTitle}" added to your library!`);
+      } else if (result.clientSecret) {
+        // Navigate to payment confirmation with client secret
+        router.push({
+          pathname: '/purchase-confirm' as any,
+          params: {
+            songId: id,
+            clientSecret: result.clientSecret,
+            amount: String(result.amount),
+            songTitle: result.songTitle,
+          },
+        });
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Something went wrong';
+      Alert.alert('Purchase Error', msg);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      setDownloadProgress(0);
+      const { downloadUrl, songTitle } = await downloadMutation.mutateAsync(id!);
+      const fileUri = FileSystem.documentDirectory + `${songTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
+
+      const downloadResumable = FileSystem.createDownloadResumable(
+        downloadUrl,
+        fileUri,
+        {},
+        (progress) => {
+          const pct = progress.totalBytesWritten / progress.totalBytesExpectedToWrite;
+          setDownloadProgress(pct);
+        },
+      );
+
+      const result = await downloadResumable.downloadAsync();
+      setDownloadProgress(null);
+      if (result) {
+        Alert.alert('Download Complete', `"${songTitle}" saved to your device.`);
+      }
+    } catch (err: any) {
+      setDownloadProgress(null);
+      const msg = err?.response?.data?.message || 'Download failed';
+      Alert.alert('Error', msg);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -94,17 +159,62 @@ export default function SongDetailScreen() {
 
           {/* Actions */}
           <View style={styles.actions}>
-            <Pressable style={styles.buyBtn}>
-              <Feather name="shopping-cart" size={18} color="#fff" />
-              <Text style={styles.buyBtnText}>
-                {song.isFree ? 'Get Song' : 'Buy Now'}
-              </Text>
-            </Pressable>
+            {owned ? (
+              <>
+                <Pressable
+                  style={[styles.buyBtn, styles.downloadBtn]}
+                  onPress={handleDownload}
+                  disabled={downloadMutation.isPending || downloadProgress !== null}
+                >
+                  {downloadProgress !== null ? (
+                    <>
+                      <ActivityIndicator size="small" color="#fff" />
+                      <Text style={styles.buyBtnText}>
+                        {Math.round(downloadProgress * 100)}%
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Feather name="download" size={18} color="#fff" />
+                      <Text style={styles.buyBtnText}>Download</Text>
+                    </>
+                  )}
+                </Pressable>
+                <View style={styles.ownedBadge}>
+                  <Feather name="check-circle" size={14} color={colors.success} />
+                  <Text style={styles.ownedText}>Owned</Text>
+                </View>
+              </>
+            ) : (
+              <Pressable
+                style={styles.buyBtn}
+                onPress={handlePurchase}
+                disabled={purchaseMutation.isPending}
+              >
+                {purchaseMutation.isPending ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Feather name="shopping-cart" size={18} color="#fff" />
+                    <Text style={styles.buyBtnText}>
+                      {song.isFree ? 'Get Song' : 'Buy Now'}
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+            )}
             <Pressable style={styles.previewBtn}>
               <Feather name="play" size={18} color={colors.accentPrimary} />
-              <Text style={styles.previewBtnText}>Preview (30s)</Text>
+              <Text style={styles.previewBtnText}>Preview</Text>
             </Pressable>
           </View>
+
+          {/* Download Progress Bar */}
+          {downloadProgress !== null && (
+            <View style={styles.progressContainer}>
+              <View style={[styles.progressBar, { width: `${Math.round(downloadProgress * 100)}%` }]} />
+            </View>
+          )}
 
           {/* Description */}
           {song.description ? (
@@ -327,5 +437,33 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     marginTop: 2,
+  },
+
+  // Download
+  downloadBtn: {
+    backgroundColor: colors.success,
+  },
+  ownedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[1],
+    paddingHorizontal: spacing[3],
+  },
+  ownedText: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 13,
+    color: colors.success,
+  },
+  progressContainer: {
+    height: 4,
+    backgroundColor: colors.bgSecondary,
+    borderRadius: 2,
+    marginBottom: spacing[4],
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: colors.accentPrimary,
+    borderRadius: 2,
   },
 });

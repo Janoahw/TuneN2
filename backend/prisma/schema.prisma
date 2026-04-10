@@ -28,6 +28,7 @@ model User {
   artistProfile  ArtistProfile?
   purchases      Purchase[]
   follows        Follow[]
+  downloads      Download[]
   notifications  Notification[]
   contentReports ContentReport[] @relation("reporter")
   reviewedReports ContentReport[] @relation("reviewer")
@@ -162,6 +163,7 @@ model Song {
   artist         ArtistProfile  @relation(fields: [artistId], references: [id], onDelete: Cascade)
   genre          Genre?         @relation(fields: [genreId], references: [id])
   purchases      Purchase[]
+  downloads      Download[]
   contentReports ContentReport[]
 
   @@index([artistId])
@@ -192,6 +194,23 @@ model Purchase {
   @@index([buyerId])
   @@index([artistId])
   @@map("purchases")
+}
+
+// ─── DOWNLOADS ───────────────────────────────────────────
+
+model Download {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  songId        String   @map("song_id") @db.Uuid
+  fileSizeBytes Int?     @map("file_size_bytes")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id])
+  song Song @relation(fields: [songId], references: [id])
+
+  @@index([userId])
+  @@index([songId])
+  @@map("downloads")
 }
 
 // ─── FOLLOWS ─────────────────────────────────────────────

@@ -31,6 +31,7 @@ const envSchema = z.object({
   AWS_S3_IMAGE_BUCKET: z.string().optional(), // Required in production
   AWS_CLOUDFRONT_DOMAIN: z.string().optional(), // Required in production
   AWS_CLOUDFRONT_KEY_PAIR_ID: z.string().optional(), // Required in production
+  AWS_CLOUDFRONT_PRIVATE_KEY: z.string().optional(), // Required in production (PEM-encoded)
 
   // Email (Resend)
   RESEND_API_KEY: z.string().optional(),
