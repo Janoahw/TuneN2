@@ -1,4 +1,13 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, FlatList, Image, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  FlatList,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -17,9 +26,26 @@ function formatDuration(seconds?: number | null): string {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function SongCard({ song, price, onPress }: { song: { id: string; title: string; coverArtUrl: string | null; durationSeconds?: number | null; price?: number | string | null; isFree?: boolean; artist: { artistName: string; user: { displayName: string } } }; price?: number | string | null; onPress: () => void }) {
+function SongCard({
+  song,
+  price,
+  onPress,
+}: {
+  song: {
+    id: string;
+    title: string;
+    coverArtUrl: string | null;
+    durationSeconds?: number | null;
+    price?: number | string | null;
+    isFree?: boolean;
+    artist: { artistName: string; user: { displayName: string } };
+  };
+  price?: number | string | null;
+  onPress: () => void;
+}) {
   const artistLabel = song.artist?.user?.displayName ?? song.artist?.artistName ?? 'Unknown';
-  const displayPrice = price != null ? Number(price) : song.price != null ? Number(song.price) : null;
+  const displayPrice =
+    price != null ? Number(price) : song.price != null ? Number(song.price) : null;
   return (
     <Pressable style={styles.songCard} onPress={onPress}>
       {song.coverArtUrl ? (
@@ -30,8 +56,12 @@ function SongCard({ song, price, onPress }: { song: { id: string; title: string;
         </View>
       )}
       <View style={styles.songInfo}>
-        <Text style={styles.songTitle} numberOfLines={1}>{song.title}</Text>
-        <Text style={styles.songArtist} numberOfLines={1}>{artistLabel}</Text>
+        <Text style={styles.songTitle} numberOfLines={1}>
+          {song.title}
+        </Text>
+        <Text style={styles.songArtist} numberOfLines={1}>
+          {artistLabel}
+        </Text>
       </View>
       <View style={styles.priceCol}>
         {displayPrice != null && displayPrice > 0 ? (
@@ -129,14 +159,21 @@ export default function LibraryScreen() {
                     <SongCard
                       key={item.id}
                       song={item.song}
-                      onPress={() => router.push({ pathname: '/song-detail' as any, params: { id: item.songId } })}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/song-detail' as any,
+                          params: { id: item.songId },
+                        })
+                      }
                     />
                   ))}
                 </>
               )}
 
               {/* Purchased Section */}
-              <Text style={[styles.sectionHeader, recentItems.length > 0 && { paddingTop: spacing[4] }]}>
+              <Text
+                style={[styles.sectionHeader, recentItems.length > 0 && { paddingTop: spacing[4] }]}
+              >
                 Purchased
               </Text>
               {purchaseItems.length === 0 ? (
@@ -151,7 +188,9 @@ export default function LibraryScreen() {
                     key={item.id}
                     song={item.song}
                     price={item.amount}
-                    onPress={() => router.push({ pathname: '/song-detail' as any, params: { id: item.songId } })}
+                    onPress={() =>
+                      router.push({ pathname: '/song-detail' as any, params: { id: item.songId } })
+                    }
                   />
                 ))
               )}
@@ -193,6 +232,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[2],
     borderRadius: 16,
     backgroundColor: colors.bgSecondary,
+    alignSelf: 'center',
   },
   chipActive: {
     backgroundColor: colors.accentPrimary,
