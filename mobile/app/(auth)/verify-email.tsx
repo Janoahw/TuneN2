@@ -37,7 +37,7 @@ export default function VerifyEmailScreen() {
   }, [email]);
 
   const openEmailApp = () => {
-    Linking.openURL('mailto:');
+    Linking.openURL(`mailto:${email}`);
   };
 
   return (

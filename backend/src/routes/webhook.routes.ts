@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { stripe } from '../config/stripe.js';
 import { env } from '../config/env.js';
 import { ArtistService } from '../services/artist.service.js';
+import { PurchaseService } from '../services/purchase.service.js';
 import { logger } from '../utils/logger.js';
 
 const router = Router();
@@ -26,6 +27,7 @@ router.post('/stripe', async (req: Request, res: Response) => {
 
   try {
     switch (event.type) {
+      // ── Subscription events ───────────────
       case 'invoice.paid':
       case 'invoice.payment_failed': {
         const invoice = event.data.object as any;
@@ -46,6 +48,23 @@ router.post('/stripe', async (req: Request, res: Response) => {
         });
         break;
       }
+
+      // ── Song purchase events ──────────────
+      case 'payment_intent.succeeded': {
+        const pi = event.data.object as any;
+        if (pi.metadata?.type === 'song_purchase') {
+          await PurchaseService.handlePaymentSuccess(pi.id);
+        }
+        break;
+      }
+      case 'payment_intent.payment_failed': {
+        const pi = event.data.object as any;
+        if (pi.metadata?.type === 'song_purchase') {
+          await PurchaseService.handlePaymentFailed(pi.id);
+        }
+        break;
+      }
+
       default:
         logger.debug({ type: event.type }, 'Unhandled Stripe event');
     }

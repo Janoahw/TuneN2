@@ -7,16 +7,20 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
 import { useSong } from '@/hooks/useSong';
+import { useOwnership, usePurchaseSong, useDownloadUrl } from '@/hooks/usePurchase';
+import { useAuthStore } from '@/stores/authStore';
+import * as FileSystem from 'expo-file-system';
+import { useState } from 'react';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const COVER_SIZE = SCREEN_WIDTH - spacing[4] * 2;
+const COVER_SIZE = 280;
 
 function MetaChip({ label }: { label: string }) {
   return (
@@ -36,6 +40,11 @@ function formatDuration(seconds?: number | null): string {
 export default function SongDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: song, isLoading } = useSong(id!);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { data: owned, isLoading: ownershipLoading } = useOwnership(id!);
+  const purchaseMutation = usePurchaseSong();
+  const downloadMutation = useDownloadUrl();
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
 
   if (isLoading || !song) {
     return (
@@ -49,16 +58,87 @@ export default function SongDetailScreen() {
 
   const artistName = song.artist?.user?.displayName ?? song.artist?.artistName ?? 'Unknown Artist';
 
+  const handlePurchase = async () => {
+    if (!isAuthenticated) {
+      router.push('/(auth)/login' as any);
+      return;
+    }
+    try {
+      const result = await purchaseMutation.mutateAsync(id!);
+      if (result.purchased) {
+        // Navigate to success screen
+        router.push({
+          pathname: '/purchase-confirm' as any,
+          params: {
+            songId: id,
+            songTitle: result.songTitle,
+            coverArtUrl: song?.coverArtUrl ?? '',
+          },
+        });
+      } else if (result.clientSecret) {
+        // In production, open Stripe PaymentSheet here with clientSecret
+        // On payment success, navigate to success screen
+        router.push({
+          pathname: '/purchase-confirm' as any,
+          params: {
+            songId: id,
+            songTitle: result.songTitle,
+            coverArtUrl: song?.coverArtUrl ?? '',
+          },
+        });
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Something went wrong';
+      Alert.alert('Purchase Error', msg);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      setDownloadProgress(0);
+      const { downloadUrl, songTitle } = await downloadMutation.mutateAsync(id!);
+      const fileUri = FileSystem.documentDirectory + `${songTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
+
+      const downloadResumable = FileSystem.createDownloadResumable(
+        downloadUrl,
+        fileUri,
+        {},
+        (progress) => {
+          const pct = progress.totalBytesWritten / progress.totalBytesExpectedToWrite;
+          setDownloadProgress(pct);
+        },
+      );
+
+      const result = await downloadResumable.downloadAsync();
+      setDownloadProgress(null);
+      if (result) {
+        Alert.alert('Download Complete', `"${songTitle}" saved to your device.`);
+      }
+    } catch (err: any) {
+      setDownloadProgress(null);
+      const msg = err?.response?.data?.message || 'Download failed';
+      Alert.alert('Error', msg);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Back Button (absolute over cover) */}
-        <Pressable style={styles.backBtn} onPress={() => router.back()} hitSlop={12}>
+      {/* Top Bar */}
+      <View style={styles.topBar}>
+        <Pressable onPress={() => router.back()} hitSlop={12}>
           <Feather name="arrow-left" size={24} color={colors.textPrimary} />
         </Pressable>
+        <Text style={styles.topBarTitle}>Song</Text>
+        <Pressable hitSlop={12}>
+          <Feather name="more-horizontal" size={24} color={colors.textPrimary} />
+        </Pressable>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={{ height: spacing[4] }} />
 
         {/* Cover Art */}
-        <View style={styles.coverContainer}>
+        <View style={styles.coverWrapper}>
           {song.coverArtUrl ? (
             <Image source={{ uri: song.coverArtUrl }} style={styles.coverImage} />
           ) : (
@@ -66,45 +146,92 @@ export default function SongDetailScreen() {
               <Feather name="music" size={64} color={colors.textTertiary} />
             </View>
           )}
-          <LinearGradient
-            colors={['transparent', colors.bgPrimary]}
-            style={styles.coverGradient}
-          />
         </View>
+
+        <View style={{ height: spacing[6] }} />
 
         {/* Song Info */}
         <View style={styles.infoSection}>
           <Text style={styles.songTitle}>{song.title}</Text>
           <Text style={styles.artistName}>{artistName}</Text>
 
+          <View style={{ height: spacing[2] }} />
+
           {/* Meta Chips */}
           <View style={styles.chips}>
             {song.genre && <MetaChip label={song.genre.name} />}
             <MetaChip label={formatDuration(song.durationSeconds)} />
+            <MetaChip label="1.2K downloads" />
           </View>
 
-          {/* Price */}
-          <View style={styles.priceRow}>
-            {song.isFree ? (
+          <View style={{ height: spacing[6] }} />
+
+          {/* Price Section */}
+          <View style={styles.priceSection}>
+            {owned ? (
+              <View style={styles.ownedBadge}>
+                <Feather name="check-circle" size={18} color={colors.success} />
+                <Text style={styles.ownedText}>Purchased</Text>
+              </View>
+            ) : song.isFree ? (
               <Text style={styles.freeLabel}>Free</Text>
             ) : (
               <Text style={styles.price}>${song.price?.toFixed(2)}</Text>
             )}
           </View>
 
-          {/* Actions */}
+          <View style={{ height: spacing[6] }} />
+
+          {/* Action Buttons - Stacked Vertically */}
           <View style={styles.actions}>
-            <Pressable style={styles.buyBtn}>
-              <Feather name="shopping-cart" size={18} color="#fff" />
-              <Text style={styles.buyBtnText}>
-                {song.isFree ? 'Get Song' : 'Buy Now'}
-              </Text>
-            </Pressable>
+            {owned ? (
+              <Pressable
+                style={styles.buyBtn}
+                onPress={handleDownload}
+                disabled={downloadMutation.isPending || downloadProgress !== null}
+              >
+                {downloadProgress !== null ? (
+                  <>
+                    <ActivityIndicator size="small" color="#fff" />
+                    <Text style={styles.buyBtnText}>
+                      {Math.round(downloadProgress * 100)}%
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Feather name="download" size={18} color="#fff" />
+                    <Text style={styles.buyBtnText}>Download</Text>
+                  </>
+                )}
+              </Pressable>
+            ) : (
+              <Pressable
+                style={styles.buyBtn}
+                onPress={handlePurchase}
+                disabled={purchaseMutation.isPending}
+              >
+                {purchaseMutation.isPending ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.buyBtnText}>
+                    {song.isFree ? 'Get Song' : `Buy Now — $${song.price?.toFixed(2)}`}
+                  </Text>
+                )}
+              </Pressable>
+            )}
+
             <Pressable style={styles.previewBtn}>
-              <Feather name="play" size={18} color={colors.accentPrimary} />
+              <Feather name="play" size={16} color={colors.textPrimary} />
               <Text style={styles.previewBtnText}>Preview (30s)</Text>
             </Pressable>
           </View>
+
+          {/* Download Progress Bar */}
+          {downloadProgress !== null && (
+            <View style={styles.progressContainer}>
+              <View style={[styles.progressBar, { width: `${Math.round(downloadProgress * 100)}%` }]} />
+            </View>
+          )}
 
           {/* Description */}
           {song.description ? (
@@ -116,7 +243,6 @@ export default function SongDetailScreen() {
 
           {/* Artist Info */}
           <View style={styles.artistSection}>
-            <Text style={styles.sectionLabel}>Artist</Text>
             <Pressable style={styles.artistCard}>
               {song.artist?.user?.avatarUrl ? (
                 <Image
@@ -149,108 +275,99 @@ export default function SongDetailScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bgPrimary },
-  scroll: { paddingBottom: spacing[8] },
+  scroll: { paddingBottom: spacing[10] },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
-  // Back
-  backBtn: {
-    position: 'absolute',
-    top: spacing[3],
-    left: spacing[4],
-    zIndex: 10,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: radius.full,
-    padding: spacing[2],
+  // Top Bar
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: spacing[2],
+  },
+  topBarTitle: {
+    fontFamily: fontFamilies.primarySemiBold,
+    fontSize: 16,
+    color: colors.textPrimary,
   },
 
   // Cover
-  coverContainer: {
-    width: SCREEN_WIDTH,
-    height: COVER_SIZE,
+  coverWrapper: {
+    alignItems: 'center',
   },
   coverImage: {
-    width: '100%',
-    height: '100%',
+    width: COVER_SIZE,
+    height: COVER_SIZE,
+    borderRadius: 16,
   },
   coverPlaceholder: {
     backgroundColor: colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  coverGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 120,
-  },
 
   // Info
   infoSection: {
-    paddingHorizontal: spacing[4],
-    marginTop: -spacing[6],
+    paddingHorizontal: 20,
   },
   songTitle: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 28,
+    fontSize: 24,
     color: colors.textPrimary,
     marginBottom: spacing[1],
   },
   artistName: {
-    fontFamily: fontFamilies.primaryMedium,
+    fontFamily: fontFamilies.primary,
     fontSize: 16,
     color: colors.textSecondary,
-    marginBottom: spacing[3],
   },
 
   // Chips
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing[2],
-    marginBottom: spacing[4],
+    gap: spacing[4],
+    alignItems: 'center',
   },
   chip: {
     backgroundColor: colors.bgSecondary,
-    borderRadius: radius.full,
+    borderRadius: 12,
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
   },
   chipText: {
     fontFamily: fontFamilies.primaryMedium,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
   },
 
-  // Price
-  priceRow: {
-    marginBottom: spacing[4],
+  // Price Section
+  priceSection: {
+    alignItems: 'flex-start',
   },
   price: {
-    fontFamily: fontFamilies.monoSemiBold,
-    fontSize: 28,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 32,
+    color: colors.accentPrimary,
   },
   freeLabel: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 20,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 32,
     color: colors.success,
   },
 
-  // Actions
+  // Actions (stacked vertically per design)
   actions: {
-    flexDirection: 'row',
     gap: spacing[3],
-    marginBottom: spacing[6],
   },
   buyBtn: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.accentPrimary,
     borderRadius: radius.md,
-    paddingVertical: spacing[4],
+    height: 52,
     gap: spacing[2],
   },
   buyBtnText: {
@@ -259,25 +376,38 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   previewBtn: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.md,
-    borderWidth: 1.5,
-    borderColor: colors.accentPrimary,
-    paddingVertical: spacing[4],
+    borderWidth: 1,
+    borderColor: colors.textTertiary,
+    height: 44,
     gap: spacing[2],
   },
   previewBtnText: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 16,
-    color: colors.accentPrimary,
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+
+  // Owned Badge
+  ownedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[2],
+    paddingVertical: spacing[2],
+  },
+  ownedText: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 14,
+    color: colors.success,
   },
 
   // Description
   descriptionSection: {
-    marginBottom: spacing[6],
+    marginTop: spacing[6],
   },
   sectionLabel: {
     fontFamily: fontFamilies.primarySemiBold,
@@ -294,7 +424,8 @@ const styles = StyleSheet.create({
 
   // Artist Section
   artistSection: {
-    marginBottom: spacing[4],
+    marginTop: spacing[6],
+    paddingTop: spacing[5],
   },
   artistCard: {
     flexDirection: 'row',
@@ -302,6 +433,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgCard,
     borderRadius: radius.md,
     padding: spacing[3],
+    gap: spacing[3],
   },
   artistAvatar: {
     width: 44,
@@ -315,7 +447,6 @@ const styles = StyleSheet.create({
   },
   artistCardInfo: {
     flex: 1,
-    marginLeft: spacing[3],
   },
   artistCardName: {
     fontFamily: fontFamilies.primarySemiBold,
@@ -327,5 +458,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     marginTop: 2,
+  },
+
+  // Download
+  progressContainer: {
+    height: 4,
+    backgroundColor: colors.bgSecondary,
+    borderRadius: 2,
+    marginBottom: spacing[4],
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: colors.accentPrimary,
+    borderRadius: 2,
   },
 });
