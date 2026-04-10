@@ -20,6 +20,7 @@ const envSchema = z.object({
   // Stripe — required in production
   STRIPE_SECRET_KEY: z.string().optional(), // Required in production
   STRIPE_WEBHOOK_SECRET: z.string().optional(), // Required in production
+  STRIPE_PRICE_ID: z.string().optional(), // Artist plan monthly price ID
 
   // Google OAuth
   GOOGLE_CLIENT_ID: z.string().optional(),
