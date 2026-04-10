@@ -22,8 +22,24 @@ export default function LibraryScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgPrimary },
   content: { flex: 1, padding: 24 },
-  heading: { fontFamily: fontFamilies.displayBold, fontSize: 28, color: colors.textPrimary, marginBottom: 32 },
+  heading: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 28,
+    color: colors.textPrimary,
+    marginBottom: 32,
+  },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 100 },
-  emptyTitle: { fontFamily: fontFamilies.displaySemiBold, fontSize: 20, color: colors.textPrimary, marginTop: 16, marginBottom: 8 },
-  emptySubtitle: { fontFamily: fontFamilies.primary, fontSize: 14, color: colors.textSecondary, textAlign: 'center' },
+  emptyTitle: {
+    fontFamily: fontFamilies.displaySemiBold,
+    fontSize: 20,
+    color: colors.textPrimary,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
 });

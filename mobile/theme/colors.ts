@@ -1,51 +1,55 @@
 /**
  * TuneN2 Color Tokens
- * Source of truth: tuneN2.pen design file variables
+ * Source of truth: tuneN2.pen design file
  *
  * Dark-mode-first. All screens should reference these tokens
  * instead of hardcoding hex values.
  */
 
 export const darkColors = {
-  // Backgrounds (pen: --background, --surface, --surface-elevated, --card)
-  bgPrimary: '#0A0A0F',
-  bgSecondary: '#121218',
-  bgTertiary: '#1A1A24',
-  bgElevated: '#1A1A24',
+  // Backgrounds (pen: --background, --surface, --surface-elevated, --card, --player-bg)
+  bgPrimary: '#0D0D0F',
+  bgSecondary: '#1C1C1E',
+  bgTertiary: '#2C2C2E',
+  bgElevated: '#2C2C2E',
   bgCard: '#161622',
   bgPlayer: '#1C1C28',
 
   // Text (pen: --foreground, --muted-foreground)
-  textPrimary: '#FFFFFF',
+  textPrimary: '#F5F5F7',
   textSecondary: '#8E8E93',
-  textTertiary: '#5A5A6E',
+  textTertiary: '#48484A',
 
   // Accents (pen: --primary, --accent)
-  accentPrimary: '#6C5CE7',
-  accentSecondary: '#FF6B6B',
+  accentPrimary: '#FF6B2E',
+  accentSecondary: '#BF5AF2',
   accentTertiary: '#06B6D4',
 
-  // Status (pen: --success, --error, --warning, --gold)
-  success: '#34C759',
+  // Status (pen: --success, --warning, --error)
+  success: '#30D158',
   warning: '#FFD60A',
-  error: '#FF3B30',
-  gold: '#D4A843',
+  error: '#FF453A',
+
+  // Earnings / money (pen: --gold)
+  gold: '#FF9F0A',
 
   // Borders (pen: --border)
   borderDefault: '#2C2C3A',
-  borderFocus: '#6C5CE7',
+  borderFocus: '#FF6B2E',
 
-  // Tab bar (pen: --tab-inactive)
+  // Tab bar
   tabInactive: '#5A5A6E',
 
-  // Gradients (pen: --primary → --accent)
-  gradientBrand: ['#6C5CE7', '#FF6B6B'] as const,
-  gradientDownload: ['#6C5CE7', '#FF6B6B'] as const,
-  gradientEarnings: ['#F97316', '#EAB308'] as const,
+  // Gradients (start, end) — 135° in pen
+  gradientBrand: ['#FF6B2E', '#BF5AF2'] as const,
+  gradientDownload: ['#FF6B2E', '#BF5AF2'] as const,
+  gradientEarnings: ['#FF6B2E', '#BF5AF2'] as const,
 
-  // Overlay / transparency helpers
-  errorBgSubtle: 'rgba(255,59,48,0.1)',
-  accentBgSubtle: 'rgba(108,92,231,0.08)',
+  // Subtle status backgrounds (from screen evidence)
+  successBgSubtle: '#1A3A1A',
+  warningBgSubtle: '#3A2A1A',
+  errorBgSubtle: '#3A1A1A',
+  accentBgSubtle: 'rgba(255,107,46,0.08)',
   transparent: 'transparent',
   white: '#FFFFFF',
 
@@ -60,35 +64,38 @@ export const darkColors = {
 export const lightColors = {
   bgPrimary: '#FAFAFA',
   bgSecondary: '#FFFFFF',
-  bgTertiary: '#F5F5F7',
+  bgTertiary: '#F4F4F5',
   bgElevated: '#FFFFFF',
   bgCard: '#FFFFFF',
   bgPlayer: '#F0F0F5',
 
-  textPrimary: '#0A0A0F',
-  textSecondary: '#6B6B70',
-  textTertiary: '#8E8E93',
+  textPrimary: '#18181B',
+  textSecondary: '#52525B',
+  textTertiary: '#A1A1AA',
 
-  accentPrimary: '#6C5CE7',
-  accentSecondary: '#FF6B6B',
+  accentPrimary: '#FF6B2E',
+  accentSecondary: '#BF5AF2',
   accentTertiary: '#06B6D4',
 
-  success: '#34C759',
+  success: '#30D158',
   warning: '#FFD60A',
-  error: '#FF3B30',
-  gold: '#D4A843',
+  error: '#FF453A',
 
-  borderDefault: '#E5E5EA',
-  borderFocus: '#6C5CE7',
+  gold: '#FF9F0A',
+
+  borderDefault: '#E4E4E7',
+  borderFocus: '#FF6B2E',
 
   tabInactive: '#8E8E93',
 
-  gradientBrand: ['#6C5CE7', '#FF6B6B'] as const,
-  gradientDownload: ['#6C5CE7', '#FF6B6B'] as const,
-  gradientEarnings: ['#EA580C', '#EAB308'] as const,
+  gradientBrand: ['#FF6B2E', '#BF5AF2'] as const,
+  gradientDownload: ['#FF6B2E', '#BF5AF2'] as const,
+  gradientEarnings: ['#FF6B2E', '#BF5AF2'] as const,
 
-  errorBgSubtle: 'rgba(255,59,48,0.08)',
-  accentBgSubtle: 'rgba(108,92,231,0.06)',
+  successBgSubtle: 'rgba(48,209,88,0.1)',
+  warningBgSubtle: 'rgba(255,214,10,0.1)',
+  errorBgSubtle: 'rgba(255,69,58,0.08)',
+  accentBgSubtle: 'rgba(255,107,46,0.06)',
   transparent: 'transparent',
   white: '#FFFFFF',
 

@@ -31,8 +31,18 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgPrimary },
   scroll: { padding: spacing[6] },
-  heading: { fontFamily: fontFamilies.displayBold, fontSize: 28, color: colors.textPrimary, marginBottom: spacing[1] },
-  subtitle: { fontFamily: fontFamilies.primary, fontSize: 14, color: colors.textSecondary, marginBottom: spacing[8] },
+  heading: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 28,
+    color: colors.textPrimary,
+    marginBottom: spacing[1],
+  },
+  subtitle: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: spacing[8],
+  },
   section: { marginBottom: spacing[8] },
   sectionTitle: {
     fontFamily: fontFamilies.displaySemiBold,

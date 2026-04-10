@@ -43,7 +43,12 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgPrimary },
   scroll: { padding: spacing[6] },
-  heading: { fontFamily: fontFamilies.displayBold, fontSize: 28, color: colors.textPrimary, marginBottom: spacing[6] },
+  heading: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 28,
+    color: colors.textPrimary,
+    marginBottom: spacing[6],
+  },
   searchInput: {
     backgroundColor: colors.bgSecondary,
     borderRadius: radius.lg,
