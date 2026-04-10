@@ -2,6 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { validate } from '../middleware/validate.js';
 import { authenticate } from '../middleware/auth.js';
+import { optionalAuth } from '../middleware/auth.js';
 import { requireArtist } from '../middleware/requireArtist.js';
 import { SongService } from '../services/song.service.js';
 import {
@@ -16,13 +17,22 @@ const router = Router();
 
 // ── Public Routes ───────────────────────────
 
-// Get song details (public)
+// Get song details (public, with ownership flag if authenticated)
 router.get(
   '/:songId',
+  optionalAuth,
   validate({ params: songIdParamSchema }),
   async (req: Request, res: Response) => {
     const song = await SongService.getSongById(req.params.songId);
-    res.json({ success: true, data: { song } });
+    let owned = false;
+    if (req.user) {
+      const { prisma } = await import('../config/database.js');
+      const purchase = await prisma.purchase.findUnique({
+        where: { buyerId_songId: { buyerId: req.user.id, songId: req.params.songId } },
+      });
+      owned = purchase?.status === 'completed';
+    }
+    res.json({ success: true, data: { song, owned } });
   },
 );
 
@@ -72,6 +82,23 @@ router.get(
       limit: number;
     };
     const result = await SongService.getArtistSongs(req.user!.id, { status, page, limit });
+    res.json({ success: true, data: result });
+  },
+);
+
+// Get artist's songs with revenue + download stats
+router.get(
+  '/me/catalog/stats',
+  authenticate,
+  requireArtist,
+  validate({ query: songListQuerySchema }),
+  async (req: Request, res: Response) => {
+    const { status, page, limit } = req.query as unknown as {
+      status?: string;
+      page: number;
+      limit: number;
+    };
+    const result = await SongService.getArtistSongsWithStats(req.user!.id, { status, page, limit });
     res.json({ success: true, data: result });
   },
 );

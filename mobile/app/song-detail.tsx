@@ -97,7 +97,8 @@ export default function SongDetailScreen() {
     try {
       setDownloadProgress(0);
       const { downloadUrl, songTitle } = await downloadMutation.mutateAsync(id!);
-      const fileUri = FileSystem.documentDirectory + `${songTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
+      const fileUri =
+        FileSystem.documentDirectory + `${songTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
 
       const downloadResumable = FileSystem.createDownloadResumable(
         downloadUrl,
@@ -193,9 +194,7 @@ export default function SongDetailScreen() {
                 {downloadProgress !== null ? (
                   <>
                     <ActivityIndicator size="small" color="#fff" />
-                    <Text style={styles.buyBtnText}>
-                      {Math.round(downloadProgress * 100)}%
-                    </Text>
+                    <Text style={styles.buyBtnText}>{Math.round(downloadProgress * 100)}%</Text>
                   </>
                 ) : (
                   <>
@@ -229,7 +228,9 @@ export default function SongDetailScreen() {
           {/* Download Progress Bar */}
           {downloadProgress !== null && (
             <View style={styles.progressContainer}>
-              <View style={[styles.progressBar, { width: `${Math.round(downloadProgress * 100)}%` }]} />
+              <View
+                style={[styles.progressBar, { width: `${Math.round(downloadProgress * 100)}%` }]}
+              />
             </View>
           )}
 
@@ -245,10 +246,7 @@ export default function SongDetailScreen() {
           <View style={styles.artistSection}>
             <Pressable style={styles.artistCard}>
               {song.artist?.user?.avatarUrl ? (
-                <Image
-                  source={{ uri: song.artist.user.avatarUrl }}
-                  style={styles.artistAvatar}
-                />
+                <Image source={{ uri: song.artist.user.avatarUrl }} style={styles.artistAvatar} />
               ) : (
                 <View style={[styles.artistAvatar, styles.artistAvatarPlaceholder]}>
                   <Feather name="user" size={18} color={colors.textTertiary} />

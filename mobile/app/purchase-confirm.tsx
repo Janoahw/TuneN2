@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
@@ -38,7 +32,9 @@ export default function PurchaseConfirmScreen() {
 
         {/* Subtitle */}
         <Text style={styles.subtitle}>
-          {songTitle ? `"${songTitle}" has been added to your library` : 'Song has been added to your library'}
+          {songTitle
+            ? `"${songTitle}" has been added to your library`
+            : 'Song has been added to your library'}
         </Text>
 
         <View style={{ height: spacing[6] }} />
@@ -57,7 +53,9 @@ export default function PurchaseConfirmScreen() {
         {/* Play Now Button */}
         <Pressable
           style={styles.playBtn}
-          onPress={() => router.replace({ pathname: '/song-detail' as any, params: { id: songId } })}
+          onPress={() =>
+            router.replace({ pathname: '/song-detail' as any, params: { id: songId } })
+          }
         >
           <Text style={styles.playBtnText}>Play Now</Text>
         </Pressable>

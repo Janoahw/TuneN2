@@ -27,9 +27,7 @@ function TransactionRow({ item }: { item: PurchaseItem }) {
   return (
     <Pressable
       style={styles.row}
-      onPress={() =>
-        router.push({ pathname: '/song-detail' as any, params: { id: item.songId } })
-      }
+      onPress={() => router.push({ pathname: '/song-detail' as any, params: { id: item.songId } })}
     >
       {item.song.coverArtUrl ? (
         <Image source={{ uri: item.song.coverArtUrl }} style={styles.cover} />
@@ -74,9 +72,7 @@ export default function PurchaseHistoryScreen() {
         <View style={styles.centered}>
           <Feather name="shopping-bag" size={56} color={colors.textTertiary} />
           <Text style={styles.emptyTitle}>No purchases yet</Text>
-          <Text style={styles.emptySubtitle}>
-            Your transaction history will appear here
-          </Text>
+          <Text style={styles.emptySubtitle}>Your transaction history will appear here</Text>
         </View>
       ) : (
         <FlatList<PurchaseItem>

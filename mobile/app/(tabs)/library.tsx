@@ -7,15 +7,18 @@ import {
   FlatList,
   Image,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
-import { useMyPurchases, useMyDownloads } from '@/hooks/usePurchase';
+import { useLibrary } from '@/hooks/useLibrary';
+import { useMyDownloads, useDownloadUrl } from '@/hooks/usePurchase';
 import { useAuthStore } from '@/stores/authStore';
-import { useState } from 'react';
-import type { PurchaseItem, DownloadItem } from '@/services/purchase.service';
+import { useState, useCallback } from 'react';
+import type { LibraryItem } from '@/services/library.service';
+import type { DownloadItem } from '@/services/purchase.service';
 
 const FILTER_CHIPS = ['All', 'Songs', 'Albums', 'Artists', 'Playlists'] as const;
 
@@ -30,6 +33,7 @@ function SongCard({
   song,
   price,
   onPress,
+  onDownload,
 }: {
   song: {
     id: string;
@@ -42,6 +46,7 @@ function SongCard({
   };
   price?: number | string | null;
   onPress: () => void;
+  onDownload?: () => void;
 }) {
   const artistLabel = song.artist?.user?.displayName ?? song.artist?.artistName ?? 'Unknown';
   const displayPrice =
@@ -64,6 +69,11 @@ function SongCard({
         </Text>
       </View>
       <View style={styles.priceCol}>
+        {onDownload && (
+          <Pressable onPress={onDownload} hitSlop={8} style={styles.downloadBtn}>
+            <Feather name="download" size={18} color={colors.accentPrimary} />
+          </Pressable>
+        )}
         {displayPrice != null && displayPrice > 0 ? (
           <Text style={styles.priceText}>${displayPrice.toFixed(2)}</Text>
         ) : (
@@ -80,8 +90,16 @@ function SongCard({
 export default function LibraryScreen() {
   const [activeFilter, setActiveFilter] = useState('All');
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const purchasesQuery = useMyPurchases();
+  const libraryQuery = useLibrary();
   const downloadsQuery = useMyDownloads();
+  const downloadUrl = useDownloadUrl();
+
+  const handleDownload = useCallback(
+    (songId: string) => {
+      downloadUrl.mutate(songId);
+    },
+    [downloadUrl],
+  );
 
   if (!isAuthenticated) {
     return (
@@ -105,12 +123,18 @@ export default function LibraryScreen() {
     );
   }
 
-  const isLoading = purchasesQuery.isLoading;
-  const purchaseItems = purchasesQuery.data?.items ?? [];
+  const isLoading = libraryQuery.isLoading;
+  const libraryItems = libraryQuery.data?.items ?? [];
   const downloadItems = downloadsQuery.data?.items ?? [];
 
   // Recently played = downloads (most recently accessed songs)
   const recentItems = downloadItems.slice(0, 5);
+  const hasNoContent = libraryItems.length === 0 && recentItems.length === 0;
+
+  const handleRefresh = () => {
+    libraryQuery.refetch();
+    downloadsQuery.refetch();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -145,10 +169,29 @@ export default function LibraryScreen() {
         <View style={styles.emptyState}>
           <ActivityIndicator size="large" color={colors.accentPrimary} />
         </View>
+      ) : hasNoContent ? (
+        <View style={styles.emptyState}>
+          <Feather name="headphones" size={64} color={colors.textTertiary} />
+          <Text style={styles.emptyTitle}>Your library is empty</Text>
+          <Text style={styles.emptySubtitle}>Songs you purchase will appear here</Text>
+          <Pressable
+            style={styles.signInBtn}
+            onPress={() => router.push('/(tabs)/explore' as any)}
+          >
+            <Text style={styles.signInText}>Discover Music</Text>
+          </Pressable>
+        </View>
       ) : (
         <FlatList
           data={[]}
           renderItem={null}
+          refreshControl={
+            <RefreshControl
+              refreshing={libraryQuery.isRefetching || downloadsQuery.isRefetching}
+              onRefresh={handleRefresh}
+              tintColor={colors.accentPrimary}
+            />
+          }
           ListHeaderComponent={
             <>
               {/* Recently Played Section */}
@@ -159,6 +202,7 @@ export default function LibraryScreen() {
                     <SongCard
                       key={item.id}
                       song={item.song}
+                      onDownload={() => handleDownload(item.songId)}
                       onPress={() =>
                         router.push({
                           pathname: '/song-detail' as any,
@@ -174,22 +218,29 @@ export default function LibraryScreen() {
               <Text
                 style={[styles.sectionHeader, recentItems.length > 0 && { paddingTop: spacing[4] }]}
               >
-                Purchased
+                My Songs
               </Text>
-              {purchaseItems.length === 0 ? (
+              {libraryItems.length === 0 ? (
                 <View style={styles.emptySection}>
                   <Feather name="shopping-bag" size={40} color={colors.textTertiary} />
                   <Text style={styles.emptySectionText}>No purchases yet</Text>
                   <Text style={styles.emptySectionSub}>Songs you buy will show up here</Text>
                 </View>
               ) : (
-                purchaseItems.map((item) => (
+                libraryItems.map((item) => (
                   <SongCard
                     key={item.id}
-                    song={item.song}
-                    price={item.amount}
+                    song={{
+                      ...item,
+                      artist: {
+                        artistName: item.artist.artistName,
+                        user: { displayName: item.artist.user.displayName },
+                      },
+                    }}
+                    price={item.purchaseAmount}
+                    onDownload={() => handleDownload(item.id)}
                     onPress={() =>
-                      router.push({ pathname: '/song-detail' as any, params: { id: item.songId } })
+                      router.push({ pathname: '/song-detail' as any, params: { id: item.id } })
                     }
                   />
                 ))
@@ -294,6 +345,10 @@ const styles = StyleSheet.create({
   priceCol: {
     alignItems: 'flex-end',
     gap: 2,
+  },
+  downloadBtn: {
+    padding: 4,
+    marginBottom: 2,
   },
   priceText: {
     fontFamily: fontFamilies.monoSemiBold,
