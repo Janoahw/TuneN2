@@ -17,7 +17,7 @@ import { Feather } from '@expo/vector-icons';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 const signupSchema = z
   .object({
@@ -221,20 +221,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   topBarTitle: {
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: colors.textPrimary,
   },
   header: {
     marginBottom: 24,
   },
   title: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 28,
-    fontWeight: '800',
     color: colors.textPrimary,
     marginBottom: 6,
   },
   subtitle: {
+    fontFamily: fontFamilies.primary,
     fontSize: 15,
     color: colors.textSecondary,
     lineHeight: 22,
@@ -246,8 +247,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   roleLabel: {
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 15,
-    fontWeight: '600',
     color: colors.textPrimary,
     marginBottom: 10,
   },
@@ -272,8 +273,8 @@ const styles = StyleSheet.create({
     borderColor: colors.accentPrimary,
   },
   roleText: {
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 14,
-    fontWeight: '600',
     color: colors.textSecondary,
   },
   roleTextActive: {
@@ -289,14 +290,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   terms: {
+    fontFamily: fontFamilies.primary,
     fontSize: 13,
     color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 20,
   },
   termsLink: {
+    fontFamily: fontFamilies.primarySemiBold,
     color: colors.accentPrimary,
-    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',
@@ -305,12 +307,13 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   footerText: {
+    fontFamily: fontFamilies.primary,
     color: colors.textSecondary,
     fontSize: 14,
   },
   footerLink: {
+    fontFamily: fontFamilies.primarySemiBold,
     color: colors.accentPrimary,
     fontSize: 14,
-    fontWeight: '600',
   },
 });

@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
@@ -18,7 +19,7 @@ import { Feather } from '@expo/vector-icons';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -28,7 +29,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
-  const { loginMutation } = useAuth();
+  const { loginMutation, socialAuthMutation } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const { control, handleSubmit, setError } = useForm<LoginForm>({
@@ -44,6 +45,16 @@ export default function LoginScreen() {
       const message = err?.response?.data?.message || 'Invalid email or password';
       setError('root', { message });
     }
+  };
+
+  const handleSocialAuth = async (provider: 'google' | 'apple') => {
+    // TODO: Replace with real OAuth flow once client IDs are configured
+    // Apple: use expo-apple-authentication
+    // Google: use @react-native-google-signin/google-signin or expo-auth-session
+    Alert.alert(
+      `${provider === 'apple' ? 'Apple' : 'Google'} Sign In`,
+      'Social sign-in will be available once OAuth credentials are configured.',
+    );
   };
 
   return (
@@ -126,11 +137,19 @@ export default function LoginScreen() {
 
           {/* Social */}
           <View style={styles.socialRow}>
-            <Pressable style={styles.socialButton}>
+            <Pressable
+              style={styles.socialButton}
+              onPress={() => handleSocialAuth('apple')}
+              disabled={socialAuthMutation.isPending}
+            >
               <Feather name="smartphone" size={20} color={colors.textPrimary} />
               <Text style={styles.socialLabel}>Apple</Text>
             </Pressable>
-            <Pressable style={styles.socialButton}>
+            <Pressable
+              style={styles.socialButton}
+              onPress={() => handleSocialAuth('google')}
+              disabled={socialAuthMutation.isPending}
+            >
               <Text style={styles.googleIcon}>G</Text>
               <Text style={styles.socialLabel}>Google</Text>
             </Pressable>
@@ -172,13 +191,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   brand: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 28,
-    fontWeight: '800',
     color: colors.textPrimary,
     letterSpacing: -0.5,
-    fontFamily: 'SpaceGrotesk',
   },
   tagline: {
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textSecondary,
     marginTop: 4,
@@ -187,6 +206,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   formError: {
+    fontFamily: fontFamilies.primary,
     color: colors.error,
     fontSize: 14,
     textAlign: 'center',
@@ -201,9 +221,9 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   forgotText: {
+    fontFamily: fontFamilies.primaryMedium,
     color: colors.accentPrimary,
     fontSize: 14,
-    fontWeight: '500',
   },
   divider: {
     flexDirection: 'row',
@@ -217,6 +237,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.borderDefault,
   },
   dividerText: {
+    fontFamily: fontFamilies.primary,
     color: colors.textSecondary,
     fontSize: 13,
   },
@@ -238,13 +259,13 @@ const styles = StyleSheet.create({
     borderColor: colors.borderDefault,
   },
   googleIcon: {
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 18,
-    fontWeight: '700',
     color: colors.textPrimary,
   },
   socialLabel: {
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 15,
-    fontWeight: '500',
     color: colors.textPrimary,
   },
   footer: {
@@ -253,12 +274,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
+    fontFamily: fontFamilies.primary,
     color: colors.textSecondary,
     fontSize: 14,
   },
   footerLink: {
+    fontFamily: fontFamilies.primarySemiBold,
     color: colors.accentPrimary,
     fontSize: 14,
-    fontWeight: '600',
   },
 });

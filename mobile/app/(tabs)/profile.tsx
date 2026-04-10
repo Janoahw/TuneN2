@@ -1,75 +1,178 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { colors } from '@/theme';
+import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useAuthStore } from '@/stores/authStore';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserProfile } from '@/hooks/useUser';
+import { colors, fontFamilies } from '@/theme';
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((p) => p[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 export default function ProfileScreen() {
+  const storeUser = useAuthStore((s) => s.user);
+  const { data: profile } = useUserProfile();
+  const { logout } = useAuth();
+
+  const user = profile || storeUser;
+  const displayName = user?.displayName || 'User';
+  const email = (user as any)?.email || storeUser?.email || '';
+  const avatarUrl = (profile as any)?.avatarUrl;
+  const initials = getInitials(displayName);
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/');
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <Text style={styles.heading}>Profile</Text>
 
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>👤</Text>
-          </View>
-          <Text style={styles.displayName}>Music Lover</Text>
-          <Text style={styles.email}>user@example.com</Text>
+        {/* Avatar + Info */}
+        <View style={styles.avatarSection}>
+          <Pressable onPress={() => router.push('/profile-edit')}>
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+            ) : (
+              <LinearGradient
+                colors={colors.gradientBrand as unknown as [string, string]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.avatar}
+              >
+                <Text style={styles.avatarText}>{initials}</Text>
+              </LinearGradient>
+            )}
+          </Pressable>
+          <Text style={styles.displayName}>{displayName}</Text>
+          <Text style={styles.email}>{email}</Text>
+          <Pressable style={styles.editButton} onPress={() => router.push('/profile-edit')}>
+            <Feather name="edit-2" size={14} color={colors.accentPrimary} />
+            <Text style={styles.editLabel}>Edit Profile</Text>
+          </Pressable>
         </View>
 
+        {/* Menu */}
         <View style={styles.menu}>
-          <Pressable style={styles.menuItem}>
-            <Text style={styles.menuText}>⚙️ Settings</Text>
-          </Pressable>
-          <Pressable style={styles.menuItem}>
-            <Text style={styles.menuText}>💳 Payment Methods</Text>
-          </Pressable>
-          <Pressable style={styles.menuItem}>
-            <Text style={styles.menuText}>📊 Listening History</Text>
-          </Pressable>
-          <Pressable style={styles.menuItem}>
-            <Text style={styles.menuText}>❓ Help & Support</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.menuItem, styles.logoutItem]}
-            onPress={() => router.replace('/')}
-          >
-            <Text style={styles.logoutText}>Sign Out</Text>
-          </Pressable>
+          <MenuItem icon="settings" label="Settings" onPress={() => router.push('/settings')} />
+          <MenuItem icon="credit-card" label="Payment Methods" onPress={() => {}} />
+          <MenuItem icon="bar-chart-2" label="Listening History" onPress={() => {}} />
+          <MenuItem icon="help-circle" label="Help & Support" onPress={() => {}} />
         </View>
-      </View>
+
+        {/* Logout */}
+        <Pressable style={styles.logoutButton} onPress={handleLogout}>
+          <Feather name="log-out" size={18} color={colors.error} />
+          <Text style={styles.logoutText}>Sign Out</Text>
+        </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
+function MenuItem({ icon, label, onPress }: { icon: string; label: string; onPress: () => void }) {
+  return (
+    <Pressable style={styles.menuItem} onPress={onPress}>
+      <View style={styles.menuLeft}>
+        <Feather name={icon as any} size={20} color={colors.textSecondary} />
+        <Text style={styles.menuText}>{label}</Text>
+      </View>
+      <Feather name="chevron-right" size={18} color={colors.textTertiary} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgPrimary },
-  content: { flex: 1, padding: 24 },
-  heading: { fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginBottom: 32 },
-  avatarContainer: { alignItems: 'center', marginBottom: 40 },
+  safe: { flex: 1, backgroundColor: colors.bgPrimary },
+  scroll: { padding: 24, paddingBottom: 48 },
+  heading: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 28,
+    color: colors.textPrimary,
+    marginBottom: 32,
+  },
+  avatarSection: { alignItems: 'center', marginBottom: 40 },
   avatar: {
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: colors.bgSecondary,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
-    borderWidth: 2,
+  },
+  avatarText: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 32,
+    color: colors.onPrimary,
+  },
+  displayName: {
+    fontFamily: fontFamilies.displaySemiBold,
+    fontSize: 22,
+    color: colors.textPrimary,
+    marginBottom: 4,
+  },
+  email: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 12,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 9999,
+    borderWidth: 1,
     borderColor: colors.accentPrimary,
   },
-  avatarText: { fontSize: 40 },
-  displayName: { fontSize: 22, fontWeight: '700', color: colors.textPrimary, marginBottom: 4 },
-  email: { fontSize: 14, color: colors.textSecondary },
+  editLabel: {
+    fontFamily: fontFamilies.primarySemiBold,
+    fontSize: 13,
+    color: colors.accentPrimary,
+  },
   menu: { gap: 4 },
   menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.bgSecondary,
     padding: 18,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.borderDefault,
   },
-  menuText: { color: colors.textPrimary, fontSize: 16, fontWeight: '500' },
-  logoutItem: { marginTop: 16, backgroundColor: 'transparent', borderColor: colors.error },
-  logoutText: { color: colors.error, fontSize: 16, fontWeight: '600', textAlign: 'center' },
+  menuLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  menuText: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 16,
+    color: colors.textPrimary,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 24,
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.error,
+  },
+  logoutText: {
+    fontFamily: fontFamilies.primarySemiBold,
+    fontSize: 16,
+    color: colors.error,
+  },
 });

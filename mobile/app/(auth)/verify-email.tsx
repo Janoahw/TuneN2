@@ -6,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/services/auth.service';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 const COOLDOWN_SECONDS = 60;
 
@@ -102,13 +102,14 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   title: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 28,
-    fontWeight: '800',
     color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
+    fontFamily: fontFamilies.primary,
     fontSize: 15,
     color: colors.textSecondary,
     textAlign: 'center',
@@ -116,8 +117,8 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   emailHighlight: {
+    fontFamily: fontFamilies.primarySemiBold,
     color: colors.textPrimary,
-    fontWeight: '600',
   },
   actions: {
     width: '100%',
@@ -128,15 +129,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resendText: {
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textSecondary,
   },
   resendLink: {
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 14,
-    fontWeight: '600',
     color: colors.accentPrimary,
   },
   resendCooldown: {
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textTertiary,
   },

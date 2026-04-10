@@ -21,9 +21,9 @@ export const spacing = {
 
 export const radius = {
   none: 0,
-  sm: 8,    // pen: --radius-sm
-  md: 12,   // pen: --radius-md
-  lg: 16,   // pen: --radius-lg
+  sm: 8, // pen: --radius-sm
+  md: 12, // pen: --radius-md
+  lg: 16, // pen: --radius-lg
   xl: 24,
   '2xl': 36,
   full: 9999, // pen: --radius-full

@@ -10,20 +10,11 @@ interface ArtistCardProps {
   style?: ViewStyle;
 }
 
-export function ArtistCard({
-  name,
-  genre,
-  onPress,
-  style,
-}: ArtistCardProps) {
+export function ArtistCard({ name, genre, onPress, style }: ArtistCardProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.container,
-        pressed && styles.pressed,
-        style,
-      ]}
+      style={({ pressed }) => [styles.container, pressed && styles.pressed, style]}
     >
       {/* Avatar circle (gradient placeholder) */}
       <LinearGradient
@@ -34,8 +25,12 @@ export function ArtistCard({
       />
 
       <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>{name}</Text>
-        <Text style={styles.genre} numberOfLines={1}>{genre}</Text>
+        <Text style={styles.name} numberOfLines={1}>
+          {name}
+        </Text>
+        <Text style={styles.genre} numberOfLines={1}>
+          {genre}
+        </Text>
       </View>
     </Pressable>
   );

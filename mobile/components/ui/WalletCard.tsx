@@ -10,12 +10,7 @@ interface WalletCardProps {
   style?: ViewStyle;
 }
 
-export function WalletCard({
-  balance,
-  monthlyEarnings,
-  currency = '₦',
-  style,
-}: WalletCardProps) {
+export function WalletCard({ balance, monthlyEarnings, currency = '₦', style }: WalletCardProps) {
   const formattedBalance = balance.toLocaleString('en-NG', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -33,7 +28,8 @@ export function WalletCard({
 
       {/* Balance amount */}
       <Text style={styles.balance}>
-        {currency}{formattedBalance}
+        {currency}
+        {formattedBalance}
       </Text>
 
       {/* Monthly earnings */}
@@ -41,10 +37,12 @@ export function WalletCard({
         <View style={styles.earningsRow}>
           <Feather name="trending-up" size={14} color={colors.success} />
           <Text style={styles.earningsText}>
-            {currency}{monthlyEarnings.toLocaleString('en-NG', {
+            {currency}
+            {monthlyEarnings.toLocaleString('en-NG', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
-            })} this month
+            })}{' '}
+            this month
           </Text>
         </View>
       )}
