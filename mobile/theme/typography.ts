@@ -7,12 +7,20 @@
  */
 
 export const fontFamilies = {
-  /** Primary UI typeface */
-  primary: 'Inter',
-  /** Display / headline typeface */
-  display: 'SpaceGrotesk',
-  /** Monospace for monetary values */
-  mono: 'JetBrainsMono',
+  /** Primary UI typeface (Inter — pen: --font-secondary) */
+  primary: 'Inter-Regular',
+  primaryMedium: 'Inter-Medium',
+  primarySemiBold: 'Inter-SemiBold',
+  primaryBold: 'Inter-Bold',
+  /** Display / headline typeface (Space Grotesk — pen: --font-primary) */
+  display: 'SpaceGrotesk-Regular',
+  displayMedium: 'SpaceGrotesk-Medium',
+  displaySemiBold: 'SpaceGrotesk-SemiBold',
+  displayBold: 'SpaceGrotesk-Bold',
+  /** Monospace for monetary values (JetBrains Mono — pen: --font-mono) */
+  mono: 'JetBrainsMono-Regular',
+  monoSemiBold: 'JetBrainsMono-SemiBold',
+  monoBold: 'JetBrainsMono-Bold',
 } as const;
 
 export const fontSizes = {

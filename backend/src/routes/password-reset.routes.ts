@@ -1,25 +1,10 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
-import { z } from "zod";
 import { validate } from "../middleware/validate.js";
 import { PasswordResetService } from "../services/password-reset.service.js";
+import { forgotPasswordSchema, resetPasswordSchema } from "../schemas/password-reset.js";
 
 const router = Router();
-
-// ── Schemas ─────────────────────────────────
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Invalid email address"),
-});
-
-const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Token is required"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least 1 number"),
-});
 
 // ── Routes ──────────────────────────────────
 

@@ -15,7 +15,9 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.tunen2.app",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {
@@ -27,7 +29,8 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font"
     ]
   }
 }

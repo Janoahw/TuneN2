@@ -1,12 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import {
+  SpaceGrotesk_400Regular,
+  SpaceGrotesk_500Medium,
+  SpaceGrotesk_600SemiBold,
+  SpaceGrotesk_700Bold,
+} from '@expo-google-fonts/space-grotesk';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import {
+  JetBrainsMono_400Regular,
+  JetBrainsMono_600SemiBold,
+  JetBrainsMono_700Bold,
+} from '@expo-google-fonts/jetbrains-mono';
 import { useAuthStore } from '@/stores/authStore';
 import { colors } from '@/theme';
+
+SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,11 +42,31 @@ function RootLayoutInner() {
   const isInitialized = useAuthStore((s) => s.isInitialized);
   const initialize = useAuthStore((s) => s.initialize);
 
+  const [fontsLoaded] = useFonts({
+    'SpaceGrotesk-Regular': SpaceGrotesk_400Regular,
+    'SpaceGrotesk-Medium': SpaceGrotesk_500Medium,
+    'SpaceGrotesk-SemiBold': SpaceGrotesk_600SemiBold,
+    'SpaceGrotesk-Bold': SpaceGrotesk_700Bold,
+    'Inter-Regular': Inter_400Regular,
+    'Inter-Medium': Inter_500Medium,
+    'Inter-SemiBold': Inter_600SemiBold,
+    'Inter-Bold': Inter_700Bold,
+    'JetBrainsMono-Regular': JetBrainsMono_400Regular,
+    'JetBrainsMono-SemiBold': JetBrainsMono_600SemiBold,
+    'JetBrainsMono-Bold': JetBrainsMono_700Bold,
+  });
+
   useEffect(() => {
     initialize();
   }, [initialize]);
 
-  if (!isInitialized) {
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded && isInitialized) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, isInitialized]);
+
+  if (!fontsLoaded || !isInitialized) {
     return (
       <View style={styles.splash}>
         <ActivityIndicator size="large" color={colors.accentPrimary} />
@@ -34,7 +75,7 @@ function RootLayoutInner() {
   }
 
   return (
-    <>
+    <View style={styles.container} onLayout={onLayoutRootView}>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -42,7 +83,7 @@ function RootLayoutInner() {
           contentStyle: { backgroundColor: colors.bgPrimary },
         }}
       />
-    </>
+    </View>
   );
 }
 

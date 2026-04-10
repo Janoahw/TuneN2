@@ -1,6 +1,5 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
-import { z } from "zod";
 import jwt, { type SignOptions } from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
 import { validate } from "../middleware/validate.js";
@@ -10,41 +9,15 @@ import { SocialAuthService } from "../services/social-auth.service.js";
 import { sendVerificationEmail } from "../services/email.service.js";
 import { env } from "../config/env.js";
 import { logger } from "../utils/logger.js";
+import {
+  signupSchema,
+  loginSchema,
+  refreshSchema,
+  verifyEmailSchema,
+  socialAuthSchema,
+} from "../schemas/auth.js";
 
 const router = Router();
-
-// ── Schemas ─────────────────────────────────
-
-const signupSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least 1 number"),
-  displayName: z
-    .string()
-    .min(1, "Display name is required")
-    .max(100, "Display name must be 100 characters or less"),
-});
-
-const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-
-const refreshSchema = z.object({
-  refreshToken: z.string(),
-});
-
-const verifyEmailSchema = z.object({
-  token: z.string(),
-});
-
-const socialAuthSchema = z.object({
-  provider: z.enum(["google", "apple"]),
-  idToken: z.string().min(1, "ID token is required"),
-});
 
 // Rate limiter for resend verification: 1 per minute
 const resendVerificationLimiter = rateLimit({
