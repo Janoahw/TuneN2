@@ -116,9 +116,7 @@ export default function ArtistOnboardingScreen() {
 
           {/* Heading */}
           <Text style={styles.title}>Set Up Your{'\n'}Artist Profile</Text>
-          <Text style={styles.subtitle}>
-            Tell fans about yourself and your music.
-          </Text>
+          <Text style={styles.subtitle}>Tell fans about yourself and your music.</Text>
 
           {/* Form */}
           <View style={styles.form}>
@@ -180,11 +178,7 @@ export default function ArtistOnboardingScreen() {
           <View style={{ flex: 1 }} />
 
           {/* CTA */}
-          <Button
-            title="Next"
-            onPress={handleSubmit(onSubmit)}
-            loading={loading}
-          />
+          <Button title="Next" onPress={handleSubmit(onSubmit)} loading={loading} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

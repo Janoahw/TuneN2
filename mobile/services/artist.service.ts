@@ -73,11 +73,15 @@ export const artistService = {
     return data.data.artist;
   },
 
-  async updateProfile(updates: Partial<UpgradeToArtistParams & {
-    bannerImageUrl?: string | null;
-    collaborationPrice?: number;
-    fanSubscriptionPrice?: number;
-  }>): Promise<ArtistProfile> {
+  async updateProfile(
+    updates: Partial<
+      UpgradeToArtistParams & {
+        bannerImageUrl?: string | null;
+        collaborationPrice?: number;
+        fanSubscriptionPrice?: number;
+      }
+    >,
+  ): Promise<ArtistProfile> {
     const { data } = await api.patch('/artists/me/profile', updates);
     return data.data.artist;
   },

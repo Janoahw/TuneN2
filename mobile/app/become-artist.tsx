@@ -27,10 +27,7 @@ const FEATURES = [
 export default function BecomeArtistScreen() {
   return (
     <SafeAreaView style={styles.safe}>
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Back */}
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backBtn}>
           <Feather name="arrow-left" size={20} color={colors.accentPrimary} />
@@ -82,10 +79,7 @@ export default function BecomeArtistScreen() {
         <View style={{ flex: 1 }} />
 
         {/* CTA */}
-        <Button
-          title="Get Started"
-          onPress={() => router.push('/artist-onboarding')}
-        />
+        <Button title="Get Started" onPress={() => router.push('/artist-onboarding')} />
       </ScrollView>
     </SafeAreaView>
   );

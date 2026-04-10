@@ -5,10 +5,7 @@ export const upgradeToArtistSchema = z.object({
     .string()
     .min(1, 'Artist name is required')
     .max(100, 'Artist name must be 100 characters or less'),
-  bio: z
-    .string()
-    .max(500, 'Bio must be 500 characters or less')
-    .optional(),
+  bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
   genreIds: z
     .array(z.number().int().positive())
     .min(1, 'Select at least one genre')
@@ -22,10 +19,7 @@ export const updateArtistProfileSchema = z.object({
     .min(1, 'Artist name is required')
     .max(100, 'Artist name must be 100 characters or less')
     .optional(),
-  bio: z
-    .string()
-    .max(500, 'Bio must be 500 characters or less')
-    .optional(),
+  bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
   genreIds: z
     .array(z.number().int().positive())
     .min(1, 'Select at least one genre')

@@ -82,11 +82,7 @@ export default function StripeConnectScreen() {
         <View style={{ flex: 1 }} />
 
         {/* CTA */}
-        <Button
-          title="Continue to Stripe"
-          onPress={handleContinue}
-          loading={loading}
-        />
+        <Button title="Continue to Stripe" onPress={handleContinue} loading={loading} />
 
         {/* Skip */}
         <Pressable onPress={handleSkip} style={styles.skipBtn}>

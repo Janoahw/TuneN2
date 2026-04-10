@@ -1,12 +1,7 @@
 import { prisma } from '../config/database.js';
 import { stripe } from '../config/stripe.js';
 import { env } from '../config/env.js';
-import {
-  NotFoundError,
-  ConflictError,
-  ForbiddenError,
-  ValidationError,
-} from '../utils/errors.js';
+import { NotFoundError, ConflictError, ForbiddenError, ValidationError } from '../utils/errors.js';
 
 export class ArtistService {
   /**
@@ -55,9 +50,7 @@ export class ArtistService {
         expand: ['latest_invoice.payment_intent'],
       });
       stripeSubscriptionId = subscription.id;
-      trialEndsAt = subscription.trial_end
-        ? new Date(subscription.trial_end * 1000)
-        : null;
+      trialEndsAt = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
     } else {
       // Dev mode: simulate trial
       trialEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -254,9 +247,7 @@ export class ArtistService {
 
     let stripeStatus = null;
     if (artist.stripeSubscriptionId && env.STRIPE_SECRET_KEY) {
-      const sub = await stripe.subscriptions.retrieve(
-        artist.stripeSubscriptionId,
-      );
+      const sub = await stripe.subscriptions.retrieve(artist.stripeSubscriptionId);
       stripeStatus = {
         status: sub.status,
         currentPeriodEnd: new Date(sub.current_period_end * 1000),
