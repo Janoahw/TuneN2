@@ -73,6 +73,12 @@ export default function SettingsScreen() {
           />
           <View style={styles.separator} />
           <SettingsRow icon="mail" label="Email" value={email || '—'} />
+          <View style={styles.separator} />
+          <SettingsRow
+            icon="shopping-bag"
+            label="Purchase History"
+            onPress={() => router.push('/purchase-history' as any)}
+          />
         </View>
 
         {/* App Section */}
