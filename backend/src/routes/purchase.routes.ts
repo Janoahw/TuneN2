@@ -3,10 +3,7 @@ import type { Request, Response } from 'express';
 import { validate } from '../middleware/validate.js';
 import { authenticate } from '../middleware/auth.js';
 import { PurchaseService } from '../services/purchase.service.js';
-import {
-  purchaseSongParamSchema,
-  purchaseListQuerySchema,
-} from '../schemas/purchase.js';
+import { purchaseSongParamSchema, purchaseListQuerySchema } from '../schemas/purchase.js';
 
 const router = Router();
 
@@ -17,10 +14,7 @@ router.post(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const result = await PurchaseService.createPaymentIntent(
-      req.user!.id,
-      req.params.songId,
-    );
+    const result = await PurchaseService.createPaymentIntent(req.user!.id, req.params.songId);
     res.json({ success: true, data: result });
   },
 );
@@ -32,10 +26,7 @@ router.get(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const owned = await PurchaseService.checkOwnership(
-      req.user!.id,
-      req.params.songId,
-    );
+    const owned = await PurchaseService.checkOwnership(req.user!.id, req.params.songId);
     res.json({ success: true, data: { owned } });
   },
 );
@@ -47,10 +38,7 @@ router.get(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const result = await PurchaseService.getDownloadUrl(
-      req.user!.id,
-      req.params.songId,
-    );
+    const result = await PurchaseService.getDownloadUrl(req.user!.id, req.params.songId);
     res.json({ success: true, data: result });
   },
 );
@@ -66,11 +54,7 @@ router.get(
       page: number;
       limit: number;
     };
-    const result = await PurchaseService.getUserPurchases(
-      req.user!.id,
-      page,
-      limit,
-    );
+    const result = await PurchaseService.getUserPurchases(req.user!.id, page, limit);
     res.json({ success: true, data: result });
   },
 );
@@ -86,11 +70,7 @@ router.get(
       page: number;
       limit: number;
     };
-    const result = await PurchaseService.getUserDownloads(
-      req.user!.id,
-      page,
-      limit,
-    );
+    const result = await PurchaseService.getUserDownloads(req.user!.id, page, limit);
     res.json({ success: true, data: result });
   },
 );

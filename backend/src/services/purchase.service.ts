@@ -2,12 +2,7 @@ import { prisma } from '../config/database.js';
 import { stripe } from '../config/stripe.js';
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
-import {
-  NotFoundError,
-  ConflictError,
-  ForbiddenError,
-  AppError,
-} from '../utils/errors.js';
+import { NotFoundError, ConflictError, ForbiddenError, AppError } from '../utils/errors.js';
 
 const PLATFORM_FEE_PERCENT = 20; // 20% platform fee
 
@@ -75,9 +70,7 @@ export class PurchaseService {
 
     // 3. Calculate amounts (in cents)
     const amountCents = Math.round(Number(song.price) * 100);
-    const platformFeeCents = Math.round(
-      (amountCents * PLATFORM_FEE_PERCENT) / 100,
-    );
+    const platformFeeCents = Math.round((amountCents * PLATFORM_FEE_PERCENT) / 100);
 
     // 4. Create PaymentIntent with destination charge
     const paymentIntent = await stripe.paymentIntents.create({
@@ -105,8 +98,7 @@ export class PurchaseService {
           status: 'pending',
           amount: Number(song.price),
           platformFee: Number(song.price) * (PLATFORM_FEE_PERCENT / 100),
-          artistEarnings:
-            Number(song.price) * (1 - PLATFORM_FEE_PERCENT / 100),
+          artistEarnings: Number(song.price) * (1 - PLATFORM_FEE_PERCENT / 100),
         },
       });
     } else {
@@ -117,8 +109,7 @@ export class PurchaseService {
           artistId: song.artistId,
           amount: Number(song.price),
           platformFee: Number(song.price) * (PLATFORM_FEE_PERCENT / 100),
-          artistEarnings:
-            Number(song.price) * (1 - PLATFORM_FEE_PERCENT / 100),
+          artistEarnings: Number(song.price) * (1 - PLATFORM_FEE_PERCENT / 100),
           stripePaymentId: paymentIntent.id,
           status: 'pending',
         },
@@ -182,8 +173,7 @@ export class PurchaseService {
    * Atomic: create purchase record + credit artist wallet.
    */
   static async handlePaymentSuccess(paymentIntentId: string) {
-    const paymentIntent =
-      await stripe.paymentIntents.retrieve(paymentIntentId);
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     const { buyerId, songId, artistId } = paymentIntent.metadata;
 
     if (!buyerId || !songId || !artistId) {
@@ -258,8 +248,7 @@ export class PurchaseService {
    * Handle failed payment webhook.
    */
   static async handlePaymentFailed(paymentIntentId: string) {
-    const paymentIntent =
-      await stripe.paymentIntents.retrieve(paymentIntentId);
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     const { buyerId, songId } = paymentIntent.metadata;
 
     if (!buyerId || !songId) return;
@@ -326,9 +315,7 @@ export class PurchaseService {
     } else {
       // Dev: S3 presigned URL
       const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
-      const { getSignedUrl: getS3SignedUrl } = await import(
-        '@aws-sdk/s3-request-presigner'
-      );
+      const { getSignedUrl: getS3SignedUrl } = await import('@aws-sdk/s3-request-presigner');
       const s3 = new S3Client({ region: env.AWS_REGION });
       const command = new GetObjectCommand({
         Bucket: env.AWS_S3_AUDIO_BUCKET!,
@@ -348,11 +335,7 @@ export class PurchaseService {
   /**
    * Get user's purchase history.
    */
-  static async getUserPurchases(
-    userId: string,
-    page = 1,
-    limit = 20,
-  ) {
+  static async getUserPurchases(userId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
       prisma.purchase.findMany({
@@ -398,11 +381,7 @@ export class PurchaseService {
   /**
    * Get user's download history.
    */
-  static async getUserDownloads(
-    userId: string,
-    page = 1,
-    limit = 20,
-  ) {
+  static async getUserDownloads(userId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
       prisma.download.findMany({

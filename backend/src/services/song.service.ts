@@ -276,6 +276,72 @@ export class SongService {
   }
 
   /**
+   * Get artist's songs with revenue and download stats per song.
+   */
+  static async getArtistSongsWithStats(
+    userId: string,
+    params: { status?: string; page: number; limit: number },
+  ) {
+    const artist = await prisma.artistProfile.findUnique({
+      where: { userId },
+    });
+    if (!artist) throw new ForbiddenError('Artist profile not found');
+
+    const where: Record<string, unknown> = { artistId: artist.id };
+    if (params.status) {
+      where.status = params.status;
+    } else {
+      where.status = { not: 'deleted' };
+    }
+
+    const [songs, total] = await Promise.all([
+      prisma.song.findMany({
+        where,
+        include: {
+          genre: true,
+          _count: { select: { downloads: true, purchases: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (params.page - 1) * params.limit,
+        take: params.limit,
+      }),
+      prisma.song.count({ where }),
+    ]);
+
+    // Get revenue per song
+    const songIds = songs.map((s) => s.id);
+    const revenueData = songIds.length > 0
+      ? await prisma.purchase.groupBy({
+          by: ['songId'],
+          where: { songId: { in: songIds }, status: 'completed' },
+          _sum: { artistEarnings: true },
+        })
+      : [];
+
+    const revenueMap = new Map(
+      revenueData.map((r) => [r.songId, Number(r._sum.artistEarnings ?? 0)]),
+    );
+
+    const items = songs.map((song) => ({
+      ...song,
+      totalDownloads: song._count.downloads,
+      totalPurchases: song._count.purchases,
+      totalRevenue: revenueMap.get(song.id) ?? 0,
+    }));
+
+    const totalPages = Math.ceil(total / params.limit);
+    return {
+      items,
+      total,
+      page: params.page,
+      limit: params.limit,
+      totalPages,
+      hasNext: params.page < totalPages,
+      hasPrev: params.page > 1,
+    };
+  }
+
+  /**
    * Re-enqueue songs stuck in 'processing' for over 10 minutes.
    */
   static async reEnqueueStuckSongs() {

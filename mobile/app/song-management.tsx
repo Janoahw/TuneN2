@@ -13,8 +13,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
-import { useMySongs, useDeleteSong } from '@/hooks/useSong';
-import type { Song } from '@/services/song.service';
+import { useDeleteSong } from '@/hooks/useSong';
+import { useMySongsWithStats } from '@/hooks/useLibrary';
+import type { SongWithStats } from '@/services/library.service';
 
 const STATUS_TABS = [
   { key: undefined, label: 'All' },
@@ -48,8 +49,8 @@ function SongCard({
   song,
   onOptions,
 }: {
-  song: Song;
-  onOptions: (song: Song) => void;
+  song: SongWithStats;
+  onOptions: (song: SongWithStats) => void;
 }) {
   return (
     <Pressable
@@ -72,9 +73,20 @@ function SongCard({
           {song.isFree ? (
             <Text style={styles.songMetaText}>Free</Text>
           ) : (
-            <Text style={styles.songMetaText}>${song.price?.toFixed(2)}</Text>
+            <Text style={styles.songMetaText}>${Number(song.price).toFixed(2)}</Text>
           )}
+          <Text style={styles.songStatText}>
+            <Feather name="download" size={10} color={colors.textTertiary} /> {song.totalDownloads}
+          </Text>
+          <Text style={styles.songStatText}>
+            <Feather name="shopping-cart" size={10} color={colors.textTertiary} /> {song.totalPurchases}
+          </Text>
         </View>
+        {song.totalRevenue > 0 && (
+          <Text style={styles.revenueText}>
+            ${song.totalRevenue.toFixed(2)} earned
+          </Text>
+        )}
       </View>
       <Pressable
         style={styles.optionsBtn}
@@ -89,13 +101,13 @@ function SongCard({
 
 export default function SongManagementScreen() {
   const [statusFilter, setStatusFilter] = useState<StatusTab>(undefined);
-  const { data, isLoading, refetch, isRefetching } = useMySongs(statusFilter);
+  const { data, isLoading, refetch, isRefetching } = useMySongsWithStats(statusFilter);
   const deleteSong = useDeleteSong();
 
-  const songs = data?.songs ?? [];
+  const songs = data?.items ?? [];
 
   const handleOptions = useCallback(
-    (song: Song) => {
+    (song: SongWithStats) => {
       Alert.alert(song.title, undefined, [
         {
           text: 'Edit',
@@ -122,7 +134,7 @@ export default function SongManagementScreen() {
   );
 
   const renderSong = useCallback(
-    ({ item }: { item: Song }) => <SongCard song={item} onOptions={handleOptions} />,
+    ({ item }: { item: SongWithStats }) => <SongCard song={item} onOptions={handleOptions} />,
     [handleOptions],
   );
 
@@ -286,6 +298,17 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.mono,
     fontSize: 12,
     color: colors.textSecondary,
+  },
+  songStatText: {
+    fontFamily: fontFamilies.mono,
+    fontSize: 11,
+    color: colors.textTertiary,
+  },
+  revenueText: {
+    fontFamily: fontFamilies.monoSemiBold,
+    fontSize: 12,
+    color: colors.success,
+    marginTop: 2,
   },
   optionsBtn: {
     padding: spacing[2],

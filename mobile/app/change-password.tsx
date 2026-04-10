@@ -112,9 +112,9 @@ export default function ChangePasswordScreen() {
               control={control}
               name="currentPassword"
               placeholder="Current password"
-              icon="🔒"
+              icon="lock"
               secureTextEntry={!showCurrent}
-              rightIcon={showCurrent ? '👁️' : '👁️‍🗨️'}
+              rightIcon={showCurrent ? 'eye' : 'eye-off'}
               onRightIconPress={() => setShowCurrent((prev) => !prev)}
               autoComplete="password"
               textContentType="password"
@@ -126,9 +126,9 @@ export default function ChangePasswordScreen() {
               control={control}
               name="newPassword"
               placeholder="New password"
-              icon="🔐"
+              icon="lock"
               secureTextEntry={!showNew}
-              rightIcon={showNew ? '👁️' : '👁️‍🗨️'}
+              rightIcon={showNew ? 'eye' : 'eye-off'}
               onRightIconPress={() => setShowNew((prev) => !prev)}
               autoComplete="new-password"
               textContentType="newPassword"
@@ -155,9 +155,9 @@ export default function ChangePasswordScreen() {
               control={control}
               name="confirmPassword"
               placeholder="Confirm new password"
-              icon="🔐"
+              icon="lock"
               secureTextEntry={!showConfirm}
-              rightIcon={showConfirm ? '👁️' : '👁️‍🗨️'}
+              rightIcon={showConfirm ? 'eye' : 'eye-off'}
               onRightIconPress={() => setShowConfirm((prev) => !prev)}
               autoComplete="new-password"
               textContentType="newPassword"
