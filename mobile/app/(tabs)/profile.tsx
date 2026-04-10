@@ -62,9 +62,37 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
 
+        {/* Artist Section */}
+        {storeUser?.isArtist ? (
+          <Pressable style={styles.artistBanner} onPress={() => router.push('/artist-dashboard')}>
+            <View style={styles.artistBannerLeft}>
+              <Feather name="music" size={20} color={colors.accentPrimary} />
+              <View>
+                <Text style={styles.artistBannerTitle}>Artist Dashboard</Text>
+                <Text style={styles.artistBannerSub}>Manage your music & earnings</Text>
+              </View>
+            </View>
+            <Feather name="chevron-right" size={18} color={colors.accentPrimary} />
+          </Pressable>
+        ) : (
+          <Pressable style={styles.artistBanner} onPress={() => router.push('/become-artist')}>
+            <View style={styles.artistBannerLeft}>
+              <Feather name="star" size={20} color={colors.accentPrimary} />
+              <View>
+                <Text style={styles.artistBannerTitle}>Become an Artist</Text>
+                <Text style={styles.artistBannerSub}>Start sharing your music today</Text>
+              </View>
+            </View>
+            <Feather name="chevron-right" size={18} color={colors.accentPrimary} />
+          </Pressable>
+        )}
+
         {/* Menu */}
         <View style={styles.menu}>
           <MenuItem icon="settings" label="Settings" onPress={() => router.push('/settings')} />
+          {storeUser?.isArtist && (
+            <MenuItem icon="edit-2" label="Edit Artist Profile" onPress={() => router.push('/edit-artist-profile')} />
+          )}
           <MenuItem icon="credit-card" label="Payment Methods" onPress={() => {}} />
           <MenuItem icon="bar-chart-2" label="Listening History" onPress={() => {}} />
           <MenuItem icon="help-circle" label="Help & Support" onPress={() => {}} />
@@ -143,6 +171,29 @@ const styles = StyleSheet.create({
     color: colors.accentPrimary,
   },
   menu: { gap: 4 },
+  artistBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.accentBgSubtle,
+    padding: 18,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.accentPrimary,
+    marginBottom: 16,
+  },
+  artistBannerLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  artistBannerTitle: {
+    fontFamily: fontFamilies.primarySemiBold,
+    fontSize: 16,
+    color: colors.accentPrimary,
+  },
+  artistBannerSub: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',

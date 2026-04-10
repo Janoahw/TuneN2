@@ -21,6 +21,7 @@ model User {
   isArtist       Boolean  @default(false) @map("is_artist")
   isAdmin        Boolean  @default(false) @map("is_admin")
   isBanned       Boolean  @default(false) @map("is_banned")
+  stripeCustomerId String?  @map("stripe_customer_id") @db.VarChar(255)
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
 
