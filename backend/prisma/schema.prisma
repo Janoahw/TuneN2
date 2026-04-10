@@ -140,10 +140,11 @@ model Release {
 
 model Song {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  releaseId       String   @map("release_id") @db.Uuid
+  releaseId       String?  @map("release_id") @db.Uuid
   artistId        String   @map("artist_id") @db.Uuid
   title           String   @db.VarChar(200)
-  durationSeconds Int      @map("duration_seconds")
+  description     String?  @db.Text
+  durationSeconds Int?     @map("duration_seconds")
   genreId         Int?     @map("genre_id")
   price           Decimal  @default(0.00) @db.Decimal(10, 2)
   isFree          Boolean  @default(false) @map("is_free")
@@ -153,11 +154,11 @@ model Song {
   lyrics          String?  @db.Text
   trackNumber     Int      @default(1) @map("track_number")
   streamCount     BigInt   @default(0) @map("stream_count")
-  status          String   @default("processing") @db.VarChar(20) // 'processing'|'active'|'flagged'|'removed'
+  status          String   @default("processing") @db.VarChar(20) // 'processing'|'active'|'rejected'|'deleted'
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
 
-  release        Release        @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  release        Release?       @relation(fields: [releaseId], references: [id], onDelete: Cascade)
   artist         ArtistProfile  @relation(fields: [artistId], references: [id], onDelete: Cascade)
   genre          Genre?         @relation(fields: [genreId], references: [id])
   purchases      Purchase[]

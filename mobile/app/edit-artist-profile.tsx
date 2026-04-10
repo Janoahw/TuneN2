@@ -12,8 +12,16 @@ import { useMyArtistProfile, useUpdateArtistProfile } from '@/hooks/useArtist';
 import { colors, fontFamilies, spacing } from '@/theme';
 
 const GENRES = [
-  'Afrobeats', 'Amapiano', 'Hip Hop', 'R&B', 'Pop',
-  'Dancehall', 'Highlife', 'Gospel', 'Jazz', 'Electronic',
+  'Afrobeats',
+  'Amapiano',
+  'Hip Hop',
+  'R&B',
+  'Pop',
+  'Dancehall',
+  'Highlife',
+  'Gospel',
+  'Jazz',
+  'Electronic',
 ] as const;
 
 const editSchema = z.object({
@@ -28,7 +36,11 @@ export default function EditArtistProfileScreen() {
   const updateProfile = useUpdateArtistProfile();
   const [selectedGenres, setSelectedGenres] = useState<number[]>(artist?.genreIds ?? []);
 
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(editSchema),
     defaultValues: {
       artistName: artist?.artistName || '',
@@ -38,7 +50,7 @@ export default function EditArtistProfileScreen() {
 
   const toggleGenre = (idx: number) => {
     setSelectedGenres((prev) =>
-      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx],
     );
   };
 

@@ -138,7 +138,7 @@ export default function ProfileEditScreen() {
               control={control}
               name="displayName"
               placeholder="Display name"
-              icon="👤"
+              icon="user"
               autoCapitalize="words"
               autoComplete="name"
               textContentType="name"

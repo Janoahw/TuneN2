@@ -91,7 +91,11 @@ export default function ProfileScreen() {
         <View style={styles.menu}>
           <MenuItem icon="settings" label="Settings" onPress={() => router.push('/settings')} />
           {storeUser?.isArtist && (
-            <MenuItem icon="edit-2" label="Edit Artist Profile" onPress={() => router.push('/edit-artist-profile')} />
+            <MenuItem
+              icon="edit-2"
+              label="Edit Artist Profile"
+              onPress={() => router.push('/edit-artist-profile')}
+            />
           )}
           <MenuItem icon="credit-card" label="Payment Methods" onPress={() => {}} />
           <MenuItem icon="bar-chart-2" label="Listening History" onPress={() => {}} />

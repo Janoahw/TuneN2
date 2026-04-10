@@ -54,7 +54,11 @@ export default function ArtistDashboardScreen() {
             <Feather name="credit-card" size={20} color="rgba(255,255,255,0.7)" />
           </View>
           <Text style={styles.balanceAmount}>
-            ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            $
+            {balance.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </Text>
           {connect?.payoutsEnabled && (
             <Pressable style={styles.withdrawButton}>
@@ -110,7 +114,15 @@ function StatCard({ value, label }: { value: number | string; label: string }) {
   );
 }
 
-function SaleItem({ title, subtitle, amount }: { title: string; subtitle: string; amount: string }) {
+function SaleItem({
+  title,
+  subtitle,
+  amount,
+}: {
+  title: string;
+  subtitle: string;
+  amount: string;
+}) {
   return (
     <View style={styles.saleItem}>
       <View style={styles.saleIcon}>

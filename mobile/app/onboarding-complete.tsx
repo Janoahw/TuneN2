@@ -7,11 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { artistService } from '@/services/artist.service';
 import { colors, fontFamilies } from '@/theme';
 
-const CHECKS = [
-  'Identity verified',
-  'Bank account linked',
-  'Ready to receive payments',
-];
+const CHECKS = ['Identity verified', 'Bank account linked', 'Ready to receive payments'];
 
 export default function OnboardingCompleteScreen() {
   const [connectStatus, setConnectStatus] = useState<{
@@ -21,7 +17,10 @@ export default function OnboardingCompleteScreen() {
   } | null>(null);
 
   useEffect(() => {
-    artistService.getConnectStatus().then(setConnectStatus).catch(() => {});
+    artistService
+      .getConnectStatus()
+      .then(setConnectStatus)
+      .catch(() => {});
   }, []);
 
   return (
@@ -46,14 +45,13 @@ export default function OnboardingCompleteScreen() {
         {/* Checks */}
         <View style={styles.checkList}>
           {CHECKS.map((check, i) => {
-            const isComplete =
-              connectStatus
-                ? i === 0
-                  ? connectStatus.detailsSubmitted
-                  : i === 1
-                    ? connectStatus.payoutsEnabled
-                    : connectStatus.chargesEnabled
-                : true; // Optimistic default
+            const isComplete = connectStatus
+              ? i === 0
+                ? connectStatus.detailsSubmitted
+                : i === 1
+                  ? connectStatus.payoutsEnabled
+                  : connectStatus.chargesEnabled
+              : true; // Optimistic default
 
             return (
               <View key={check} style={styles.checkRow}>
@@ -72,10 +70,7 @@ export default function OnboardingCompleteScreen() {
         <View style={{ flex: 1 }} />
 
         {/* CTAs */}
-        <Button
-          title="Upload Your First Song"
-          onPress={() => router.replace('/(tabs)/home')}
-        />
+        <Button title="Upload Your First Song" onPress={() => router.replace('/(tabs)/home')} />
 
         <View style={{ height: 12 }} />
 

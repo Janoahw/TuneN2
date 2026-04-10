@@ -1,6 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
-import { artistService, type ArtistProfile, type UpgradeToArtistParams } from '@/services/artist.service';
+import {
+  artistService,
+  type ArtistProfile,
+  type UpgradeToArtistParams,
+} from '@/services/artist.service';
 
 export function useMyArtistProfile() {
   const isArtist = useAuthStore((s) => s.user?.isArtist);

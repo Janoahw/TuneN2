@@ -38,37 +38,22 @@ router.post(
 );
 
 // Create/get Stripe Connect account onboarding link
-router.post(
-  '/connect',
-  authenticate,
-  requireArtist,
-  async (req: Request, res: Response) => {
-    const result = await ArtistService.createConnectAccount(req.user!.id);
-    res.json({ success: true, data: result });
-  },
-);
+router.post('/connect', authenticate, requireArtist, async (req: Request, res: Response) => {
+  const result = await ArtistService.createConnectAccount(req.user!.id);
+  res.json({ success: true, data: result });
+});
 
 // Verify Connect account status after onboarding
-router.get(
-  '/connect/status',
-  authenticate,
-  requireArtist,
-  async (req: Request, res: Response) => {
-    const result = await ArtistService.verifyConnectAccount(req.user!.id);
-    res.json({ success: true, data: result });
-  },
-);
+router.get('/connect/status', authenticate, requireArtist, async (req: Request, res: Response) => {
+  const result = await ArtistService.verifyConnectAccount(req.user!.id);
+  res.json({ success: true, data: result });
+});
 
 // Get own artist profile
-router.get(
-  '/me/profile',
-  authenticate,
-  requireArtist,
-  async (req: Request, res: Response) => {
-    const artist = await ArtistService.getMyArtistProfile(req.user!.id);
-    res.json({ success: true, data: { artist } });
-  },
-);
+router.get('/me/profile', authenticate, requireArtist, async (req: Request, res: Response) => {
+  const artist = await ArtistService.getMyArtistProfile(req.user!.id);
+  res.json({ success: true, data: { artist } });
+});
 
 // Update own artist profile
 router.patch(
@@ -77,23 +62,15 @@ router.patch(
   requireArtist,
   validate({ body: updateArtistProfileSchema }),
   async (req: Request, res: Response) => {
-    const artist = await ArtistService.updateArtistProfile(
-      req.user!.id,
-      req.body,
-    );
+    const artist = await ArtistService.updateArtistProfile(req.user!.id, req.body);
     res.json({ success: true, data: { artist } });
   },
 );
 
 // Get subscription status
-router.get(
-  '/me/subscription',
-  authenticate,
-  requireArtist,
-  async (req: Request, res: Response) => {
-    const status = await ArtistService.getSubscriptionStatus(req.user!.id);
-    res.json({ success: true, data: status });
-  },
-);
+router.get('/me/subscription', authenticate, requireArtist, async (req: Request, res: Response) => {
+  const status = await ArtistService.getSubscriptionStatus(req.user!.id);
+  res.json({ success: true, data: status });
+});
 
 export { router as artistRouter };
