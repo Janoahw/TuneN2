@@ -1,48 +1,21 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
-import { api } from '@/services/api';
-
-interface LoginInput {
-  email: string;
-  password: string;
-}
-
-interface SignupInput {
-  email: string;
-  password: string;
-  displayName: string;
-}
-
-interface AuthResponse {
-  user: { id: string; email: string; displayName: string; isArtist: boolean };
-  accessToken: string;
-  refreshToken: string;
-}
+import { authService, type LoginParams, type SignupParams } from '@/services/auth.service';
 
 export function useAuth() {
   const { user, isAuthenticated, isLoading, setAuth, clearAuth, setTokens } = useAuthStore();
 
   const loginMutation = useMutation({
-    mutationFn: async ({ email, password }: LoginInput) => {
-      const { data } = await api.post<AuthResponse>('/auth/login', { email, password });
-      return data;
-    },
+    mutationFn: (params: LoginParams) => authService.login(params),
     onSuccess: (data) => {
-      setAuth(data.user, data.accessToken, data.refreshToken);
+      setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
     },
   });
 
   const signupMutation = useMutation({
-    mutationFn: async ({ email, password, displayName }: SignupInput) => {
-      const { data } = await api.post<AuthResponse>('/auth/signup', {
-        displayName,
-        email,
-        password,
-      });
-      return data;
-    },
+    mutationFn: (params: SignupParams) => authService.signup(params),
     onSuccess: (data) => {
-      setAuth(data.user, data.accessToken, data.refreshToken);
+      setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
     },
   });
 
@@ -53,7 +26,10 @@ export function useAuth() {
 
   const logout = async () => {
     try {
-      await api.post('/auth/logout');
+      const { refreshToken } = useAuthStore.getState();
+      if (refreshToken) {
+        await authService.logout(refreshToken);
+      }
     } finally {
       clearAuth();
     }
@@ -63,11 +39,8 @@ export function useAuth() {
     const { refreshToken } = useAuthStore.getState();
     if (!refreshToken) return;
 
-    const { data } = await api.post<{ accessToken: string; refreshToken: string }>(
-      '/auth/refresh',
-      { refreshToken },
-    );
-    setTokens(data.accessToken, data.refreshToken);
+    const tokens = await authService.refresh(refreshToken);
+    setTokens(tokens.accessToken, tokens.refreshToken);
   };
 
   return {

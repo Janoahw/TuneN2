@@ -1,6 +1,6 @@
 /**
  * TuneN2 Color Tokens
- * Source of truth: docs/design_system.md § 2 – Color System
+ * Source of truth: tuneN2.pen design file
  *
  * Dark-mode-first. All screens should reference these tokens
  * instead of hardcoding hex values.
@@ -9,36 +9,37 @@
 export const darkColors = {
   // Backgrounds
   bgPrimary: '#0D0D0F',
-  bgSecondary: '#1A1A1F',
-  bgTertiary: '#252530',
-  bgElevated: '#2E2E3A',
+  bgSecondary: '#1C1C1E',
+  bgTertiary: '#2C2C2E',
+  bgElevated: '#2C2C2E',
 
   // Text
   textPrimary: '#F5F5F7',
-  textSecondary: '#A1A1AA',
-  textTertiary: '#6B6B76',
+  textSecondary: '#8E8E93',
+  textTertiary: '#48484A',
 
   // Accents
-  accentPrimary: '#8B5CF6',
-  accentSecondary: '#F97316',
+  accentPrimary: '#FF6B2E',
+  accentSecondary: '#BF5AF2',
   accentTertiary: '#06B6D4',
 
   // Status
-  success: '#22C55E',
+  success: '#30D158',
   warning: '#EAB308',
   error: '#EF4444',
 
   // Borders
-  borderDefault: '#2E2E3A',
-  borderFocus: '#8B5CF6',
+  borderDefault: '#2C2C2E',
+  borderFocus: '#FF6B2E',
 
   // Gradients (start, end)
-  gradientDownload: ['#8B5CF6', '#06B6D4'] as const,
+  gradientBrand: ['#FF6B2E', '#BF5AF2'] as const,
+  gradientDownload: ['#FF6B2E', '#BF5AF2'] as const,
   gradientEarnings: ['#F97316', '#EAB308'] as const,
 
   // Overlay / transparency helpers
   errorBgSubtle: 'rgba(239,68,68,0.1)',
-  accentBgSubtle: 'rgba(139,92,246,0.08)',
+  accentBgSubtle: 'rgba(255,107,46,0.08)',
   transparent: 'transparent',
   white: '#FFFFFF',
 } as const;
@@ -53,22 +54,23 @@ export const lightColors = {
   textSecondary: '#52525B',
   textTertiary: '#A1A1AA',
 
-  accentPrimary: '#7C3AED',
-  accentSecondary: '#EA580C',
+  accentPrimary: '#FF6B2E',
+  accentSecondary: '#BF5AF2',
   accentTertiary: '#06B6D4',
 
-  success: '#22C55E',
+  success: '#30D158',
   warning: '#EAB308',
   error: '#EF4444',
 
   borderDefault: '#E4E4E7',
-  borderFocus: '#7C3AED',
+  borderFocus: '#FF6B2E',
 
-  gradientDownload: ['#7C3AED', '#06B6D4'] as const,
+  gradientBrand: ['#FF6B2E', '#BF5AF2'] as const,
+  gradientDownload: ['#FF6B2E', '#BF5AF2'] as const,
   gradientEarnings: ['#EA580C', '#EAB308'] as const,
 
   errorBgSubtle: 'rgba(239,68,68,0.08)',
-  accentBgSubtle: 'rgba(124,58,237,0.06)',
+  accentBgSubtle: 'rgba(255,107,46,0.06)',
   transparent: 'transparent',
   white: '#FFFFFF',
 } as const;

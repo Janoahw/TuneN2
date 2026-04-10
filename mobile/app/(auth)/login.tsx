@@ -13,6 +13,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
@@ -57,21 +59,25 @@ export default function LoginScreen() {
         >
           {/* Logo */}
           <View style={styles.header}>
-            <Text style={styles.logo}>🎵</Text>
+            <LinearGradient
+              colors={[colors.accentPrimary, colors.accentSecondary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.logoBox}
+            >
+              <Feather name="music" size={28} color={colors.white} />
+            </LinearGradient>
             <Text style={styles.brand}>TuneN2</Text>
-            <Text style={styles.tagline}>Where independent music gets paid.</Text>
+            <Text style={styles.tagline}>Music. Direct. Fair.</Text>
           </View>
 
           {/* Form */}
           <View style={styles.form}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to your account</Text>
-
             <ControlledInput
               control={control}
               name="email"
               placeholder="Email address"
-              icon="✉️"
+              icon="mail"
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -82,9 +88,9 @@ export default function LoginScreen() {
               control={control}
               name="password"
               placeholder="Password"
-              icon="🔒"
+              icon="lock"
               secureTextEntry={!showPassword}
-              rightIcon={showPassword ? '👁️' : '👁️‍🗨️'}
+              rightIcon={showPassword ? 'eye' : 'eye-off'}
               onRightIconPress={() => setShowPassword((prev) => !prev)}
               autoComplete="password"
               textContentType="password"
@@ -121,12 +127,12 @@ export default function LoginScreen() {
           {/* Social */}
           <View style={styles.socialRow}>
             <Pressable style={styles.socialButton}>
-              <Text style={styles.socialIcon}>G</Text>
-              <Text style={styles.socialLabel}>Google</Text>
+              <Feather name="smartphone" size={20} color={colors.textPrimary} />
+              <Text style={styles.socialLabel}>Apple</Text>
             </Pressable>
             <Pressable style={styles.socialButton}>
-              <Text style={styles.socialIcon}></Text>
-              <Text style={styles.socialLabel}>Apple</Text>
+              <Text style={styles.googleIcon}>G</Text>
+              <Text style={styles.socialLabel}>Google</Text>
             </Pressable>
           </View>
 
@@ -148,22 +154,29 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingTop: 32,
+    paddingBottom: 24,
     justifyContent: 'center',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 40,
   },
-  logo: {
-    fontSize: 48,
-    marginBottom: 4,
+  logoBox: {
+    width: 72,
+    height: 72,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
   },
   brand: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
     color: colors.textPrimary,
     letterSpacing: -0.5,
+    fontFamily: 'SpaceGrotesk',
   },
   tagline: {
     fontSize: 14,
@@ -171,17 +184,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   form: {
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textTertiary,
     marginBottom: 24,
   },
   formError: {
@@ -195,32 +197,32 @@ const styles = StyleSheet.create({
   },
   forgotRow: {
     alignItems: 'flex-end',
-    marginBottom: 24,
+    marginBottom: 20,
     marginTop: -8,
   },
   forgotText: {
     color: colors.accentPrimary,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '500',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 24,
+    gap: 12,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.bgTertiary,
+    backgroundColor: colors.borderDefault,
   },
   dividerText: {
-    color: colors.textTertiary,
-    paddingHorizontal: 16,
-    fontSize: 14,
+    color: colors.textSecondary,
+    fontSize: 13,
   },
   socialRow: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 12,
     marginBottom: 32,
   },
   socialButton: {
@@ -229,21 +231,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: colors.bgSecondary,
-    paddingVertical: 14,
+    height: 48,
     borderRadius: 12,
+    backgroundColor: colors.bgSecondary,
     borderWidth: 1,
-    borderColor: colors.bgTertiary,
+    borderColor: colors.borderDefault,
   },
-  socialIcon: {
+  googleIcon: {
     fontSize: 18,
-    color: colors.textPrimary,
     fontWeight: '700',
+    color: colors.textPrimary,
   },
   socialLabel: {
+    fontSize: 15,
+    fontWeight: '500',
     color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',

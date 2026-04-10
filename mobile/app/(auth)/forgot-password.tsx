@@ -13,9 +13,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { api } from '@/services/api';
+import { authService } from '@/services/auth.service';
 import { colors } from '@/theme';
 
 const forgotSchema = z.object({
@@ -37,7 +38,7 @@ export default function ForgotPasswordScreen() {
   const onSubmit = async (values: ForgotForm) => {
     setLoading(true);
     try {
-      await api.post('/auth/forgot-password', { email: values.email });
+      await authService.forgotPassword(values.email);
       setSentEmail(values.email);
       setSent(true);
     } catch (err: any) {
@@ -53,20 +54,16 @@ export default function ForgotPasswordScreen() {
       <SafeAreaView style={styles.safe}>
         <View style={styles.successContainer}>
           <View style={styles.successContent}>
-            <Text style={styles.successIcon}>📧</Text>
-            <Text style={styles.successTitle}>Check your email</Text>
-            <Text style={styles.successSubtitle}>
+            <View style={styles.iconCircle}>
+              <Feather name="mail" size={40} color={colors.textSecondary} />
+            </View>
+            <Text style={styles.title}>Check Your Email</Text>
+            <Text style={styles.subtitle}>
               We sent a password reset link to{'\n'}
               <Text style={styles.emailHighlight}>{sentEmail}</Text>
             </Text>
           </View>
-          <View style={styles.successFooter}>
-            <Button
-              title="Back to Login"
-              onPress={() => router.replace('/(auth)/login')}
-              variant="primary"
-            />
-          </View>
+          <Button title="Back to Login" onPress={() => router.replace('/(auth)/login')} />
         </View>
       </SafeAreaView>
     );
@@ -83,15 +80,26 @@ export default function ForgotPasswordScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Back button */}
-          <Pressable onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backArrow}>←</Text>
-          </Pressable>
+          {/* Top bar */}
+          <View style={styles.topBar}>
+            <Pressable onPress={() => router.back()} hitSlop={12}>
+              <Feather name="arrow-left" size={24} color={colors.textPrimary} />
+            </Pressable>
+            <Text style={styles.topBarTitle}>Reset Password</Text>
+            <View style={{ width: 24 }} />
+          </View>
 
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Forgot Password</Text>
-            <Text style={styles.subtitle}>Enter your email and we'll send you a reset link</Text>
+          {/* Icon */}
+          <View style={styles.centerContent}>
+            <View style={styles.iconCircle}>
+              <Feather name="lock" size={40} color={colors.textSecondary} />
+            </View>
+
+            {/* Header */}
+            <Text style={styles.title}>Forgot Password?</Text>
+            <Text style={styles.subtitle}>
+              Enter your email address and we'll send you a link to reset your password.
+            </Text>
           </View>
 
           {/* Form */}
@@ -99,25 +107,22 @@ export default function ForgotPasswordScreen() {
             <ControlledInput
               control={control}
               name="email"
-              placeholder="Email address"
-              icon="✉️"
+              placeholder="Email Address"
+              icon="mail"
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
               textContentType="emailAddress"
             />
 
-            {loading === false && (
-              <View /> // placeholder so layout stays stable
-            )}
-
             <Button title="Send Reset Link" onPress={handleSubmit(onSubmit)} loading={loading} />
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Pressable onPress={() => router.back()}>
-              <Text style={styles.footerLink}>Back to Login</Text>
+            <Text style={styles.footerText}>Remember your password? </Text>
+            <Pressable onPress={() => router.replace('/(auth)/login')}>
+              <Text style={styles.footerLink}>Log In</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -131,40 +136,58 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
-    padding: 24,
-    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 32,
   },
-  backButton: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    padding: 4,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: colors.textPrimary,
-  },
-  header: {
-    marginBottom: 32,
-    marginTop: 48,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: colors.textPrimary,
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
     marginBottom: 8,
   },
-  subtitle: {
+  topBarTitle: {
     fontSize: 16,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  centerContent: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  iconCircle: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: colors.bgSecondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 15,
     color: colors.textSecondary,
-    lineHeight: 24,
+    textAlign: 'center',
+    lineHeight: 22,
   },
   form: {
     marginBottom: 24,
   },
   footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+  },
+  footerText: {
+    color: colors.textSecondary,
+    fontSize: 14,
   },
   footerLink: {
     color: colors.accentPrimary,
@@ -174,7 +197,8 @@ const styles = StyleSheet.create({
   // Success state
   successContainer: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
     justifyContent: 'space-between',
   },
   successContent: {
@@ -182,28 +206,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  successIcon: {
-    fontSize: 64,
-    marginBottom: 24,
-  },
-  successTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  successSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
   emailHighlight: {
-    color: colors.accentPrimary,
+    color: colors.textPrimary,
     fontWeight: '600',
-  },
-  successFooter: {
-    paddingBottom: 8,
   },
 });

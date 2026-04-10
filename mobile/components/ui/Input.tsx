@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, type TextInputProps } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { colors } from '@/theme';
 import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form';
 
 interface InputProps extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   label?: string;
   error?: string;
-  icon?: string;
-  rightIcon?: string;
+  icon?: React.ComponentProps<typeof Feather>['name'];
+  rightIcon?: React.ComponentProps<typeof Feather>['name'];
   onRightIconPress?: () => void;
 }
 
@@ -38,7 +39,7 @@ export function Input({
           error ? styles.inputError : null,
         ]}
       >
-        {icon && <Text style={styles.icon}>{icon}</Text>}
+        {icon && <Feather name={icon} size={18} color={colors.textTertiary} style={styles.icon} />}
         <TextInput
           style={[styles.input, style]}
           placeholderTextColor={colors.textTertiary}
@@ -50,7 +51,7 @@ export function Input({
         />
         {rightIcon && (
           <Pressable onPress={onRightIconPress} hitSlop={8}>
-            <Text style={styles.rightIcon}>{rightIcon}</Text>
+            <Feather name={rightIcon} size={18} color={colors.textTertiary} />
           </Pressable>
         )}
       </View>
@@ -97,8 +98,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgSecondary,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.bgTertiary,
+    borderColor: colors.borderDefault,
     paddingHorizontal: 16,
+    height: 48,
   },
   inputFocused: {
     borderColor: colors.accentPrimary,
@@ -107,18 +109,13 @@ const styles = StyleSheet.create({
     borderColor: colors.error,
   },
   icon: {
-    fontSize: 18,
     marginRight: 12,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textPrimary,
-    paddingVertical: 16,
-  },
-  rightIcon: {
-    fontSize: 18,
-    marginLeft: 12,
+    height: '100%',
   },
   errorText: {
     fontSize: 12,

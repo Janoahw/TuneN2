@@ -1,21 +1,14 @@
 import { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { api } from '@/services/api';
+import { authService } from '@/services/auth.service';
 import { colors } from '@/theme';
 
 const resetSchema = z
@@ -34,17 +27,12 @@ const resetSchema = z
 
 type ResetForm = z.infer<typeof resetSchema>;
 
-function getPasswordStrength(password: string): { label: string; color: string; width: string } {
-  let score = 0;
-  if (password.length >= 8) score++;
-  if (password.length >= 12) score++;
-  if (/[A-Z]/.test(password)) score++;
-  if (/[0-9]/.test(password)) score++;
-  if (/[^A-Za-z0-9]/.test(password)) score++;
-
-  if (score <= 2) return { label: 'Weak', color: colors.error, width: '33%' };
-  if (score <= 3) return { label: 'Medium', color: colors.warning, width: '66%' };
-  return { label: 'Strong', color: colors.success, width: '100%' };
+function getPasswordChecks(password: string) {
+  return [
+    { label: 'At least 8 characters', met: password.length >= 8 },
+    { label: 'One uppercase letter', met: /[A-Z]/.test(password) },
+    { label: 'One number or symbol', met: /[0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password) },
+  ];
 }
 
 export default function ResetPasswordScreen() {
@@ -60,12 +48,12 @@ export default function ResetPasswordScreen() {
   });
 
   const password = watch('password');
-  const strength = useMemo(() => getPasswordStrength(password || ''), [password]);
+  const checks = useMemo(() => getPasswordChecks(password || ''), [password]);
 
   const onSubmit = async (values: ResetForm) => {
     setLoading(true);
     try {
-      await api.post('/auth/reset-password', { token, password: values.password });
+      await authService.resetPassword(token, values.password);
       setSuccess(true);
     } catch (err: any) {
       const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
@@ -80,20 +68,16 @@ export default function ResetPasswordScreen() {
       <SafeAreaView style={styles.safe}>
         <View style={styles.successContainer}>
           <View style={styles.successContent}>
-            <Text style={styles.successIcon}>✅</Text>
-            <Text style={styles.successTitle}>Password Reset!</Text>
-            <Text style={styles.successSubtitle}>
+            <View style={styles.iconCircle}>
+              <Feather name="check" size={40} color={colors.success} />
+            </View>
+            <Text style={styles.title}>Password Reset!</Text>
+            <Text style={styles.subtitle}>
               Your password has been successfully reset.{'\n'}You can now log in with your new
               password.
             </Text>
           </View>
-          <View style={styles.successFooter}>
-            <Button
-              title="Back to Login"
-              onPress={() => router.replace('/(auth)/login')}
-              variant="primary"
-            />
-          </View>
+          <Button title="Back to Login" onPress={() => router.replace('/(auth)/login')} />
         </View>
       </SafeAreaView>
     );
@@ -110,15 +94,17 @@ export default function ResetPasswordScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Back button */}
-          <Pressable onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backArrow}>←</Text>
-          </Pressable>
+          {/* Icon */}
+          <View style={styles.centerContent}>
+            <View style={styles.iconCircle}>
+              <Feather name="lock" size={40} color={colors.textSecondary} />
+            </View>
 
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Set New Password</Text>
-            <Text style={styles.subtitle}>Choose a strong password for your account</Text>
+            {/* Header */}
+            <Text style={styles.title}>Create New Password</Text>
+            <Text style={styles.subtitle}>
+              New password must be different from previously used passwords.
+            </Text>
           </View>
 
           {/* Form */}
@@ -127,53 +113,45 @@ export default function ResetPasswordScreen() {
               control={control}
               name="password"
               placeholder="New password"
-              icon="🔒"
+              icon="lock"
               secureTextEntry={!showPassword}
-              rightIcon={showPassword ? '👁️' : '👁️‍🗨️'}
+              rightIcon={showPassword ? 'eye' : 'eye-off'}
               onRightIconPress={() => setShowPassword((prev) => !prev)}
               autoComplete="new-password"
               textContentType="newPassword"
             />
 
-            {/* Password strength indicator */}
-            {password && password.length > 0 && (
-              <View style={styles.strengthWrapper}>
-                <View style={styles.strengthTrack}>
-                  <View
-                    style={[
-                      styles.strengthFill,
-                      { width: strength.width as any, backgroundColor: strength.color },
-                    ]}
-                  />
-                </View>
-                <Text style={[styles.strengthLabel, { color: strength.color }]}>
-                  {strength.label}
-                </Text>
-              </View>
-            )}
-
             <ControlledInput
               control={control}
               name="confirmPassword"
-              placeholder="Confirm new password"
-              icon="🔒"
+              placeholder="Confirm password"
+              icon="lock"
               secureTextEntry={!showConfirm}
-              rightIcon={showConfirm ? '👁️' : '👁️‍🗨️'}
+              rightIcon={showConfirm ? 'eye' : 'eye-off'}
               onRightIconPress={() => setShowConfirm((prev) => !prev)}
               autoComplete="new-password"
               textContentType="newPassword"
             />
 
-            <View style={{ height: 8 }} />
+            {/* Password checklist */}
+            {password && password.length > 0 && (
+              <View style={styles.checklist}>
+                {checks.map((check) => (
+                  <View key={check.label} style={styles.checkRow}>
+                    {check.met ? (
+                      <Feather name="check" size={14} color={colors.success} />
+                    ) : (
+                      <Text style={styles.bullet}>•</Text>
+                    )}
+                    <Text style={[styles.checkLabel, check.met && styles.checkLabelMet]}>
+                      {check.label}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
             <Button title="Reset Password" onPress={handleSubmit(onSubmit)} loading={loading} />
-          </View>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Pressable onPress={() => router.replace('/(auth)/login')}>
-              <Text style={styles.footerLink}>Back to Login</Text>
-            </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -186,98 +164,71 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
     justifyContent: 'center',
   },
-  backButton: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    padding: 4,
-  },
-  backArrow: {
-    fontSize: 28,
-    color: colors.textPrimary,
-  },
-  header: {
+  centerContent: {
+    alignItems: 'center',
     marginBottom: 32,
-    marginTop: 48,
+  },
+  iconCircle: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: colors.bgSecondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
     color: colors.textPrimary,
-    marginBottom: 8,
+    textAlign: 'center',
+    marginBottom: 10,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textSecondary,
-    lineHeight: 24,
+    textAlign: 'center',
+    lineHeight: 22,
   },
   form: {
     marginBottom: 24,
   },
-  strengthWrapper: {
+  checklist: {
+    marginBottom: 20,
+    gap: 8,
+  },
+  checkRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginTop: -8,
-    marginBottom: 16,
+    gap: 8,
   },
-  strengthTrack: {
-    flex: 1,
-    height: 4,
-    backgroundColor: colors.bgTertiary,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  strengthFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  strengthLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    width: 52,
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  footerLink: {
-    color: colors.accentPrimary,
+  bullet: {
     fontSize: 14,
-    fontWeight: '600',
+    color: colors.textTertiary,
+    width: 14,
+    textAlign: 'center',
+  },
+  checkLabel: {
+    fontSize: 13,
+    color: colors.textTertiary,
+  },
+  checkLabelMet: {
+    color: colors.success,
   },
   // Success state
   successContainer: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
     justifyContent: 'space-between',
   },
   successContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  successIcon: {
-    fontSize: 64,
-    marginBottom: 24,
-  },
-  successTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  successSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  successFooter: {
-    paddingBottom: 8,
   },
 });
