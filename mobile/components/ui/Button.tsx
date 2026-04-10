@@ -6,7 +6,7 @@ import {
   type ViewStyle,
   type TextStyle,
 } from 'react-native';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 
@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   text: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: fontFamilies.primarySemiBold,
+    fontSize: 15,
   },
 });
 
@@ -88,7 +88,7 @@ const variantStyles: Record<ButtonVariant, ViewStyle> = StyleSheet.create({
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.bgTertiary,
+    borderColor: colors.borderDefault,
   },
   ghost: {
     backgroundColor: 'transparent',

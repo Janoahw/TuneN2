@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, type TextInputProps } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form';
 
 interface InputProps extends Omit<TextInputProps, 'value' | 'onChangeText'> {
@@ -87,10 +87,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 13,
     color: colors.textSecondary,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderDefault,
     paddingHorizontal: 16,
-    height: 48,
+    paddingVertical: 14,
   },
   inputFocused: {
     borderColor: colors.accentPrimary,
@@ -113,9 +113,9 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    fontFamily: fontFamilies.primary,
     fontSize: 15,
     color: colors.textPrimary,
-    height: '100%',
   },
   errorText: {
     fontSize: 12,
