@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/Button';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -85,13 +85,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   brand: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 42,
-    fontWeight: '800',
     color: colors.textPrimary,
     letterSpacing: -1,
-    fontFamily: 'SpaceGrotesk',
   },
   tagline: {
+    fontFamily: fontFamilies.primary,
     fontSize: 16,
     color: colors.textSecondary,
     marginTop: 8,
@@ -112,19 +112,20 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(255,107,46,0.1)',
+    backgroundColor: 'rgba(108,92,231,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
   featureTitle: {
+    fontFamily: fontFamilies.displaySemiBold,
     fontSize: 18,
-    fontWeight: '600',
     color: colors.textPrimary,
     marginBottom: 8,
     textAlign: 'center',
   },
   featureDesc: {
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',

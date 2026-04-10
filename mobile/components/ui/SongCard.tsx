@@ -12,22 +12,11 @@ interface SongCardProps {
   style?: ViewStyle;
 }
 
-export function SongCard({
-  title,
-  artistName,
-  price,
-  duration,
-  onPress,
-  style,
-}: SongCardProps) {
+export function SongCard({ title, artistName, price, duration, onPress, style }: SongCardProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.container,
-        pressed && styles.pressed,
-        style,
-      ]}
+      style={({ pressed }) => [styles.container, pressed && styles.pressed, style]}
     >
       {/* Cover art (gradient placeholder when no image) */}
       <LinearGradient
@@ -39,8 +28,12 @@ export function SongCard({
 
       {/* Song info */}
       <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>{title}</Text>
-        <Text style={styles.artist} numberOfLines={1}>{artistName}</Text>
+        <Text style={styles.title} numberOfLines={1}>
+          {title}
+        </Text>
+        <Text style={styles.artist} numberOfLines={1}>
+          {artistName}
+        </Text>
       </View>
 
       {/* Price & duration */}

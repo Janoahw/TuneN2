@@ -9,7 +9,7 @@ import { Feather } from '@expo/vector-icons';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authService } from '@/services/auth.service';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 const resetSchema = z
   .object({
@@ -182,13 +182,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 28,
-    fontWeight: '800',
     color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 10,
   },
   subtitle: {
+    fontFamily: fontFamilies.primary,
     fontSize: 15,
     color: colors.textSecondary,
     textAlign: 'center',
@@ -213,6 +214,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   checkLabel: {
+    fontFamily: fontFamilies.primary,
     fontSize: 13,
     color: colors.textTertiary,
   },

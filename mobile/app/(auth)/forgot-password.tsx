@@ -17,7 +17,7 @@ import { Feather } from '@expo/vector-icons';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { authService } from '@/services/auth.service';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 const forgotSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -147,8 +147,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   topBarTitle: {
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: colors.textPrimary,
   },
   centerContent: {
@@ -165,13 +165,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 28,
-    fontWeight: '800',
     color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 10,
   },
   subtitle: {
+    fontFamily: fontFamilies.primary,
     fontSize: 15,
     color: colors.textSecondary,
     textAlign: 'center',
@@ -186,13 +187,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
+    fontFamily: fontFamilies.primary,
     color: colors.textSecondary,
     fontSize: 14,
   },
   footerLink: {
+    fontFamily: fontFamilies.primarySemiBold,
     color: colors.accentPrimary,
     fontSize: 14,
-    fontWeight: '600',
   },
   // Success state
   successContainer: {
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emailHighlight: {
+    fontFamily: fontFamilies.primarySemiBold,
     color: colors.textPrimary,
-    fontWeight: '600',
   },
 });

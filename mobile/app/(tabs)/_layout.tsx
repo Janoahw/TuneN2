@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
-import { Text, StyleSheet } from 'react-native';
-import { colors, spacing } from '@/theme';
+import { StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { colors, fontFamilies, spacing } from '@/theme';
 
 export default function TabsLayout() {
   return (
@@ -9,7 +10,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarStyle: styles.tabBar,
         tabBarActiveTintColor: colors.accentPrimary,
-        tabBarInactiveTintColor: colors.textTertiary,
+        tabBarInactiveTintColor: colors.tabInactive,
         tabBarLabelStyle: styles.tabBarLabel,
       }}
     >
@@ -17,28 +18,28 @@ export default function TabsLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>🏠</Text>,
+          tabBarIcon: ({ color, size }) => <Feather name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>🔍</Text>,
+          tabBarIcon: ({ color, size }) => <Feather name="search" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="library"
         options={{
           title: 'Library',
-          tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>📚</Text>,
+          tabBarIcon: ({ color, size }) => <Feather name="music" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <Text style={[styles.icon, { color }]}>👤</Text>,
+          tabBarIcon: ({ color, size }) => <Feather name="user" size={size} color={color} />,
         }}
       />
     </Tabs>
@@ -48,11 +49,10 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: colors.bgPrimary,
-    borderTopColor: colors.bgSecondary,
+    borderTopColor: colors.borderDefault,
     borderTopWidth: 1,
     paddingTop: spacing[2],
     height: 88,
   },
-  tabBarLabel: { fontSize: 12, fontWeight: '600' },
-  icon: { fontSize: 24 },
+  tabBarLabel: { fontFamily: fontFamilies.primaryMedium, fontSize: 11 },
 });

@@ -1,6 +1,7 @@
 import { View, Text, TextInput, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, radius } from '@/theme';
+import { Feather } from '@expo/vector-icons';
+import { colors, fontFamilies, spacing, radius } from '@/theme';
 
 const GENRES = [
   'Afrobeats',
@@ -42,11 +43,17 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgPrimary },
   scroll: { padding: spacing[6] },
-  heading: { fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginBottom: spacing[6] },
+  heading: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 28,
+    color: colors.textPrimary,
+    marginBottom: spacing[6],
+  },
   searchInput: {
     backgroundColor: colors.bgSecondary,
     borderRadius: radius.lg,
     padding: spacing[4],
+    fontFamily: fontFamilies.primary,
     fontSize: 16,
     color: colors.textPrimary,
     marginBottom: spacing[8],
@@ -54,8 +61,8 @@ const styles = StyleSheet.create({
     borderColor: colors.borderDefault,
   },
   sectionTitle: {
+    fontFamily: fontFamilies.displaySemiBold,
     fontSize: 20,
-    fontWeight: '700',
     color: colors.textPrimary,
     marginBottom: spacing[4],
   },
@@ -68,5 +75,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderDefault,
   },
-  genreText: { color: colors.textPrimary, fontSize: 14, fontWeight: '600' },
+  genreText: { fontFamily: fontFamilies.primarySemiBold, color: colors.textPrimary, fontSize: 14 },
 });

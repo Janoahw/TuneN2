@@ -1,12 +1,13 @@
 import { View, Text, StyleSheet, Pressable, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 interface SettingsRowProps {
-  icon: string;
+  icon: React.ComponentProps<typeof Feather>['name'];
   label: string;
   onPress?: () => void;
   value?: string;
@@ -21,12 +22,12 @@ function SettingsRow({ icon, label, onPress, value, danger }: SettingsRowProps) 
       disabled={!onPress}
     >
       <View style={styles.rowLeft}>
-        <Text style={styles.rowIcon}>{icon}</Text>
+        <Feather name={icon} size={20} color={danger ? colors.error : colors.textSecondary} />
         <Text style={[styles.rowLabel, danger && styles.rowLabelDanger]}>{label}</Text>
       </View>
       <View style={styles.rowRight}>
-        {value && <Text style={styles.rowValue}>{value}</Text>}
-        {onPress && <Text style={styles.chevron}>›</Text>}
+        {value ? <Text style={styles.rowValue}>{value}</Text> : null}
+        {onPress ? <Feather name="chevron-right" size={18} color={colors.textTertiary} /> : null}
       </View>
     </Pressable>
   );
@@ -55,8 +56,8 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Pressable onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backArrow}>←</Text>
+          <Pressable onPress={() => router.back()} hitSlop={8} style={styles.backButton}>
+            <Feather name="arrow-left" size={24} color={colors.textPrimary} />
           </Pressable>
           <Text style={styles.headerTitle}>Settings</Text>
           <View style={styles.backButton} />
@@ -66,20 +67,20 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Account</Text>
         <View style={styles.card}>
           <SettingsRow
-            icon="🔑"
+            icon="lock"
             label="Change Password"
             onPress={() => router.push('/change-password')}
           />
           <View style={styles.separator} />
-          <SettingsRow icon="✉️" label="Email" value={email || '—'} />
+          <SettingsRow icon="mail" label="Email" value={email || '—'} />
         </View>
 
         {/* App Section */}
         <Text style={styles.sectionTitle}>App</Text>
         <View style={styles.card}>
-          <SettingsRow icon="🔔" label="Notifications" onPress={() => {}} />
+          <SettingsRow icon="bell" label="Notifications" onPress={() => {}} />
           <View style={styles.separator} />
-          <SettingsRow icon="ℹ️" label="About" value="1.0.0" />
+          <SettingsRow icon="info" label="About" value="1.0.0" />
         </View>
 
         {/* Danger Zone */}
@@ -89,7 +90,7 @@ export default function SettingsScreen() {
             style={({ pressed }) => [styles.logoutRow, pressed && styles.rowPressed]}
             onPress={handleLogout}
           >
-            <Text style={styles.logoutIcon}>🚪</Text>
+            <Feather name="log-out" size={20} color={colors.error} />
             <Text style={styles.logoutLabel}>Log Out</Text>
           </Pressable>
         </View>
@@ -100,33 +101,22 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bgPrimary },
-  scroll: {
-    padding: 24,
-    paddingBottom: 48,
-  },
+  scroll: { padding: 24, paddingBottom: 48 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 32,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  backArrow: {
-    fontSize: 28,
-    color: colors.textPrimary,
-  },
+  backButton: { width: 40, height: 40, justifyContent: 'center' },
   headerTitle: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 24,
-    fontWeight: '700',
     color: colors.textPrimary,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: fontFamilies.primarySemiBold,
+    fontSize: 12,
     color: colors.textTertiary,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -137,7 +127,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgSecondary,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.bgTertiary,
+    borderColor: colors.borderDefault,
     marginBottom: 24,
     overflow: 'hidden',
   },
@@ -148,39 +138,19 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
-  rowPressed: {
-    opacity: 0.7,
-  },
-  rowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  rowIcon: {
-    fontSize: 20,
-  },
+  rowPressed: { opacity: 0.7 },
+  rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   rowLabel: {
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 16,
-    fontWeight: '500',
     color: colors.textPrimary,
   },
-  rowLabelDanger: {
-    color: colors.error,
-  },
-  rowRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
+  rowLabelDanger: { color: colors.error },
+  rowRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rowValue: {
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textTertiary,
-  },
-  chevron: {
-    fontSize: 22,
-    color: colors.textTertiary,
-    fontWeight: '300',
   },
   separator: {
     height: 1,
@@ -195,12 +165,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 8,
   },
-  logoutIcon: {
-    fontSize: 20,
-  },
   logoutLabel: {
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 16,
-    fontWeight: '600',
     color: colors.error,
   },
 });

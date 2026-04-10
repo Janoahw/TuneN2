@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, radius } from '@/theme';
+import { colors, fontFamilies, spacing, radius } from '@/theme';
 
 function Section({ title }: { title: string }) {
   return (
@@ -31,12 +31,22 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgPrimary },
   scroll: { padding: spacing[6] },
-  heading: { fontSize: 28, fontWeight: '800', color: colors.textPrimary, marginBottom: spacing[1] },
-  subtitle: { fontSize: 14, color: colors.textSecondary, marginBottom: spacing[8] },
+  heading: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 28,
+    color: colors.textPrimary,
+    marginBottom: spacing[1],
+  },
+  subtitle: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: spacing[8],
+  },
   section: { marginBottom: spacing[8] },
   sectionTitle: {
+    fontFamily: fontFamilies.displaySemiBold,
     fontSize: 20,
-    fontWeight: '700',
     color: colors.textPrimary,
     marginBottom: spacing[4],
   },
@@ -48,5 +58,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderDefault,
   },
-  placeholderText: { color: colors.textTertiary, fontSize: 14 },
+  placeholderText: { fontFamily: fontFamilies.primary, color: colors.textTertiary, fontSize: 14 },
 });

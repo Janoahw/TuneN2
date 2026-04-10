@@ -1,21 +1,21 @@
-import { Router } from "express";
-import type { Request, Response } from "express";
-import jwt, { type SignOptions } from "jsonwebtoken";
-import rateLimit from "express-rate-limit";
-import { validate } from "../middleware/validate.js";
-import { authenticate } from "../middleware/auth.js";
-import { AuthService } from "../services/auth.service.js";
-import { SocialAuthService } from "../services/social-auth.service.js";
-import { sendVerificationEmail } from "../services/email.service.js";
-import { env } from "../config/env.js";
-import { logger } from "../utils/logger.js";
+import { Router } from 'express';
+import type { Request, Response } from 'express';
+import jwt, { type SignOptions } from 'jsonwebtoken';
+import rateLimit from 'express-rate-limit';
+import { validate } from '../middleware/validate.js';
+import { authenticate } from '../middleware/auth.js';
+import { AuthService } from '../services/auth.service.js';
+import { SocialAuthService } from '../services/social-auth.service.js';
+import { sendVerificationEmail } from '../services/email.service.js';
+import { env } from '../config/env.js';
+import { logger } from '../utils/logger.js';
 import {
   signupSchema,
   loginSchema,
   refreshSchema,
   verifyEmailSchema,
   socialAuthSchema,
-} from "../schemas/auth.js";
+} from '../schemas/auth.js';
 
 const router = Router();
 
@@ -29,8 +29,8 @@ const resendVerificationLimiter = rateLimit({
     success: false,
     data: null,
     error: {
-      code: "RATE_LIMIT_EXCEEDED",
-      message: "Please wait before requesting another verification email",
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Please wait before requesting another verification email',
       details: null,
     },
   },
@@ -38,59 +38,47 @@ const resendVerificationLimiter = rateLimit({
 
 // ── Routes ──────────────────────────────────
 
-router.post(
-  "/signup",
-  validate({ body: signupSchema }),
-  async (req: Request, res: Response) => {
-    const { user, tokens } = await AuthService.signup(req.body);
+router.post('/signup', validate({ body: signupSchema }), async (req: Request, res: Response) => {
+  const { user, tokens } = await AuthService.signup(req.body);
 
-    // Generate email verification token
-    const verificationToken = jwt.sign(
-      { userId: user.id, purpose: "email-verify" },
-      env.JWT_ACCESS_SECRET!,
-      { expiresIn: "24h" } as SignOptions,
-    );
+  // Generate email verification token
+  const verificationToken = jwt.sign(
+    { userId: user.id, purpose: 'email-verify' },
+    env.JWT_ACCESS_SECRET!,
+    { expiresIn: '24h' } as SignOptions,
+  );
 
-    // Send verification email (fire-and-forget in signup flow)
-    sendVerificationEmail(user.email, verificationToken).catch((err) => {
-      logger.error({ err, userId: user.id }, "Failed to send verification email");
-    });
+  // Send verification email (fire-and-forget in signup flow)
+  sendVerificationEmail(user.email, verificationToken).catch((err) => {
+    logger.error({ err, userId: user.id }, 'Failed to send verification email');
+  });
 
-    res.status(201).json({
-      success: true,
-      data: { user, tokens },
-    });
-  },
-);
+  res.status(201).json({
+    success: true,
+    data: { user, tokens },
+  });
+});
 
-router.post(
-  "/login",
-  validate({ body: loginSchema }),
-  async (req: Request, res: Response) => {
-    const result = await AuthService.login(req.body);
+router.post('/login', validate({ body: loginSchema }), async (req: Request, res: Response) => {
+  const result = await AuthService.login(req.body);
 
-    res.json({
-      success: true,
-      data: { user: result.user, tokens: result.tokens },
-    });
-  },
-);
+  res.json({
+    success: true,
+    data: { user: result.user, tokens: result.tokens },
+  });
+});
 
-router.post(
-  "/refresh",
-  validate({ body: refreshSchema }),
-  async (req: Request, res: Response) => {
-    const tokens = await AuthService.refreshToken(req.body.refreshToken);
+router.post('/refresh', validate({ body: refreshSchema }), async (req: Request, res: Response) => {
+  const tokens = await AuthService.refreshToken(req.body.refreshToken);
 
-    res.json({
-      success: true,
-      data: { tokens },
-    });
-  },
-);
+  res.json({
+    success: true,
+    data: { tokens },
+  });
+});
 
 router.post(
-  "/logout",
+  '/logout',
   authenticate,
   validate({ body: refreshSchema }),
   async (req: Request, res: Response) => {
@@ -98,26 +86,26 @@ router.post(
 
     res.json({
       success: true,
-      data: { message: "Logged out successfully" },
+      data: { message: 'Logged out successfully' },
     });
   },
 );
 
 router.post(
-  "/verify-email",
+  '/verify-email',
   validate({ body: verifyEmailSchema }),
   async (req: Request, res: Response) => {
     const user = await AuthService.verifyEmail(req.body.token);
 
     res.json({
       success: true,
-      data: { message: "Email verified", user },
+      data: { message: 'Email verified', user },
     });
   },
 );
 
 router.post(
-  "/resend-verification",
+  '/resend-verification',
   authenticate,
   resendVerificationLimiter,
   async (req: Request, res: Response) => {
@@ -125,19 +113,19 @@ router.post(
 
     res.json({
       success: true,
-      data: { message: "Verification email sent" },
+      data: { message: 'Verification email sent' },
     });
   },
 );
 
 router.post(
-  "/social",
+  '/social',
   validate({ body: socialAuthSchema }),
   async (req: Request, res: Response) => {
     const { provider, idToken } = req.body;
 
     const result =
-      provider === "google"
+      provider === 'google'
         ? await SocialAuthService.authenticateWithGoogle(idToken)
         : await SocialAuthService.authenticateWithApple(idToken);
 

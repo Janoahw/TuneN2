@@ -14,10 +14,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 const changePasswordSchema = z
   .object({
@@ -98,8 +99,8 @@ export default function ChangePasswordScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Pressable onPress={() => router.back()} style={styles.backButton}>
-              <Text style={styles.backArrow}>←</Text>
+            <Pressable onPress={() => router.back()} hitSlop={8} style={styles.backButton}>
+              <Feather name="arrow-left" size={24} color={colors.textPrimary} />
             </Pressable>
             <Text style={styles.headerTitle}>Change Password</Text>
             <View style={styles.backButton} />
@@ -185,18 +186,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 32,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  backArrow: {
-    fontSize: 28,
-    color: colors.textPrimary,
-  },
+  backButton: { width: 40, height: 40, justifyContent: 'center' },
   headerTitle: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 24,
-    fontWeight: '700',
     color: colors.textPrimary,
   },
   form: {
@@ -226,8 +219,8 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   strengthLabel: {
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 12,
-    fontWeight: '600',
     width: 52,
   },
 });

@@ -16,11 +16,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { useUpdateProfile, useUploadAvatar, useUserProfile } from '@/hooks/useUser';
-import { colors } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 
 const editProfileSchema = z.object({
   displayName: z.string().min(1, 'Display name is required').max(100, 'Max 100 characters'),
@@ -103,8 +105,8 @@ export default function ProfileEditScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Pressable onPress={() => router.back()} style={styles.backButton}>
-              <Text style={styles.backArrow}>←</Text>
+            <Pressable onPress={() => router.back()} hitSlop={8} style={styles.backButton}>
+              <Feather name="arrow-left" size={24} color={colors.textPrimary} />
             </Pressable>
             <Text style={styles.headerTitle}>Edit Profile</Text>
             <View style={styles.backButton} />
@@ -115,12 +117,17 @@ export default function ProfileEditScreen() {
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
             ) : (
-              <View style={styles.avatarPlaceholder}>
+              <LinearGradient
+                colors={colors.gradientBrand as unknown as [string, string]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.avatarPlaceholder}
+              >
                 <Text style={styles.avatarInitials}>{initials}</Text>
-              </View>
+              </LinearGradient>
             )}
             <View style={styles.changePhotoOverlay}>
-              <Text style={styles.changePhotoText}>📷</Text>
+              <Feather name="camera" size={16} color={colors.onPrimary} />
             </View>
             <Text style={styles.changePhotoLabel}>Change Photo</Text>
           </Pressable>
@@ -164,18 +171,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 32,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-  },
-  backArrow: {
-    fontSize: 28,
-    color: colors.textPrimary,
-  },
+  backButton: { width: 40, height: 40, justifyContent: 'center' },
   headerTitle: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 24,
-    fontWeight: '700',
     color: colors.textPrimary,
   },
   avatarSection: {
@@ -193,16 +192,13 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: colors.bgTertiary,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: colors.accentPrimary,
   },
   avatarInitials: {
+    fontFamily: fontFamilies.displayBold,
     fontSize: 40,
-    fontWeight: '700',
-    color: colors.accentPrimary,
+    color: colors.onPrimary,
   },
   changePhotoOverlay: {
     position: 'absolute',
@@ -218,13 +214,10 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: colors.bgPrimary,
   },
-  changePhotoText: {
-    fontSize: 16,
-  },
   changePhotoLabel: {
     marginTop: 12,
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 14,
-    fontWeight: '600',
     color: colors.accentPrimary,
   },
   form: {

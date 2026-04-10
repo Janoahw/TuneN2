@@ -1,6 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
-import { authService, type LoginParams, type SignupParams } from '@/services/auth.service';
+import {
+  authService,
+  type LoginParams,
+  type SignupParams,
+  type SocialAuthParams,
+} from '@/services/auth.service';
 
 export function useAuth() {
   const { user, isAuthenticated, isLoading, setAuth, clearAuth, setTokens } = useAuthStore();
@@ -14,6 +19,13 @@ export function useAuth() {
 
   const signupMutation = useMutation({
     mutationFn: (params: SignupParams) => authService.signup(params),
+    onSuccess: (data) => {
+      setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
+    },
+  });
+
+  const socialAuthMutation = useMutation({
+    mutationFn: (params: SocialAuthParams) => authService.socialAuth(params),
     onSuccess: (data) => {
       setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
     },
@@ -43,15 +55,20 @@ export function useAuth() {
     setTokens(tokens.accessToken, tokens.refreshToken);
   };
 
+  const socialLogin = (provider: 'google' | 'apple', idToken: string) =>
+    socialAuthMutation.mutateAsync({ provider, idToken });
+
   return {
     user,
     isAuthenticated,
     isLoading,
     login,
     signup,
+    socialLogin,
     logout,
     refreshAuth,
     loginMutation,
     signupMutation,
+    socialAuthMutation,
   };
 }

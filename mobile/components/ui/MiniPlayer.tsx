@@ -36,8 +36,12 @@ export function MiniPlayer({
 
       {/* Song info */}
       <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>{songTitle}</Text>
-        <Text style={styles.artist} numberOfLines={1}>{artistName}</Text>
+        <Text style={styles.title} numberOfLines={1}>
+          {songTitle}
+        </Text>
+        <Text style={styles.artist} numberOfLines={1}>
+          {artistName}
+        </Text>
       </View>
 
       {/* Controls */}
@@ -46,11 +50,7 @@ export function MiniPlayer({
       </Pressable>
 
       <Pressable onPress={onPlayPause} style={styles.playButton} hitSlop={8}>
-        <Feather
-          name={isPlaying ? 'pause' : 'play'}
-          size={16}
-          color={colors.onPrimary}
-        />
+        <Feather name={isPlaying ? 'pause' : 'play'} size={16} color={colors.onPrimary} />
       </Pressable>
 
       <Pressable onPress={onNext} hitSlop={8}>
