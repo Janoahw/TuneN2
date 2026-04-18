@@ -7,6 +7,8 @@
     "dev:api": "pnpm --filter backend dev",
     "dev:admin": "pnpm --filter admin dev",
     "dev:mobile": "pnpm --filter mobile start",
+    "devclient:mobile:android": "pnpm --filter mobile exec eas build -p android --profile development",
+    "devclient:mobile:ios": "pnpm --filter mobile exec eas build -p ios --profile development",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
@@ -23,7 +25,7 @@
     "eslint": "^9.24.0"
   },
   "engines": {
-    "node": ">=22.0.0",
+    "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
   },
   "pnpm": {
