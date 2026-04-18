@@ -2,6 +2,7 @@
   "expo": {
     "name": "TuneN2",
     "slug": "tunen2",
+    "owner": "tunen2",
     "version": "0.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,8 +17,10 @@
       "bundleIdentifier": "com.tunen2.app",
       "infoPlist": {
         "UIBackgroundModes": [
+          "audio",
           "audio"
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -29,8 +32,13 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-notifications",
-      "expo-font"
-    ]
+      "expo-notifications"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "483c0d36-76de-4db0-92c8-510cf7fa324d"
+      }
+    }
   }
 }
