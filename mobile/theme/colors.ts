@@ -21,7 +21,7 @@ export const darkColors = {
   textTertiary: '#48484A',
 
   // Accents (pen: --primary, --accent)
-  accentPrimary: '#FF6B2E',
+  accentPrimary: '#00CCCC',
   accentSecondary: '#BF5AF2',
   accentTertiary: '#06B6D4',
 
@@ -35,21 +35,21 @@ export const darkColors = {
 
   // Borders (pen: --border)
   borderDefault: '#2C2C3A',
-  borderFocus: '#FF6B2E',
+  borderFocus: '#00CCCC',
 
   // Tab bar
   tabInactive: '#5A5A6E',
 
   // Gradients (start, end) — 135° in pen
-  gradientBrand: ['#FF6B2E', '#BF5AF2'] as const,
-  gradientDownload: ['#FF6B2E', '#BF5AF2'] as const,
-  gradientEarnings: ['#FF6B2E', '#BF5AF2'] as const,
+  gradientBrand: ['#00CCCC', '#BF5AF2'] as const,
+  gradientDownload: ['#00CCCC', '#BF5AF2'] as const,
+  gradientEarnings: ['#00CCCC', '#BF5AF2'] as const,
 
   // Subtle status backgrounds (from screen evidence)
   successBgSubtle: '#1A3A1A',
   warningBgSubtle: '#3A2A1A',
   errorBgSubtle: '#3A1A1A',
-  accentBgSubtle: 'rgba(255,107,46,0.08)',
+  accentBgSubtle: 'rgba(0,204,204,0.08)',
   transparent: 'transparent',
   white: '#FFFFFF',
 
@@ -73,7 +73,7 @@ export const lightColors = {
   textSecondary: '#52525B',
   textTertiary: '#A1A1AA',
 
-  accentPrimary: '#FF6B2E',
+  accentPrimary: '#00CCCC',
   accentSecondary: '#BF5AF2',
   accentTertiary: '#06B6D4',
 
@@ -84,18 +84,18 @@ export const lightColors = {
   gold: '#FF9F0A',
 
   borderDefault: '#E4E4E7',
-  borderFocus: '#FF6B2E',
+  borderFocus: '#00CCCC',
 
   tabInactive: '#8E8E93',
 
-  gradientBrand: ['#FF6B2E', '#BF5AF2'] as const,
-  gradientDownload: ['#FF6B2E', '#BF5AF2'] as const,
-  gradientEarnings: ['#FF6B2E', '#BF5AF2'] as const,
+  gradientBrand: ['#00CCCC', '#BF5AF2'] as const,
+  gradientDownload: ['#00CCCC', '#BF5AF2'] as const,
+  gradientEarnings: ['#00CCCC', '#BF5AF2'] as const,
 
   successBgSubtle: 'rgba(48,209,88,0.1)',
   warningBgSubtle: 'rgba(255,214,10,0.1)',
   errorBgSubtle: 'rgba(255,69,58,0.08)',
-  accentBgSubtle: 'rgba(255,107,46,0.06)',
+  accentBgSubtle: 'rgba(0,204,204,0.06)',
   transparent: 'transparent',
   white: '#FFFFFF',
 

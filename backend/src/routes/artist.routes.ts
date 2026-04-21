@@ -67,10 +67,4 @@ router.patch(
   },
 );
 
-// Get subscription status
-router.get('/me/subscription', authenticate, requireArtist, async (req: Request, res: Response) => {
-  const status = await ArtistService.getSubscriptionStatus(req.user!.id);
-  res.json({ success: true, data: status });
-});
-
 export { router as artistRouter };

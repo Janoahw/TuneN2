@@ -5,8 +5,8 @@ import { NotFoundError, ConflictError, ForbiddenError, ValidationError } from '.
 
 export class ArtistService {
   /**
-   * Upgrade a fan to an artist: create Stripe subscription (30-day trial),
-   * create ArtistProfile, set User.isArtist = true.
+   * Upgrade a fan to an artist: create ArtistProfile, set User.isArtist = true.
+   * No platform subscription fee — artists list and sell for free.
    */
   static async upgradeToArtist(
     userId: string,
@@ -28,32 +28,14 @@ export class ArtistService {
     }
 
     let stripeCustomerId = user.stripeCustomerId;
-    let stripeSubscriptionId: string | null = null;
-    let trialEndsAt: Date | null = null;
 
-    // Create Stripe customer if not exists
+    // Create Stripe customer if not exists (needed for future payouts/fan subscriptions)
     if (!stripeCustomerId && env.STRIPE_SECRET_KEY) {
       const customer = await stripe.customers.create({
         email: user.email,
         metadata: { userId: user.id },
       });
       stripeCustomerId = customer.id;
-    }
-
-    // Create subscription with 30-day trial
-    if (stripeCustomerId && env.STRIPE_PRICE_ID) {
-      const subscription = await stripe.subscriptions.create({
-        customer: stripeCustomerId,
-        items: [{ price: env.STRIPE_PRICE_ID }],
-        trial_period_days: 30,
-        payment_behavior: 'default_incomplete',
-        expand: ['latest_invoice.payment_intent'],
-      });
-      stripeSubscriptionId = subscription.id;
-      trialEndsAt = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null;
-    } else {
-      // Dev mode: simulate trial
-      trialEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     }
 
     // Create artist profile + update user in a transaction
@@ -65,9 +47,7 @@ export class ArtistService {
           bio: data.bio ?? null,
           genreIds: data.genreIds,
           profileImageUrl: data.profileImageUrl ?? null,
-          stripeSubscriptionId,
-          subscriptionStatus: 'trialing',
-          trialEndsAt,
+          subscriptionStatus: 'active',
         },
       });
 
@@ -233,81 +213,5 @@ export class ArtistService {
     });
 
     return updated;
-  }
-
-  /**
-   * Get subscription status for the current artist.
-   */
-  static async getSubscriptionStatus(userId: string) {
-    const artist = await prisma.artistProfile.findUnique({
-      where: { userId },
-    });
-
-    if (!artist) throw new NotFoundError('Artist profile not found');
-
-    let stripeStatus = null;
-    if (artist.stripeSubscriptionId && env.STRIPE_SECRET_KEY) {
-      const sub = await stripe.subscriptions.retrieve(artist.stripeSubscriptionId);
-      stripeStatus = {
-        status: sub.status,
-        currentPeriodEnd: new Date(sub.current_period_end * 1000),
-        cancelAtPeriodEnd: sub.cancel_at_period_end,
-      };
-    }
-
-    return {
-      subscriptionStatus: artist.subscriptionStatus,
-      trialEndsAt: artist.trialEndsAt,
-      subscriptionEndsAt: artist.subscriptionEndsAt,
-      stripe: stripeStatus,
-    };
-  }
-
-  /**
-   * Handle Stripe billing webhooks.
-   */
-  static async handleSubscriptionEvent(
-    eventType: string,
-    subscription: {
-      id: string;
-      customer: string;
-      status: string;
-      current_period_end?: number;
-    },
-  ) {
-    const artist = await prisma.artistProfile.findFirst({
-      where: { stripeSubscriptionId: subscription.id },
-    });
-
-    if (!artist) return; // Not our subscription
-
-    switch (eventType) {
-      case 'invoice.paid': {
-        await prisma.artistProfile.update({
-          where: { id: artist.id },
-          data: {
-            subscriptionStatus: 'active',
-            subscriptionEndsAt: subscription.current_period_end
-              ? new Date(subscription.current_period_end * 1000)
-              : null,
-          },
-        });
-        break;
-      }
-      case 'invoice.payment_failed': {
-        await prisma.artistProfile.update({
-          where: { id: artist.id },
-          data: { subscriptionStatus: 'lapsed' },
-        });
-        break;
-      }
-      case 'customer.subscription.deleted': {
-        await prisma.artistProfile.update({
-          where: { id: artist.id },
-          data: { subscriptionStatus: 'cancelled' },
-        });
-        break;
-      }
-    }
   }
 }
