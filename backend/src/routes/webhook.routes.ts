@@ -2,7 +2,6 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { stripe } from '../config/stripe.js';
 import { env } from '../config/env.js';
-import { ArtistService } from '../services/artist.service.js';
 import { PurchaseService } from '../services/purchase.service.js';
 import { logger } from '../utils/logger.js';
 
@@ -27,28 +26,6 @@ router.post('/stripe', async (req: Request, res: Response) => {
 
   try {
     switch (event.type) {
-      // ── Subscription events ───────────────
-      case 'invoice.paid':
-      case 'invoice.payment_failed': {
-        const invoice = event.data.object as any;
-        await ArtistService.handleSubscriptionEvent(event.type, {
-          id: invoice.subscription as string,
-          customer: invoice.customer as string,
-          status: invoice.status,
-          current_period_end: invoice.lines?.data?.[0]?.period?.end,
-        });
-        break;
-      }
-      case 'customer.subscription.deleted': {
-        const subscription = event.data.object as any;
-        await ArtistService.handleSubscriptionEvent(event.type, {
-          id: subscription.id,
-          customer: subscription.customer as string,
-          status: subscription.status,
-        });
-        break;
-      }
-
       // ── Song purchase events ──────────────
       case 'payment_intent.succeeded': {
         const pi = event.data.object as any;

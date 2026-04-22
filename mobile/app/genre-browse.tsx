@@ -1,39 +1,25 @@
 import {
   View,
   Text,
-  ScrollView,
   StyleSheet,
   Pressable,
+  ScrollView,
   Image,
   FlatList,
-  RefreshControl,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamilies, fontSizes, spacing, radius } from '@/theme';
-import { useDiscoverFeed } from '@/hooks/useDiscover';
+import { useGenreDetail } from '@/hooks/useDiscover';
 import type { ArtistSummary } from '@/services/discover.service';
 import type { Song } from '@/services/song.service';
-import { useAuthStore } from '@/stores/authStore';
-
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good Morning';
-  if (hour < 17) return 'Good Afternoon';
-  return 'Good Evening';
-}
 
 function formatPrice(price: string, isFree: boolean): string {
   if (isFree) return 'Free';
   return `$${parseFloat(price).toFixed(2)}`;
-}
-
-function formatFollowers(count: number): string {
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-  return String(count);
 }
 
 function formatDuration(seconds?: number | null): string {
@@ -64,16 +50,11 @@ function ArtistCircle({ artist }: { artist: ArtistSummary }) {
       <Text style={styles.artistCircleName} numberOfLines={1}>
         {artist.artistName}
       </Text>
-      {artist.genres.length > 0 && (
-        <Text style={styles.artistCircleGenre} numberOfLines={1}>
-          {artist.genres[0]}
-        </Text>
-      )}
     </Pressable>
   );
 }
 
-function SongRow({ song }: { song: Song & { _count?: { purchases: number } } }) {
+function SongRow({ song }: { song: Song }) {
   return (
     <Pressable
       style={styles.songRow}
@@ -88,14 +69,14 @@ function SongRow({ song }: { song: Song & { _count?: { purchases: number } } }) 
         />
       )}
       <View style={styles.songRowInfo}>
-        <Text style={styles.songRowTitle} numberOfLines={1}>
+        <Text style={styles.songTitle} numberOfLines={1}>
           {song.title}
         </Text>
-        <Text style={styles.songRowArtist} numberOfLines={1}>
+        <Text style={styles.songArtist} numberOfLines={1}>
           {song.artist?.artistName}
         </Text>
       </View>
-      <View style={styles.songRowMeta}>
+      <View style={styles.songMeta}>
         <Text style={styles.songPrice}>{formatPrice(song.price, song.isFree)}</Text>
         <Text style={styles.songDuration}>{formatDuration(song.durationSeconds)}</Text>
       </View>
@@ -103,25 +84,9 @@ function SongRow({ song }: { song: Song & { _count?: { purchases: number } } }) 
   );
 }
 
-function SectionHeader({ title, onSeeAll }: { title: string; onSeeAll?: () => void }) {
-  return (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {onSeeAll && (
-        <Pressable onPress={onSeeAll}>
-          <Text style={styles.seeAll}>See All</Text>
-        </Pressable>
-      )}
-    </View>
-  );
-}
-
-export default function HomeScreen() {
-  const user = useAuthStore((s) => s.user);
-  const { data, isLoading, refetch, isRefetching } = useDiscoverFeed(10);
-
-  const greeting = getGreeting();
-  const displayName = user?.displayName?.split(' ')[0] ?? 'there';
+export default function GenreBrowseScreen() {
+  const { slug, name } = useLocalSearchParams<{ slug: string; name: string }>();
+  const { data, isLoading } = useGenreDetail(slug ?? '');
 
   if (isLoading) {
     return (
@@ -133,36 +98,37 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={refetch}
-            tintColor={colors.accentPrimary}
-          />
-        }
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>{greeting}</Text>
-            <Text style={styles.displayName}>{displayName} 👋</Text>
-          </View>
-        </View>
-
-        {/* Search bar shortcut */}
-        <Pressable style={styles.searchBar} onPress={() => router.push('/(tabs)/search')}>
-          <Feather name="search" size={18} color={colors.accentPrimary} />
-          <Text style={styles.searchPlaceholder}>Artists, songs, genres…</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()} hitSlop={12}>
+          <Feather name="arrow-left" size={22} color={colors.textPrimary} />
         </Pressable>
+        <Text style={styles.headerTitle}>{name ?? data?.name}</Text>
+        <View style={{ width: 22 }} />
+      </View>
 
-        {/* New Artists */}
-        {data?.newArtists && data.newArtists.length > 0 && (
+      <ScrollView contentContainerStyle={styles.scroll}>
+        {/* Hero card */}
+        <LinearGradient
+          colors={[colors.accentPrimary, '#008080']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroCard}
+        >
+          <Text style={styles.heroGenreName}>{name ?? data?.name}</Text>
+          {data && (
+            <Text style={styles.heroStats}>
+              {data._count.songs} songs • {data._count.artists ?? 0} artists
+            </Text>
+          )}
+        </LinearGradient>
+
+        {/* Top Artists */}
+        {data?.topArtists && data.topArtists.length > 0 && (
           <View style={styles.section}>
-            <SectionHeader title="New Artists" onSeeAll={() => router.push('/all-artists')} />
+            <Text style={styles.sectionTitle}>Top Artists</Text>
             <FlatList
-              data={data.newArtists}
+              data={data.topArtists}
               keyExtractor={(a) => a.id}
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -172,28 +138,13 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Top Performing */}
-        {data?.topPerformingSongs && data.topPerformingSongs.length > 0 && (
+        {/* Popular Songs */}
+        {data?.popularSongs && data.popularSongs.length > 0 && (
           <View style={styles.section}>
-            <SectionHeader title="Top Performing" />
-            {data.topPerformingSongs.slice(0, 5).map((song) => (
-              <SongRow key={song.id} song={song} />
+            <Text style={styles.sectionTitle}>Popular Songs</Text>
+            {data.popularSongs.map((s) => (
+              <SongRow key={s.id} song={s as unknown as Song} />
             ))}
-          </View>
-        )}
-
-        {/* Fastest Growing */}
-        {data?.fastestGrowingArtists && data.fastestGrowingArtists.length > 0 && (
-          <View style={styles.section}>
-            <SectionHeader title="Fastest Growing" onSeeAll={() => router.push('/all-artists')} />
-            <FlatList
-              data={data.fastestGrowingArtists}
-              keyExtractor={(a) => a.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.artistRow}
-              renderItem={({ item }) => <ArtistCircle artist={item} />}
-            />
           </View>
         )}
       </ScrollView>
@@ -203,61 +154,47 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bgPrimary },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loader: { flex: 1 },
   scroll: { paddingHorizontal: spacing[5], paddingBottom: spacing[8] },
 
   header: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: spacing[4],
-    paddingBottom: spacing[5],
+    paddingHorizontal: spacing[5],
+    paddingVertical: spacing[4],
   },
-  greeting: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-  },
-  displayName: {
-    fontFamily: fontFamilies.displayBold,
-    fontSize: fontSizes.xl,
-    color: colors.textPrimary,
-  },
-
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    marginBottom: spacing[6],
-  },
-  searchPlaceholder: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.base,
-    color: colors.textTertiary,
-  },
-
-  section: { marginBottom: spacing[8] },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing[4],
-  },
-  sectionTitle: {
+  headerTitle: {
     fontFamily: fontFamilies.displaySemiBold,
     fontSize: fontSizes.md,
     color: colors.textPrimary,
   },
-  seeAll: {
-    fontFamily: fontFamilies.primarySemiBold,
+
+  heroCard: {
+    borderRadius: radius.xl,
+    padding: spacing[8],
+    marginBottom: spacing[8],
+    justifyContent: 'flex-end',
+    minHeight: 140,
+  },
+  heroGenreName: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: fontSizes['3xl'] ?? 30,
+    color: colors.onPrimary,
+    marginBottom: spacing[2],
+  },
+  heroStats: {
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: fontSizes.sm,
-    color: colors.accentPrimary,
+    color: 'rgba(255,255,255,0.85)',
+  },
+
+  section: { marginBottom: spacing[8] },
+  sectionTitle: {
+    fontFamily: fontFamilies.displaySemiBold,
+    fontSize: fontSizes.md,
+    color: colors.textPrimary,
+    marginBottom: spacing[4],
   },
 
   artistRow: { gap: spacing[4], paddingRight: spacing[4] },
@@ -280,12 +217,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     textAlign: 'center',
   },
-  artistCircleGenre: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.xs,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
 
   songRow: {
     flexDirection: 'row',
@@ -295,24 +226,20 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.borderDefault,
   },
-  songCover: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.sm,
-  },
+  songCover: { width: 48, height: 48, borderRadius: radius.sm },
   songRowInfo: { flex: 1 },
-  songRowTitle: {
+  songTitle: {
     fontFamily: fontFamilies.primarySemiBold,
     fontSize: fontSizes.base,
     color: colors.textPrimary,
   },
-  songRowArtist: {
+  songArtist: {
     fontFamily: fontFamilies.primary,
     fontSize: fontSizes.sm,
     color: colors.textSecondary,
     marginTop: 2,
   },
-  songRowMeta: { alignItems: 'flex-end' },
+  songMeta: { alignItems: 'flex-end' },
   songPrice: {
     fontFamily: fontFamilies.monoSemiBold,
     fontSize: fontSizes.sm,

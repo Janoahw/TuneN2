@@ -73,6 +73,11 @@ export const artistService = {
     return data.data.artist;
   },
 
+  async getArtistSongs(artistId: string, limit = 10): Promise<any[]> {
+    const { data } = await api.get(`/artists/${artistId}/songs`, { params: { limit } });
+    return data.data.songs;
+  },
+
   async updateProfile(
     updates: Partial<
       UpgradeToArtistParams & {

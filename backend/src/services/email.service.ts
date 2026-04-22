@@ -1,5 +1,5 @@
-import { env } from "../config/env.js";
-import { logger } from "../utils/logger.js";
+import { env } from '../config/env.js';
+import { logger } from '../utils/logger.js';
 
 interface SendEmailOptions {
   to: string;
@@ -16,17 +16,17 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
   if (!env.RESEND_API_KEY) {
     logger.info(
       { to: options.to, subject: options.subject },
-      "Email (dev mode — no RESEND_API_KEY): would send email",
+      'Email (dev mode — no RESEND_API_KEY): would send email',
     );
-    logger.debug({ html: options.html }, "Email body");
+    logger.debug({ html: options.html }, 'Email body');
     return;
   }
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       from: env.EMAIL_FROM,
@@ -39,22 +39,19 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
 
   if (!res.ok) {
     const body = await res.text();
-    logger.error({ status: res.status, body }, "Failed to send email via Resend");
+    logger.error({ status: res.status, body }, 'Failed to send email via Resend');
     throw new Error(`Email send failed: ${res.status}`);
   }
 
-  logger.info({ to: options.to, subject: options.subject }, "Email sent");
+  logger.info({ to: options.to, subject: options.subject }, 'Email sent');
 }
 
-export async function sendVerificationEmail(
-  email: string,
-  token: string,
-): Promise<void> {
-  const verifyUrl = `${env.APP_URL}/verify-email?token=${token}`;
+export async function sendVerificationEmail(email: string, token: string): Promise<void> {
+  const verifyUrl = `tunen2://verify?token=${token}`;
 
   await sendEmail({
     to: email,
-    subject: "Verify your TuneN2 account",
+    subject: 'Verify your TuneN2 account',
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; background: #0A0A0F; color: #fff;">
         <h1 style="color: #6C5CE7; font-size: 28px; margin-bottom: 8px;">TuneN2</h1>
@@ -70,15 +67,12 @@ export async function sendVerificationEmail(
   });
 }
 
-export async function sendPasswordResetEmail(
-  email: string,
-  token: string,
-): Promise<void> {
+export async function sendPasswordResetEmail(email: string, token: string): Promise<void> {
   const resetUrl = `${env.APP_URL}/reset-password?token=${token}`;
 
   await sendEmail({
     to: email,
-    subject: "Reset your TuneN2 password",
+    subject: 'Reset your TuneN2 password',
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; background: #0A0A0F; color: #fff;">
         <h1 style="color: #6C5CE7; font-size: 28px; margin-bottom: 8px;">TuneN2</h1>
