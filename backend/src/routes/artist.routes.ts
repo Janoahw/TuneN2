@@ -24,6 +24,24 @@ router.get(
   },
 );
 
+// Get public songs for an artist
+router.get(
+  '/:artistId/songs',
+  validate({ params: artistIdParamSchema }),
+  async (req: Request, res: Response) => {
+    const { page = '1', limit = '10' } = req.query as Record<string, string>;
+    const { prisma } = await import('../config/database.js');
+    const songs = await prisma.song.findMany({
+      where: { artistId: req.params.artistId, status: 'active' },
+      include: { genre: true, artist: { select: { artistName: true } } },
+      orderBy: { createdAt: 'desc' },
+      skip: (parseInt(page) - 1) * parseInt(limit),
+      take: parseInt(limit),
+    });
+    res.json({ success: true, data: { songs } });
+  },
+);
+
 // ── Authenticated Routes ────────────────────
 
 // Upgrade fan to artist (create subscription + profile)
