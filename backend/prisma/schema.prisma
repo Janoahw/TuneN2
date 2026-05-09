@@ -239,8 +239,41 @@ model Wallet {
 
   artist       ArtistProfile       @relation(fields: [artistId], references: [id], onDelete: Cascade)
   transactions WalletTransaction[]
+  withdrawals  Withdrawal[]
 
   @@map("wallets")
+}
+
+// ─── WITHDRAWALS ─────────────────────────────────────────
+
+model Withdrawal {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  walletId         String    @map("wallet_id") @db.Uuid
+  amountCents      Int       @map("amount_cents")
+  feeCents         Int       @default(0) @map("fee_cents")
+  netAmountCents   Int       @map("net_amount_cents")
+  stripeTransferId String?   @map("stripe_transfer_id") @db.VarChar(255)
+  status           String    @default("pending") @db.VarChar(20) // 'pending'|'processing'|'completed'|'failed'
+  requestedAt      DateTime  @default(now()) @map("requested_at") @db.Timestamptz()
+  completedAt      DateTime? @map("completed_at") @db.Timestamptz()
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+  @@index([status])
+  @@map("withdrawals")
+}
+
+// ─── PROCESSED WEBHOOKS (idempotency) ────────────────────
+
+model ProcessedWebhook {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  stripeEventId String  @unique @map("stripe_event_id") @db.VarChar(255)
+  eventType    String   @map("event_type") @db.VarChar(100)
+  processedAt  DateTime @default(now()) @map("processed_at") @db.Timestamptz()
+
+  @@index([stripeEventId])
+  @@map("processed_webhooks")
 }
 
 // ─── WALLET TRANSACTIONS ─────────────────────────────────

@@ -28,4 +28,10 @@ export const ENDPOINTS = {
     artists: '/artists',
     recommended: '/songs/recommended',
   },
+  wallet: {
+    balance: '/wallet',
+    transactions: '/wallet/transactions',
+    withdraw: '/wallet/withdraw',
+    withdrawals: '/wallet/withdrawals',
+  },
 } as const;

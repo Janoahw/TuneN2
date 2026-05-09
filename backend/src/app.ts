@@ -19,6 +19,7 @@ import { purchaseRouter } from './routes/purchase.routes.js';
 import { libraryRouter } from './routes/library.routes.js';
 import { webhookRouter } from './routes/webhook.routes.js';
 import { discoverRouter } from './routes/discover.routes.js';
+import { walletRouter } from './routes/wallet.routes.js';
 
 const app = express();
 
@@ -62,6 +63,7 @@ app.use('/api/v1/songs', songRouter);
 app.use('/api/v1/songs', purchaseRouter);
 app.use('/api/v1/library', libraryRouter);
 app.use('/api/v1', discoverRouter);
+app.use('/api/v1/wallet', walletRouter);
 app.use('/api/v1/webhooks', webhookRouter);
 
 // ── 404 handler ─────────────────────────────
