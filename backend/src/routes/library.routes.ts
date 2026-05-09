@@ -27,7 +27,7 @@ router.get(
   authenticate,
   validate({ params: libraryCheckParamSchema }),
   async (req: Request, res: Response) => {
-    const owned = await LibraryService.checkOwnership(req.user!.id, req.params.songId);
+    const owned = await LibraryService.checkOwnership(req.user!.id, req.params.songId as string);
     res.json({ success: true, data: { owned } });
   },
 );

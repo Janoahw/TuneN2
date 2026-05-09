@@ -149,7 +149,7 @@ export class ArtistService {
       where: { id: artistId },
       include: {
         user: { select: { displayName: true, avatarUrl: true } },
-        _count: { select: { followers: true, songs: true, releases: true } },
+        _count: { select: { follows: true, songs: true, releases: true } },
       },
     });
 
@@ -157,7 +157,7 @@ export class ArtistService {
 
     return {
       ...artist,
-      followerCount: artist._count.followers,
+      followerCount: artist._count.follows,
       songCount: artist._count.songs,
       releaseCount: artist._count.releases,
     };
@@ -172,7 +172,7 @@ export class ArtistService {
       include: {
         user: { select: { displayName: true, avatarUrl: true, email: true } },
         wallet: true,
-        _count: { select: { followers: true, songs: true, releases: true } },
+        _count: { select: { follows: true, songs: true, releases: true } },
       },
     });
 
@@ -180,7 +180,7 @@ export class ArtistService {
 
     return {
       ...artist,
-      followerCount: artist._count.followers,
+      followerCount: artist._count.follows,
       songCount: artist._count.songs,
       releaseCount: artist._count.releases,
     };

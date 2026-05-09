@@ -19,7 +19,7 @@ router.get(
   '/:artistId',
   validate({ params: artistIdParamSchema }),
   async (req: Request, res: Response) => {
-    const artist = await ArtistService.getArtistProfile(req.params.artistId);
+    const artist = await ArtistService.getArtistProfile(req.params.artistId as string);
     res.json({ success: true, data: { artist } });
   },
 );
@@ -32,7 +32,7 @@ router.get(
     const { page = '1', limit = '10' } = req.query as Record<string, string>;
     const { prisma } = await import('../config/database.js');
     const songs = await prisma.song.findMany({
-      where: { artistId: req.params.artistId, status: 'active' },
+      where: { artistId: req.params.artistId as string, status: 'active' },
       include: { genre: true, artist: { select: { artistName: true } } },
       orderBy: { createdAt: 'desc' },
       skip: (parseInt(page) - 1) * parseInt(limit),

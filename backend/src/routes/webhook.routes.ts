@@ -55,14 +55,9 @@ router.post('/stripe', async (req: Request, res: Response) => {
       }
 
       // ── Transfer events (S8.6) ──────────────
-      case 'transfer.paid': {
+      case 'transfer.created': {
         const transfer = event.data.object as any;
         await WalletService.handleTransferPaid(transfer.id);
-        break;
-      }
-      case 'transfer.failed': {
-        const transfer = event.data.object as any;
-        await WalletService.handleTransferFailed(transfer.id);
         break;
       }
 

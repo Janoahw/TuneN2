@@ -115,7 +115,6 @@ export class DiscoverService {
               OR: [
                 { artistName: { contains: q, mode: 'insensitive' } },
                 { bio: { contains: q, mode: 'insensitive' } },
-                { genres: { has: q } },
               ],
             },
             select: ARTIST_SELECT,
@@ -154,7 +153,6 @@ export class DiscoverService {
         id: true,
         name: true,
         slug: true,
-        description: true,
         _count: { select: { songs: { where: { status: 'active' } } } },
       },
     });
@@ -172,7 +170,6 @@ export class DiscoverService {
         id: true,
         name: true,
         slug: true,
-        description: true,
         _count: { select: { songs: { where: { status: 'active' } } } },
       },
     });
