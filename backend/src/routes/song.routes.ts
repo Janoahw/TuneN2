@@ -23,12 +23,12 @@ router.get(
   optionalAuth,
   validate({ params: songIdParamSchema }),
   async (req: Request, res: Response) => {
-    const song = await SongService.getSongById(req.params.songId);
+    const song = await SongService.getSongById(req.params.songId as string);
     let owned = false;
     if (req.user) {
       const { prisma } = await import('../config/database.js');
       const purchase = await prisma.purchase.findUnique({
-        where: { buyerId_songId: { buyerId: req.user.id, songId: req.params.songId } },
+        where: { buyerId_songId: { buyerId: req.user.id, songId: req.params.songId as string } },
       });
       owned = purchase?.status === 'completed';
     }
@@ -45,7 +45,9 @@ router.post(
   requireArtist,
   validate({ body: uploadUrlSchema }),
   async (req: Request, res: Response) => {
-    const artist = await (await import('../config/database.js')).prisma.artistProfile.findUnique({
+    const artist = await (
+      await import('../config/database.js')
+    ).prisma.artistProfile.findUnique({
       where: { userId: req.user!.id },
     });
     const result = await SongService.generateUploadUrl(
@@ -110,7 +112,7 @@ router.patch(
   requireArtist,
   validate({ params: songIdParamSchema, body: updateSongSchema }),
   async (req: Request, res: Response) => {
-    const song = await SongService.updateSong(req.user!.id, req.params.songId, req.body);
+    const song = await SongService.updateSong(req.user!.id, req.params.songId as string, req.body);
     res.json({ success: true, data: { song } });
   },
 );
@@ -122,7 +124,7 @@ router.delete(
   requireArtist,
   validate({ params: songIdParamSchema }),
   async (req: Request, res: Response) => {
-    await SongService.deleteSong(req.user!.id, req.params.songId);
+    await SongService.deleteSong(req.user!.id, req.params.songId as string);
     res.json({ success: true, message: 'Song deleted' });
   },
 );

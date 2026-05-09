@@ -52,7 +52,7 @@ router.get(
   '/genres/:slug',
   validate({ params: genreSlugParamSchema }),
   async (req: Request, res: Response) => {
-    const data = await DiscoverService.getGenreDetail(req.params.slug);
+    const data = await DiscoverService.getGenreDetail(req.params.slug as string);
     res.json({ success: true, data });
   },
 );

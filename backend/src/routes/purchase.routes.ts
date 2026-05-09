@@ -14,7 +14,10 @@ router.post(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const result = await PurchaseService.createPaymentIntent(req.user!.id, req.params.songId);
+    const result = await PurchaseService.createPaymentIntent(
+      req.user!.id,
+      req.params.songId as string,
+    );
     res.json({ success: true, data: result });
   },
 );
@@ -26,7 +29,7 @@ router.get(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const owned = await PurchaseService.checkOwnership(req.user!.id, req.params.songId);
+    const owned = await PurchaseService.checkOwnership(req.user!.id, req.params.songId as string);
     res.json({ success: true, data: { owned } });
   },
 );
@@ -38,7 +41,7 @@ router.get(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const result = await PurchaseService.getDownloadUrl(req.user!.id, req.params.songId);
+    const result = await PurchaseService.getDownloadUrl(req.user!.id, req.params.songId as string);
     res.json({ success: true, data: result });
   },
 );
