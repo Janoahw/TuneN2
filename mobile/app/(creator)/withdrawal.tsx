@@ -30,7 +30,9 @@ export default function WithdrawalScreen() {
   const fee = amountNum * FEE_PERCENT;
   const youReceive = amountNum - fee;
 
-  const bankLabel = connect?.chargesEnabled ? 'Bank Account (via Stripe)' : 'No bank account connected';
+  const bankLabel = connect?.chargesEnabled
+    ? 'Bank Account (via Stripe)'
+    : 'No bank account connected';
 
   function setQuick(val: number) {
     setAmount(val.toString());
@@ -50,14 +52,10 @@ export default function WithdrawalScreen() {
       return;
     }
     if (!connect?.chargesEnabled) {
-      Alert.alert(
-        'Payout account not set up',
-        'Please complete Stripe Connect onboarding first.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Set Up', onPress: () => router.push('/stripe-connect') },
-        ],
-      );
+      Alert.alert('Payout account not set up', 'Please complete Stripe Connect onboarding first.', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Set Up', onPress: () => router.push('/stripe-connect') },
+      ]);
       return;
     }
 
@@ -97,7 +95,11 @@ export default function WithdrawalScreen() {
         <View style={styles.availableCard}>
           <Text style={styles.availableLabel}>Available Balance</Text>
           <Text style={styles.availableAmount}>
-            ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            $
+            {balance.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </Text>
         </View>
 

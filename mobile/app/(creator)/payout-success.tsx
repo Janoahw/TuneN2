@@ -40,7 +40,10 @@ export default function PayoutSuccessScreen() {
         </View>
 
         {/* Done button */}
-        <Pressable style={styles.doneBtn} onPress={() => router.replace('/(creator)/artist-dashboard')}>
+        <Pressable
+          style={styles.doneBtn}
+          onPress={() => router.replace('/(creator)/artist-dashboard')}
+        >
           <Text style={styles.doneBtnText}>Done</Text>
         </Pressable>
 

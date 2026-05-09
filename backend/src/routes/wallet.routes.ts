@@ -13,19 +13,14 @@ router.get('/', authenticate, requireArtist, async (req: Request, res: Response)
 });
 
 // GET /api/v1/wallet/transactions — S8.3
-router.get(
-  '/transactions',
-  authenticate,
-  requireArtist,
-  async (req: Request, res: Response) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
-    const type = req.query.type as string | undefined;
+router.get('/transactions', authenticate, requireArtist, async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+  const type = req.query.type as string | undefined;
 
-    const result = await WalletService.getTransactions(req.user!.id, { page, limit, type });
-    res.json(result);
-  },
-);
+  const result = await WalletService.getTransactions(req.user!.id, { page, limit, type });
+  res.json(result);
+});
 
 // POST /api/v1/wallet/withdraw — S8.5
 router.post('/withdraw', authenticate, requireArtist, async (req: Request, res: Response) => {
@@ -41,17 +36,12 @@ router.post('/withdraw', authenticate, requireArtist, async (req: Request, res: 
 });
 
 // GET /api/v1/wallet/withdrawals — S8.9
-router.get(
-  '/withdrawals',
-  authenticate,
-  requireArtist,
-  async (req: Request, res: Response) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+router.get('/withdrawals', authenticate, requireArtist, async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
 
-    const result = await WalletService.getWithdrawals(req.user!.id, { page, limit });
-    res.json(result);
-  },
-);
+  const result = await WalletService.getWithdrawals(req.user!.id, { page, limit });
+  res.json(result);
+});
 
 export { router as walletRouter };

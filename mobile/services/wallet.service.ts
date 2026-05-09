@@ -67,7 +67,12 @@ export const walletService = {
     page?: number;
     limit?: number;
     type?: string;
-  }): Promise<{ transactions: WalletTransaction[]; total: number; page: number; totalPages: number }> {
+  }): Promise<{
+    transactions: WalletTransaction[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
     const res = await api.get(ENDPOINTS.wallet.transactions, { params });
     return res.data;
   },

@@ -285,6 +285,9 @@ export class WalletService {
       });
     });
 
-    logger.info({ withdrawalId: withdrawal.id, stripeTransferId }, 'Withdrawal failed — balance restored');
+    logger.info(
+      { withdrawalId: withdrawal.id, stripeTransferId },
+      'Withdrawal failed — balance restored',
+    );
   }
 }

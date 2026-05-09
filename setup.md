@@ -175,7 +175,7 @@ This is required for song uploads, audio playback, and cover art/avatar images t
 
 ### 6c. Create a CloudFront Distribution
 
-CloudFront serves your audio files with signed URLs (DRM protection).
+CloudFront serves your audio files with signed URLs (**access control for downloads**) — files can only be downloaded by users with a valid, unexpired link (1-hour expiry).
 
 1. Go to **CloudFront → Create distribution**.
 2. **Origin domain:** Select `tunen2-audio-preview.s3.us-east-1.amazonaws.com`.
