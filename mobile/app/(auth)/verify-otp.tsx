@@ -10,7 +10,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/services/auth.service';
@@ -70,13 +72,34 @@ export default function VerifyOtpScreen() {
     setLoading(true);
     try {
       await authService.verifyOtp(otp);
-      // On success, the navigate home will be handled by the app layout auth check
+      
+      // Show success feedback
+      Toast.show({
+        type: 'success',
+        text1: 'Email Verified',
+        text2: 'Your email has been verified successfully.',
+        duration: 2000,
+        onPress: () => {
+          Toast.hide();
+          router.replace('/(tabs)/home');
+        },
+      });
+
+      // Auto-navigate after toast is shown
+      setTimeout(() => {
+        router.replace('/(tabs)/home');
+      }, 2500);
     } catch (err: any) {
       const message = err?.response?.data?.error?.message || 'Invalid OTP. Try again.';
       setError(message);
       setOtp('');
       inputRef.current?.focus();
-    } finally {
+      Toast.show({
+        type: 'error',
+        text1: 'Verification Failed',
+        text2: message,
+        duration: 3000,
+      });
       setLoading(false);
     }
   }, [otp]);
@@ -113,7 +136,7 @@ export default function VerifyOtpScreen() {
             <View style={styles.content}>
               {/* Icon */}
               <View style={styles.iconCircle}>
-                <Feather name="shield-check" size={40} color={colors.accentPrimary} />
+                <Feather name="lock" size={40} color={colors.accentPrimary} />
               </View>
 
               {/* Heading */}
@@ -215,7 +238,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
     fontFamily: fontFamilies.displayBold,
-  },
+  } as any,
   subtitle: {
     fontSize: 14,
     color: colors.textSecondary,
@@ -223,12 +246,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 32,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
   emailHighlight: {
     color: colors.accentPrimary,
     fontWeight: '600',
     fontFamily: fontFamilies.primarySemiBold,
-  },
+  } as any,
   inputSection: {
     width: '100%',
     marginBottom: 24,
@@ -239,7 +262,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: 10,
     fontFamily: fontFamilies.primarySemiBold,
-  },
+  } as any,
   otpInput: {
     width: '100%',
     paddingVertical: 16,
@@ -254,7 +277,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgSecondary,
     fontFamily: fontFamilies.monoSemiBold,
     textAlign: 'center',
-  },
+  } as any,
   otpInputError: {
     borderColor: colors.error,
   },
@@ -273,14 +296,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.error,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
   timer: {
     fontSize: 13,
     color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
   buttonSection: {
     width: '100%',
     marginBottom: 32,
@@ -295,16 +318,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
   resendLink: {
     fontSize: 13,
     color: colors.accentPrimary,
     fontWeight: '600',
     fontFamily: fontFamilies.primarySemiBold,
-  },
+  } as any,
   resendCooldown: {
     fontSize: 13,
     color: colors.textSecondary,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
 });

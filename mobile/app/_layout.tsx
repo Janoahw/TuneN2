@@ -4,9 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import Toast from 'react-native-toast-message';
 import {
   SpaceGrotesk_400Regular,
   SpaceGrotesk_500Medium,
@@ -37,6 +38,55 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const toastConfig = {
+  success: (props: any) => (
+    <View style={toastStyles.container}>
+      <View style={[toastStyles.box, toastStyles.successBox]}>
+        <View style={toastStyles.content}>
+          <View style={toastStyles.textContainer}>
+            <View style={toastStyles.titleContainer}>
+              <View style={toastStyles.iconBox}>
+                <Text style={toastStyles.iconText}>✓</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                {props.text1 && (
+                  <Text style={toastStyles.title}>{props.text1}</Text>
+                )}
+                {props.text2 && (
+                  <Text style={toastStyles.message}>{props.text2}</Text>
+                )}
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  ),
+  error: (props: any) => (
+    <View style={toastStyles.container}>
+      <View style={[toastStyles.box, toastStyles.errorBox]}>
+        <View style={toastStyles.content}>
+          <View style={toastStyles.textContainer}>
+            <View style={toastStyles.titleContainer}>
+              <View style={[toastStyles.iconBox, toastStyles.errorIcon]}>
+                <Text style={toastStyles.iconText}>!</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                {props.text1 && (
+                  <Text style={toastStyles.title}>{props.text1}</Text>
+                )}
+                {props.text2 && (
+                  <Text style={toastStyles.message}>{props.text2}</Text>
+                )}
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  ),
+};
 
 function RootLayoutInner() {
   const isInitialized = useAuthStore((s) => s.isInitialized);
@@ -83,6 +133,7 @@ function RootLayoutInner() {
           contentStyle: { backgroundColor: colors.bgPrimary },
         }}
       />
+      <Toast config={toastConfig} />
     </View>
   );
 }
@@ -106,5 +157,63 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgPrimary,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+});
+
+const toastStyles = StyleSheet.create({
+  container: {
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 16,
+  },
+  box: {
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  successBox: {
+    backgroundColor: colors.success,
+  },
+  errorBox: {
+    backgroundColor: colors.error,
+  },
+  content: {
+    alignItems: 'center',
+  },
+  textContainer: {
+    width: '100%',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  iconBox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  iconText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  errorIcon: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  title: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  message: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 13,
+    lineHeight: 18,
   },
 });

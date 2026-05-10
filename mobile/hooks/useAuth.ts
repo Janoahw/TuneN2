@@ -42,8 +42,10 @@ export function useAuth() {
       if (refreshToken) {
         await authService.logout(refreshToken);
       }
+    } catch {
+      // Always allow local signout even if backend logout fails.
     } finally {
-      clearAuth();
+      await clearAuth();
     }
   };
 
