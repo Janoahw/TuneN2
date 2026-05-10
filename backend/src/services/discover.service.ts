@@ -28,9 +28,9 @@ const ARTIST_SELECT = {
   artistName: true,
   bio: true,
   profileImageUrl: true,
-  coverImageUrl: true,
+  bannerImageUrl: true,
   isVerified: true,
-  genres: true,
+  genreIds: true,
   createdAt: true,
   user: { select: { id: true, displayName: true, avatarUrl: true } },
   _count: {

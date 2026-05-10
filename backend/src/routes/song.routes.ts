@@ -23,12 +23,13 @@ router.get(
   optionalAuth,
   validate({ params: songIdParamSchema }),
   async (req: Request, res: Response) => {
-    const song = await SongService.getSongById(req.params.songId as string);
+    const { songId } = (req as any).validatedParams as { songId: string };
+    const song = await SongService.getSongById(songId);
     let owned = false;
     if (req.user) {
       const { prisma } = await import('../config/database.js');
       const purchase = await prisma.purchase.findUnique({
-        where: { buyerId_songId: { buyerId: req.user.id, songId: req.params.songId as string } },
+        where: { buyerId_songId: { buyerId: req.user.id, songId: songId } },
       });
       owned = purchase?.status === 'completed';
     }
@@ -78,7 +79,7 @@ router.get(
   requireArtist,
   validate({ query: songListQuerySchema }),
   async (req: Request, res: Response) => {
-    const { status, page, limit } = req.query as unknown as {
+    const { status, page, limit } = (req as any).validatedQuery as {
       status?: string;
       page: number;
       limit: number;
@@ -95,7 +96,7 @@ router.get(
   requireArtist,
   validate({ query: songListQuerySchema }),
   async (req: Request, res: Response) => {
-    const { status, page, limit } = req.query as unknown as {
+    const { status, page, limit } = (req as any).validatedQuery as {
       status?: string;
       page: number;
       limit: number;
@@ -112,7 +113,8 @@ router.patch(
   requireArtist,
   validate({ params: songIdParamSchema, body: updateSongSchema }),
   async (req: Request, res: Response) => {
-    const song = await SongService.updateSong(req.user!.id, req.params.songId as string, req.body);
+    const { songId } = (req as any).validatedParams as { songId: string };
+    const song = await SongService.updateSong(req.user!.id, songId, req.body);
     res.json({ success: true, data: { song } });
   },
 );
@@ -124,7 +126,8 @@ router.delete(
   requireArtist,
   validate({ params: songIdParamSchema }),
   async (req: Request, res: Response) => {
-    await SongService.deleteSong(req.user!.id, req.params.songId as string);
+    const { songId } = (req as any).validatedParams as { songId: string };
+    await SongService.deleteSong(req.user!.id, songId);
     res.json({ success: true, message: 'Song deleted' });
   },
 );
