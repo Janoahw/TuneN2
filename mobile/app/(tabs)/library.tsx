@@ -175,7 +175,7 @@ export default function LibraryScreen() {
           <Feather name="headphones" size={64} color={colors.textTertiary} />
           <Text style={styles.emptyTitle}>Your library is empty</Text>
           <Text style={styles.emptySubtitle}>Songs you purchase will appear here</Text>
-          <Pressable style={styles.signInBtn} onPress={() => router.push('/(tabs)/explore' as any)}>
+          <Pressable style={styles.signInBtn} onPress={() => router.push('/(tabs)/search' as any)}>
             <Text style={styles.signInText}>Discover Music</Text>
           </Pressable>
         </View>

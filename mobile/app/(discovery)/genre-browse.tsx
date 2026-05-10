@@ -96,8 +96,6 @@ export default function GenreBrowseScreen() {
     );
   }
 
-  console.log('Genre Data:', data); // Debug log for genre data
-
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
