@@ -56,8 +56,7 @@ export default function SignupScreen() {
         password: values.password,
       });
       router.push({
-        pathname: '/(auth)/verify-email',
-        params: { email: values.email },
+        pathname: '/(auth)/verify-otp',
       });
     } catch (err: any) {
       const message = err?.response?.data?.message || 'Something went wrong. Try again.';

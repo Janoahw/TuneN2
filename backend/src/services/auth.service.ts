@@ -1,21 +1,14 @@
-import jwt, { type SignOptions } from "jsonwebtoken";
-import { prisma } from "../config/database.js";
-import { redis } from "../config/redis.js";
-import { env } from "../config/env.js";
-import { hashPassword, comparePassword } from "../utils/password.js";
-import {
-  generateTokenPair,
-  verifyRefreshToken,
-  type TokenPayload,
-} from "../utils/tokens.js";
-import {
-  ConflictError,
-  ForbiddenError,
-  UnauthorizedError,
-} from "../utils/errors.js";
-import { logger } from "../utils/logger.js";
+import jwt, { type SignOptions } from 'jsonwebtoken';
+import { prisma } from '../config/database.js';
+import { redis } from '../config/redis.js';
+import { env } from '../config/env.js';
+import { hashPassword, comparePassword } from '../utils/password.js';
+import { generateOtp, calculateOtpExpiry } from '../utils/otp.js';
+import { generateTokenPair, verifyRefreshToken, type TokenPayload } from '../utils/tokens.js';
+import { ConflictError, ForbiddenError, UnauthorizedError } from '../utils/errors.js';
+import { logger } from '../utils/logger.js';
 
-import { sendVerificationEmail } from "./email.service.js";
+import { sendOtpEmail } from './email.service.js';
 
 type User = {
   id: string;
@@ -34,9 +27,7 @@ type User = {
 // 30 days in seconds
 const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60;
 
-function sanitizeUser(
-  user: User & { passwordHash?: string | null },
-): Omit<User, "passwordHash"> {
+function sanitizeUser(user: User & { passwordHash?: string | null }): Omit<User, 'passwordHash'> {
   const { passwordHash: _, ...sanitized } = user as User & {
     passwordHash?: string | null;
   };
@@ -58,17 +49,13 @@ function buildTokenPayload(user: {
 }
 
 export class AuthService {
-  static async signup(data: {
-    email: string;
-    password: string;
-    displayName: string;
-  }) {
+  static async signup(data: { email: string; password: string; displayName: string }) {
     const existing = await prisma.user.findUnique({
       where: { email: data.email },
     });
 
     if (existing) {
-      throw new ConflictError("Email already registered");
+      throw new ConflictError('Email already registered');
     }
 
     const passwordHash = await hashPassword(data.password);
@@ -92,21 +79,21 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedError("Invalid credentials");
+      throw new UnauthorizedError('Invalid credentials');
     }
 
     if (user.isBanned) {
-      throw new ForbiddenError("Account suspended");
+      throw new ForbiddenError('Account suspended');
     }
 
     if (!user.passwordHash) {
-      throw new UnauthorizedError("Invalid credentials");
+      throw new UnauthorizedError('Invalid credentials');
     }
 
     const valid = await comparePassword(data.password, user.passwordHash);
 
     if (!valid) {
-      throw new UnauthorizedError("Invalid credentials");
+      throw new UnauthorizedError('Invalid credentials');
     }
 
     const tokens = generateTokenPair(buildTokenPayload(user));
@@ -118,7 +105,7 @@ export class AuthService {
     const blacklisted = await redis.get(`bl:${refreshToken}`);
 
     if (blacklisted) {
-      throw new UnauthorizedError("Token revoked");
+      throw new UnauthorizedError('Token revoked');
     }
 
     const payload = verifyRefreshToken(refreshToken);
@@ -131,69 +118,124 @@ export class AuthService {
     });
 
     // Blacklist the old refresh token
-    await redis.set(`bl:${refreshToken}`, "1", "EX", REFRESH_TOKEN_TTL);
+    await redis.set(`bl:${refreshToken}`, '1', 'EX', REFRESH_TOKEN_TTL);
 
     return newTokens;
   }
 
   static async logout(refreshToken: string) {
-    await redis.set(`bl:${refreshToken}`, "1", "EX", REFRESH_TOKEN_TTL);
+    await redis.set(`bl:${refreshToken}`, '1', 'EX', REFRESH_TOKEN_TTL);
   }
 
-  static async verifyEmail(token: string) {
-    let decoded: jwt.JwtPayload;
-    try {
-      decoded = jwt.verify(token, env.JWT_ACCESS_SECRET!) as jwt.JwtPayload;
-    } catch {
-      throw new UnauthorizedError("Invalid or expired verification token");
-    }
-
-    if (decoded.purpose !== "email-verify") {
-      throw new UnauthorizedError("Invalid verification token");
-    }
-
+  /**
+   * Send OTP to user email
+   * Generates a new 6-digit code, saves it, and sends via email
+   */
+  static async sendOtp(userId: string) {
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: userId },
     });
 
     if (!user) {
-      throw new UnauthorizedError("Invalid verification token");
+      throw new UnauthorizedError('User not found');
     }
 
     if (user.emailVerified) {
-      return sanitizeUser(user);
+      throw new ConflictError('Email already verified');
     }
 
+    // Generate 6-digit OTP
+    const otp = generateOtp();
+    const expiresAt = calculateOtpExpiry(10); // 10 minutes
+
+    // Save OTP to database
+    await prisma.emailOTP.create({
+      data: {
+        userId,
+        code: otp,
+        expiresAt,
+      },
+    });
+
+    // Send OTP email (fire-and-forget)
+    sendOtpEmail(user.email, otp).catch((err) => {
+      logger.error({ err, userId }, 'Failed to send OTP email');
+    });
+  }
+
+  /**
+   * Verify OTP code submitted by user
+   * Validates code, checks expiry, and marks email as verified
+   */
+  static async verifyOtp(userId: string, code: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedError('User not found');
+    }
+
+    if (user.emailVerified) {
+      return sanitizeUser(user); // Already verified, return user
+    }
+
+    // Find the most recent OTP for this user
+    const otp = await prisma.emailOTP.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!otp) {
+      throw new UnauthorizedError('No OTP found. Request a new one.');
+    }
+
+    // Check if OTP is expired
+    if (new Date() > otp.expiresAt) {
+      throw new UnauthorizedError('OTP expired. Request a new one.');
+    }
+
+    // Check if OTP was already used
+    if (otp.usedAt) {
+      throw new UnauthorizedError('OTP already used. Request a new one.');
+    }
+
+    // Check if OTP code matches
+    if (otp.code !== code) {
+      // Increment attempts
+      await prisma.emailOTP.update({
+        where: { id: otp.id },
+        data: { attempts: otp.attempts + 1 },
+      });
+
+      // Lock after 5 failed attempts
+      if (otp.attempts >= 4) {
+        throw new UnauthorizedError('Too many failed attempts. Request a new OTP.');
+      }
+
+      throw new UnauthorizedError('Invalid OTP. Please try again.');
+    }
+
+    // Mark OTP as used
+    await prisma.emailOTP.update({
+      where: { id: otp.id },
+      data: { usedAt: new Date() },
+    });
+
+    // Mark user email as verified
     const updated = await prisma.user.update({
-      where: { id: user.id },
+      where: { id: userId },
       data: { emailVerified: true },
     });
 
     return sanitizeUser(updated);
   }
 
-  static async resendVerification(userId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new UnauthorizedError("User not found");
-    }
-
-    if (user.emailVerified) {
-      throw new ConflictError("Email already verified");
-    }
-
-    const verificationToken = jwt.sign(
-      { userId: user.id, purpose: "email-verify" },
-      env.JWT_ACCESS_SECRET!,
-      { expiresIn: "24h" } as SignOptions,
-    );
-
-    // Send verification email (fire-and-forget)
-    sendVerificationEmail(user.email, verificationToken).catch((err) => {
-      logger.error({ err, userId: user.id }, "Failed to resend verification email");
-    });
+  /**
+   * Resend OTP to user email
+   * Creates a new OTP and sends it (old OTP becomes invalidated by age)
+   */
+  static async resendOtp(userId: string) {
+    await this.sendOtp(userId); // Reuse sendOtp logic
   }
 }

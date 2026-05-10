@@ -32,28 +32,30 @@ model User {
   notifications  Notification[]
   contentReports ContentReport[] @relation("reporter")
   reviewedReports ContentReport[] @relation("reviewer")
-  emailVerifications EmailVerification[]
-  passwordResets     PasswordReset[]
+  emailOtps       EmailOTP[]
+  passwordResets  PasswordReset[]
 
   @@index([email])
   @@map("users")
 }
 
-// ─── EMAIL VERIFICATIONS ─────────────────────────────────
+// ─── EMAIL OTP ───────────────────────────────────────────
 
-model EmailVerification {
+model EmailOTP {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @map("user_id") @db.Uuid
-  token     String   @unique @db.VarChar(500)
+  code      String   @db.VarChar(10) // 6-digit OTP code
   expiresAt DateTime @map("expires_at") @db.Timestamptz()
   usedAt    DateTime? @map("used_at") @db.Timestamptz()
+  attempts  Int      @default(0) // Number of failed verification attempts
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, code])
   @@index([userId])
-  @@index([token])
-  @@map("email_verifications")
+  @@index([expiresAt])
+  @@map("email_otps")
 }
 
 // ─── PASSWORD RESETS ─────────────────────────────────────
