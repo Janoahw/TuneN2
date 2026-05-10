@@ -89,7 +89,7 @@ export default function ArtistDashboardScreen() {
           </Pressable>
           <Pressable
             style={[styles.actionButton, { backgroundColor: colors.bgSecondary }]}
-            onPress={() => router.push('/(creator)/my-songs')}
+            onPress={() => router.push('/(creator)/song-management')}
           >
             <Feather name="music" size={20} color={colors.textPrimary} />
             <Text style={[styles.actionText, { color: colors.textPrimary }]}>My Songs</Text>

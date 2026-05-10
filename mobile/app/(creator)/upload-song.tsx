@@ -6,13 +6,13 @@ import {
   Pressable,
   ScrollView,
   TextInput,
-  Alert,
   ActivityIndicator,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
@@ -75,7 +75,7 @@ export default function UploadSongScreen() {
 
       const asset = result.assets[0];
       if (asset.size && asset.size > MAX_FILE_SIZE) {
-        Alert.alert('File Too Large', 'Maximum file size is 50MB');
+        Toast.show({ type: 'error', text1: 'File Too Large', text2: 'Maximum file size is 50MB' });
         return;
       }
 
@@ -86,7 +86,7 @@ export default function UploadSongScreen() {
         mimeType: asset.mimeType ?? 'audio/mpeg',
       });
     } catch {
-      Alert.alert('Error', 'Failed to pick audio file');
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to pick audio file' });
     }
   }, []);
 
@@ -103,7 +103,11 @@ export default function UploadSongScreen() {
 
       const asset = result.assets[0];
       if (asset.width < 500 || asset.height < 500) {
-        Alert.alert('Image Too Small', 'Cover art must be at least 500×500px');
+        Toast.show({
+          type: 'error',
+          text1: 'Image Too Small',
+          text2: 'Cover art must be at least 500×500px',
+        });
         return;
       }
 
@@ -112,19 +116,33 @@ export default function UploadSongScreen() {
         mimeType: asset.mimeType ?? 'image/jpeg',
       });
     } catch {
-      Alert.alert('Error', 'Failed to pick cover art');
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to pick cover art' });
     }
   }, []);
 
   const handleUpload = useCallback(async () => {
-    if (!audioFile) return Alert.alert('Missing Audio', 'Select an audio file');
-    if (!title.trim()) return Alert.alert('Missing Title', 'Enter a song title');
-    if (!selectedGenre) return Alert.alert('Missing Genre', 'Select a genre');
+    if (!audioFile) {
+      Toast.show({ type: 'error', text1: 'Missing Audio', text2: 'Select an audio file' });
+      return;
+    }
+    if (!title.trim()) {
+      Toast.show({ type: 'error', text1: 'Missing Title', text2: 'Enter a song title' });
+      return;
+    }
+    if (!selectedGenre) {
+      Toast.show({ type: 'error', text1: 'Missing Genre', text2: 'Select a genre' });
+      return;
+    }
 
     const priceNum = parseFloat(price || '0');
     const isFree = priceNum === 0;
     if (!isFree && (priceNum < 0.49 || priceNum > 9.99)) {
-      return Alert.alert('Invalid Price', 'Price must be free ($0) or between $0.49 and $9.99');
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Price',
+        text2: 'Price must be free ($0) or between $0.49 and $9.99',
+      });
+      return;
     }
 
     setUploading(true);
@@ -175,11 +193,18 @@ export default function UploadSongScreen() {
       });
 
       setUploadProgress(100);
-      Alert.alert('Upload Started!', 'Your song is being processed. Check your catalog for status.', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      Toast.show({
+        type: 'success',
+        text1: 'Upload Started!',
+        text2: 'Your song is being processed. Check your catalog for status.',
+      });
+      router.back();
     } catch (err: any) {
-      Alert.alert('Upload Failed', err?.response?.data?.message || err?.message || 'Please try again');
+      Toast.show({
+        type: 'error',
+        text1: 'Upload Failed',
+        text2: err?.response?.data?.message || err?.message || 'Please try again',
+      });
     } finally {
       setUploading(false);
     }
@@ -248,9 +273,7 @@ export default function UploadSongScreen() {
         {/* Genre */}
         <Text style={styles.label}>Genre</Text>
         <Pressable style={styles.input} onPress={() => setShowGenrePicker(!showGenrePicker)}>
-          <Text
-            style={[styles.inputText, !selectedGenre && { color: colors.textTertiary }]}
-          >
+          <Text style={[styles.inputText, !selectedGenre && { color: colors.textTertiary }]}>
             {genreName}
           </Text>
           <Feather name="chevron-down" size={18} color={colors.textSecondary} />
@@ -261,10 +284,7 @@ export default function UploadSongScreen() {
             {GENRES.map((genre) => (
               <Pressable
                 key={genre.id}
-                style={[
-                  styles.genreItem,
-                  selectedGenre === genre.id && styles.genreItemActive,
-                ]}
+                style={[styles.genreItem, selectedGenre === genre.id && styles.genreItemActive]}
                 onPress={() => {
                   setSelectedGenre(genre.id);
                   setShowGenrePicker(false);

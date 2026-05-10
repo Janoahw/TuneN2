@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
@@ -64,10 +63,11 @@ export default function LoginScreen() {
     // TODO: Replace with real OAuth flow once client IDs are configured
     // Apple: use expo-apple-authentication
     // Google: use @react-native-google-signin/google-signin or expo-auth-session
-    Alert.alert(
-      `${provider === 'apple' ? 'Apple' : 'Google'} Sign In`,
-      'Social sign-in will be available once OAuth credentials are configured.',
-    );
+    Toast.show({
+      type: 'info',
+      text1: `${provider === 'apple' ? 'Apple' : 'Google'} Sign In`,
+      text2: 'Social sign-in will be available once OAuth credentials are configured.',
+    });
   };
 
   return (

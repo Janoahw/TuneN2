@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   Image,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -18,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import Toast from 'react-native-toast-message';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
@@ -67,7 +67,11 @@ export default function ProfileEditScreen() {
       try {
         await uploadAvatar.mutateAsync(uri);
       } catch {
-        Alert.alert('Error', 'Failed to upload avatar. Please try again.');
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to upload avatar. Please try again.',
+        });
         setLocalAvatarUri(null);
       }
     }
@@ -83,9 +87,18 @@ export default function ProfileEditScreen() {
           setAuth({ ...storeUser, displayName: values.displayName }, accessToken, refreshToken);
         }
       }
+      Toast.show({
+        type: 'success',
+        text1: 'Profile updated',
+        text2: 'Your changes have been saved.',
+      });
       router.back();
     } catch {
-      Alert.alert('Error', 'Failed to update profile. Please try again.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to update profile. Please try again.',
+      });
     }
   };
 

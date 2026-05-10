@@ -53,10 +53,7 @@ function SongCard({
   onOptions: (song: SongWithStats) => void;
 }) {
   return (
-    <Pressable
-      style={styles.songCard}
-      onPress={() => router.push(`/song-detail?id=${song.id}`)}
-    >
+    <Pressable style={styles.songCard} onPress={() => router.push(`/song-detail?id=${song.id}`)}>
       {song.coverArtUrl ? (
         <Image source={{ uri: song.coverArtUrl }} style={styles.songCover} />
       ) : (
@@ -79,20 +76,15 @@ function SongCard({
             <Feather name="download" size={10} color={colors.textTertiary} /> {song.totalDownloads}
           </Text>
           <Text style={styles.songStatText}>
-            <Feather name="shopping-cart" size={10} color={colors.textTertiary} /> {song.totalPurchases}
+            <Feather name="shopping-cart" size={10} color={colors.textTertiary} />{' '}
+            {song.totalPurchases}
           </Text>
         </View>
         {song.totalRevenue > 0 && (
-          <Text style={styles.revenueText}>
-            ${song.totalRevenue.toFixed(2)} earned
-          </Text>
+          <Text style={styles.revenueText}>${song.totalRevenue.toFixed(2)} earned</Text>
         )}
       </View>
-      <Pressable
-        style={styles.optionsBtn}
-        onPress={() => onOptions(song)}
-        hitSlop={12}
-      >
+      <Pressable style={styles.optionsBtn} onPress={() => onOptions(song)} hitSlop={12}>
         <Feather name="more-vertical" size={20} color={colors.textSecondary} />
       </Pressable>
     </Pressable>
@@ -162,9 +154,7 @@ export default function SongManagementScreen() {
               style={[styles.tab, active && styles.tabActive]}
               onPress={() => setStatusFilter(tab.key)}
             >
-              <Text style={[styles.tabText, active && styles.tabTextActive]}>
-                {tab.label}
-              </Text>
+              <Text style={[styles.tabText, active && styles.tabTextActive]}>{tab.label}</Text>
             </Pressable>
           );
         })}

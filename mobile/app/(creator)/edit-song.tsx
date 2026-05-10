@@ -6,13 +6,13 @@ import {
   Pressable,
   ScrollView,
   TextInput,
-  Alert,
   Image,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
 import { useSong, useUpdateSong, useUploadUrl } from '@/hooks/useSong';
@@ -42,7 +42,9 @@ export default function EditSongScreen() {
   const [isFree, setIsFree] = useState(false);
   const [description, setDescription] = useState('');
   const [coverUri, setCoverUri] = useState<string | null>(null);
-  const [newCoverImage, setNewCoverImage] = useState<{ uri: string; mimeType: string } | null>(null);
+  const [newCoverImage, setNewCoverImage] = useState<{ uri: string; mimeType: string } | null>(
+    null,
+  );
   const [showGenrePicker, setShowGenrePicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -74,11 +76,19 @@ export default function EditSongScreen() {
 
   const handleSave = useCallback(async () => {
     if (!id) return;
-    if (!title.trim()) return Alert.alert('Missing Title', 'Enter a song title');
+    if (!title.trim()) {
+      Toast.show({ type: 'error', text1: 'Missing Title', text2: 'Enter a song title' });
+      return;
+    }
 
     const priceNum = parseFloat(price || '0');
     if (!isFree && (priceNum < 0.49 || priceNum > 9.99)) {
-      return Alert.alert('Invalid Price', 'Price must be free ($0) or between $0.49 and $9.99');
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Price',
+        text2: 'Price must be free ($0) or between $0.49 and $9.99',
+      });
+      return;
     }
 
     setSaving(true);
@@ -111,11 +121,14 @@ export default function EditSongScreen() {
         },
       });
 
-      Alert.alert('Saved', 'Song updated successfully', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      Toast.show({ type: 'success', text1: 'Saved', text2: 'Song updated successfully' });
+      router.back();
     } catch (err: any) {
-      Alert.alert('Error', err?.response?.data?.message || 'Failed to update song');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: err?.response?.data?.message || 'Failed to update song',
+      });
     } finally {
       setSaving(false);
     }

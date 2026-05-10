@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
@@ -15,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { api } from '@/services/api';
@@ -71,9 +71,8 @@ export default function ChangePasswordScreen() {
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
-      Alert.alert('Success', 'Password updated successfully', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      Toast.show({ type: 'success', text1: 'Success', text2: 'Password updated successfully' });
+      router.back();
     } catch (err: any) {
       const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
       if (message.toLowerCase().includes('current password')) {

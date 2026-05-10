@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -61,9 +62,15 @@ export default function EditArtistProfileScreen() {
         bio: data.bio,
         genreIds: selectedGenres,
       });
+      Toast.show({
+        type: 'success',
+        text1: 'Profile updated',
+        text2: 'Your changes have been saved.',
+      });
       router.back();
-    } catch {
-      Alert.alert('Error', 'Could not update profile. Please try again.');
+    } catch (err: any) {
+      const message = err?.response?.data?.message || 'Could not update profile. Please try again.';
+      Toast.show({ type: 'error', text1: 'Update failed', text2: message });
     }
   };
 
