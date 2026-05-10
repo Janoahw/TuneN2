@@ -19,10 +19,10 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isInitialized: boolean;
-  setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => void;
-  clearAuth: () => void;
+  setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => Promise<void>;
+  clearAuth: () => Promise<void>;
   setLoading: (loading: boolean) => void;
-  setTokens: (accessToken: string, refreshToken: string) => void;
+  setTokens: (accessToken: string, refreshToken: string) => Promise<void>;
   initialize: () => Promise<void>;
 }
 

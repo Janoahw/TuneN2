@@ -64,7 +64,13 @@ api.interceptors.response.use(
         refreshToken,
       });
 
-      const { accessToken: newAccess, refreshToken: newRefresh } = data;
+      const newAccess = data?.data?.tokens?.accessToken;
+      const newRefresh = data?.data?.tokens?.refreshToken;
+
+      if (!newAccess || !newRefresh) {
+        throw new Error('Invalid refresh response payload');
+      }
+
       useAuthStore.getState().setTokens(newAccess, newRefresh);
       processQueue(null, newAccess);
 

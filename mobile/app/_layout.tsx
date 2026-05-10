@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import Toast from 'react-native-toast-message';
@@ -46,13 +46,15 @@ const toastConfig = {
         <View style={toastStyles.content}>
           <View style={toastStyles.textContainer}>
             <View style={toastStyles.titleContainer}>
-              <View style={toastStyles.iconBox}>✓</View>
+              <View style={toastStyles.iconBox}>
+                <Text style={toastStyles.iconText}>✓</Text>
+              </View>
               <View style={{ flex: 1 }}>
                 {props.text1 && (
-                  <View style={toastStyles.title}>{props.text1}</View>
+                  <Text style={toastStyles.title}>{props.text1}</Text>
                 )}
                 {props.text2 && (
-                  <View style={toastStyles.message}>{props.text2}</View>
+                  <Text style={toastStyles.message}>{props.text2}</Text>
                 )}
               </View>
             </View>
@@ -67,13 +69,15 @@ const toastConfig = {
         <View style={toastStyles.content}>
           <View style={toastStyles.textContainer}>
             <View style={toastStyles.titleContainer}>
-              <View style={[toastStyles.iconBox, toastStyles.errorIcon]}>!</View>
+              <View style={[toastStyles.iconBox, toastStyles.errorIcon]}>
+                <Text style={toastStyles.iconText}>!</Text>
+              </View>
               <View style={{ flex: 1 }}>
                 {props.text1 && (
-                  <View style={toastStyles.title}>{props.text1}</View>
+                  <Text style={toastStyles.title}>{props.text1}</Text>
                 )}
                 {props.text2 && (
-                  <View style={toastStyles.message}>{props.text2}</View>
+                  <Text style={toastStyles.message}>{props.text2}</Text>
                 )}
               </View>
             </View>
@@ -168,10 +172,10 @@ const toastStyles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   successBox: {
-    backgroundColor: colors.accentSuccess || '#10B981',
+    backgroundColor: colors.success,
   },
   errorBox: {
-    backgroundColor: colors.accentError || '#EF4444',
+    backgroundColor: colors.error,
   },
   content: {
     alignItems: 'center',
@@ -191,10 +195,12 @@ const toastStyles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 2,
+  },
+  iconText: {
     color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 14,
-    marginTop: 2,
   },
   errorIcon: {
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
