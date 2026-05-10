@@ -70,7 +70,7 @@ export default function VerifyOtpScreen() {
     setLoading(true);
     try {
       await authService.verifyOtp(otp);
-      // On success, the navigate home will be handled by the app layout auth check
+      // On success, auth store updates trigger redirect
     } catch (err: any) {
       const message = err?.response?.data?.error?.message || 'Invalid OTP. Try again.';
       setError(message);
@@ -113,7 +113,7 @@ export default function VerifyOtpScreen() {
             <View style={styles.content}>
               {/* Icon */}
               <View style={styles.iconCircle}>
-                <Feather name="shield-check" size={40} color={colors.accentPrimary} />
+                <Feather name="lock" size={40} color={colors.accentPrimary} />
               </View>
 
               {/* Heading */}
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
     fontFamily: fontFamilies.displayBold,
-  },
+  } as any,
   subtitle: {
     fontSize: 14,
     color: colors.textSecondary,
@@ -223,12 +223,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 32,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
   emailHighlight: {
     color: colors.accentPrimary,
     fontWeight: '600',
     fontFamily: fontFamilies.primarySemiBold,
-  },
+  } as any,
   inputSection: {
     width: '100%',
     marginBottom: 24,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: 10,
     fontFamily: fontFamilies.primarySemiBold,
-  },
+  } as any,
   otpInput: {
     width: '100%',
     paddingVertical: 16,
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgSecondary,
     fontFamily: fontFamilies.monoSemiBold,
     textAlign: 'center',
-  },
+  } as any,
   otpInputError: {
     borderColor: colors.error,
   },
@@ -273,14 +273,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.error,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
   timer: {
     fontSize: 13,
     color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
   buttonSection: {
     width: '100%',
     marginBottom: 32,
@@ -295,16 +295,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
   resendLink: {
     fontSize: 13,
     color: colors.accentPrimary,
     fontWeight: '600',
     fontFamily: fontFamilies.primarySemiBold,
-  },
+  } as any,
   resendCooldown: {
     fontSize: 13,
     color: colors.textSecondary,
     fontFamily: fontFamilies.primary,
-  },
+  } as any,
 });
