@@ -49,7 +49,9 @@ export default function LoginScreen() {
       router.replace('/(tabs)/home');
     } catch (err: any) {
       const message =
-        err?.response?.data?.error?.message || err?.response?.data?.message || 'Invalid email or password';
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        'Invalid email or password';
       Toast.show({
         type: 'error',
         text1: 'Login failed',

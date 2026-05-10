@@ -108,37 +108,25 @@ const toastStyles = StyleSheet.create({
 });
 
 const renderToast =
-  (
-    iconName: string,
-    boxStyle: any,
-    accentStyle: any,
-    iconColor: string,
-    accentColor: string,
-  ) =>
-  (props: any) =>
-    (
-      <View style={toastStyles.container}>
-        <View style={toastStyles.wrapper}>
-          <View style={[toastStyles.accentBar, accentStyle]} />
-          <View style={[toastStyles.box, boxStyle]}>
-            <View style={toastStyles.content}>
-              <View style={toastStyles.iconContainer}>
-                <Feather
-                  name={iconName as any}
-                  size={22}
-                  color={iconColor}
-                  strokeWidth={2.8}
-                />
-              </View>
-              <View style={toastStyles.textWrapper}>
-                {props.text1 && <Text style={toastStyles.title}>{props.text1}</Text>}
-                {props.text2 && <Text style={toastStyles.message}>{props.text2}</Text>}
-              </View>
+  (iconName: string, boxStyle: any, accentStyle: any, iconColor: string, accentColor: string) =>
+  (props: any) => (
+    <View style={toastStyles.container}>
+      <View style={toastStyles.wrapper}>
+        <View style={[toastStyles.accentBar, accentStyle]} />
+        <View style={[toastStyles.box, boxStyle]}>
+          <View style={toastStyles.content}>
+            <View style={toastStyles.iconContainer}>
+              <Feather name={iconName as any} size={22} color={iconColor} strokeWidth={2.8} />
+            </View>
+            <View style={toastStyles.textWrapper}>
+              {props.text1 && <Text style={toastStyles.title}>{props.text1}</Text>}
+              {props.text2 && <Text style={toastStyles.message}>{props.text2}</Text>}
             </View>
           </View>
         </View>
       </View>
-    );
+    </View>
+  );
 
 export const toastConfig = {
   success: renderToast(
@@ -148,7 +136,13 @@ export const toastConfig = {
     '#FFFFFF',
     '#2DD849',
   ),
-  error: renderToast('alert-circle', toastStyles.errorBox, toastStyles.errorAccent, '#FFFFFF', '#FF3B30'),
+  error: renderToast(
+    'alert-circle',
+    toastStyles.errorBox,
+    toastStyles.errorAccent,
+    '#FFFFFF',
+    '#FF3B30',
+  ),
   warning: renderToast(
     'alert-triangle',
     toastStyles.warningBox,
