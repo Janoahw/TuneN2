@@ -14,6 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
@@ -43,7 +44,7 @@ export default function SignupScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [role, setRole] = useState<'fan' | 'artist'>('fan');
 
-  const { control, handleSubmit, setError } = useForm<SignupForm>({
+  const { control, handleSubmit } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
     defaultValues: { displayName: '', email: '', password: '', confirmPassword: '' },
   });
@@ -55,12 +56,21 @@ export default function SignupScreen() {
         email: values.email,
         password: values.password,
       });
+      Toast.show({
+        type: 'success',
+        text1: 'Account Created',
+        text2: 'Verify your email to complete signup',
+      });
       router.push({
         pathname: '/(auth)/verify-otp',
       });
     } catch (err: any) {
-      const message = err?.response?.data?.message || 'Something went wrong. Try again.';
-      setError('root', { message });
+      const message = err?.response?.data?.error?.message || 'Something went wrong. Try again.';
+      Toast.show({
+        type: 'error',
+        text1: 'Signup Failed',
+        text2: message,
+      });
     }
   };
 
@@ -171,14 +181,6 @@ export default function SignupScreen() {
             </View>
           </View>
 
-          {/* Error */}
-          {signupMutation.error && (
-            <Text style={styles.formError}>
-              {(signupMutation.error as any)?.response?.data?.message ||
-                'Something went wrong. Try again.'}
-            </Text>
-          )}
-
           {/* Terms */}
           <Text style={styles.terms}>
             By signing up, you agree to our <Text style={styles.termsLink}>Terms</Text>
@@ -278,15 +280,6 @@ const styles = StyleSheet.create({
   },
   roleTextActive: {
     color: '#FFFFFF',
-  },
-  formError: {
-    color: colors.error,
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 12,
-    backgroundColor: colors.errorBgSubtle,
-    padding: 12,
-    borderRadius: 12,
   },
   terms: {
     fontFamily: fontFamilies.primary,
