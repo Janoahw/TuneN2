@@ -66,11 +66,15 @@ export default function ProfileEditScreen() {
       setLocalAvatarUri(uri);
       try {
         await uploadAvatar.mutateAsync(uri);
-      } catch {
+      } catch (err: any) {
+        const message =
+          err?.response?.data?.error?.details?.[0]?.message ||
+          err?.response?.data?.error?.message ||
+          'Failed to upload avatar. Please try again.';
         Toast.show({
           type: 'error',
           text1: 'Error',
-          text2: 'Failed to upload avatar. Please try again.',
+          text2: message,
         });
         setLocalAvatarUri(null);
       }
@@ -93,11 +97,15 @@ export default function ProfileEditScreen() {
         text2: 'Your changes have been saved.',
       });
       router.back();
-    } catch {
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error?.details?.[0]?.message ||
+        err?.response?.data?.error?.message ||
+        'Failed to update profile. Please try again.';
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Failed to update profile. Please try again.',
+        text2: message,
       });
     }
   };

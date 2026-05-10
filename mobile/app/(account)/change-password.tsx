@@ -74,8 +74,14 @@ export default function ChangePasswordScreen() {
       Toast.show({ type: 'success', text1: 'Success', text2: 'Password updated successfully' });
       router.back();
     } catch (err: any) {
-      const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
-      if (message.toLowerCase().includes('current password')) {
+      const message =
+        err?.response?.data?.error?.details?.[0]?.message ||
+        err?.response?.data?.error?.message ||
+        'Something went wrong. Please try again.';
+      if (
+        message.toLowerCase().includes('current password') ||
+        err?.response?.data?.error?.details?.[0]?.path === 'currentPassword'
+      ) {
         setError('currentPassword', { message });
       } else {
         setError('root', { message });

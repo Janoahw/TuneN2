@@ -18,19 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
 import { songService } from '@/services/song.service';
 import { useCreateSong, useUploadUrl } from '@/hooks/useSong';
-
-const GENRES = [
-  { id: 1, name: 'Hip-Hop' },
-  { id: 2, name: 'R&B' },
-  { id: 3, name: 'Afrobeats' },
-  { id: 4, name: 'Pop' },
-  { id: 5, name: 'Electronic' },
-  { id: 6, name: 'Rock' },
-  { id: 7, name: 'Jazz' },
-  { id: 8, name: 'Classical' },
-  { id: 9, name: 'Reggae' },
-  { id: 10, name: 'Gospel' },
-];
+import { useGenres } from '@/hooks/useDiscover';
 
 const AUDIO_MIME_TYPES = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/flac', 'audio/x-flac'];
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -60,9 +48,10 @@ export default function UploadSongScreen() {
 
   const createSong = useCreateSong();
   const uploadUrl = useUploadUrl();
+  const { data: genres, isLoading: genresLoading } = useGenres();
 
   const earningsDisplay = price ? `$${(parseFloat(price || '0') * 0.8).toFixed(2)}` : '$0.00';
-  const genreName = GENRES.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
+  const genreName = genres?.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
 
   const pickAudioFile = useCallback(async () => {
     try {
@@ -200,10 +189,15 @@ export default function UploadSongScreen() {
       });
       router.back();
     } catch (err: any) {
+      const message =
+        err?.response?.data?.error?.details?.[0]?.message ||
+        err?.response?.data?.error?.message ||
+        err?.message ||
+        'Please try again';
       Toast.show({
         type: 'error',
         text1: 'Upload Failed',
-        text2: err?.response?.data?.message || err?.message || 'Please try again',
+        text2: message,
       });
     } finally {
       setUploading(false);
@@ -281,7 +275,7 @@ export default function UploadSongScreen() {
 
         {showGenrePicker && (
           <View style={styles.genreList}>
-            {GENRES.map((genre) => (
+            {genres?.map((genre) => (
               <Pressable
                 key={genre.id}
                 style={[styles.genreItem, selectedGenre === genre.id && styles.genreItemActive]}

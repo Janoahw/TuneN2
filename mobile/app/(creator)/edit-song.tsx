@@ -17,23 +17,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
 import { useSong, useUpdateSong, useUploadUrl } from '@/hooks/useSong';
 import { songService } from '@/services/song.service';
-
-const GENRES = [
-  { id: 1, name: 'Hip-Hop' },
-  { id: 2, name: 'R&B' },
-  { id: 3, name: 'Afrobeats' },
-  { id: 4, name: 'Pop' },
-  { id: 5, name: 'Electronic' },
-  { id: 6, name: 'Rock' },
-  { id: 7, name: 'Jazz' },
-  { id: 8, name: 'Classical' },
-  { id: 9, name: 'Reggae' },
-  { id: 10, name: 'Gospel' },
-];
+import { useGenres } from '@/hooks/useDiscover';
 
 export default function EditSongScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: song, isLoading } = useSong(id!);
+  const { data: genres } = useGenres();
   const updateSong = useUpdateSong();
 
   const [title, setTitle] = useState('');
@@ -59,7 +48,7 @@ export default function EditSongScreen() {
     setCoverUri(song.coverArtUrl ?? null);
   }, [song]);
 
-  const genreName = GENRES.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
+  const genreName = genres?.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
 
   const pickNewCover = useCallback(async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -124,10 +113,14 @@ export default function EditSongScreen() {
       Toast.show({ type: 'success', text1: 'Saved', text2: 'Song updated successfully' });
       router.back();
     } catch (err: any) {
+      const message =
+        err?.response?.data?.error?.details?.[0]?.message ||
+        err?.response?.data?.error?.message ||
+        'Failed to update song';
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: err?.response?.data?.message || 'Failed to update song',
+        text2: message,
       });
     } finally {
       setSaving(false);
@@ -203,7 +196,7 @@ export default function EditSongScreen() {
 
         {showGenrePicker && (
           <View style={styles.genreList}>
-            {GENRES.map((genre) => (
+            {genres?.map((genre) => (
               <Pressable
                 key={genre.id}
                 style={[styles.genreItem, selectedGenre === genre.id && styles.genreItemActive]}
