@@ -72,13 +72,13 @@ export default function VerifyOtpScreen() {
     setLoading(true);
     try {
       await authService.verifyOtp(otp);
-      
+
       // Show success feedback
       Toast.show({
         type: 'success',
         text1: 'Email Verified',
         text2: 'Your email has been verified successfully.',
-        duration: 2000,
+        visibilityTime: 2000,
         onPress: () => {
           Toast.hide();
           router.replace('/(tabs)/home');
@@ -98,7 +98,7 @@ export default function VerifyOtpScreen() {
         type: 'error',
         text1: 'Verification Failed',
         text2: message,
-        duration: 3000,
+        visibilityTime: 3000,
       });
       setLoading(false);
     }

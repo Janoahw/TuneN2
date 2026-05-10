@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
   },
   stepText: {
     fontFamily: fontFamilies.primary,
-    fontSize: 14,
-    color: colors.textSecondary,
+    fontSize: 15,
+    color: colors.textPrimary,
   },
   progressTrack: {
     height: 4,
@@ -182,11 +182,6 @@ const styles = StyleSheet.create({
   },
   stepNumActive: {
     color: '#FFFFFF',
-  },
-  stepText: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 15,
-    color: colors.textPrimary,
   },
   skipBtn: {
     alignItems: 'center',

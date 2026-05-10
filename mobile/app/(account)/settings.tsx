@@ -47,7 +47,7 @@ export default function SettingsScreen() {
         type: 'info',
         text1: 'Log out?',
         text2: 'Tap Log Out again to confirm.',
-        duration: 5000,
+        visibilityTime: 5000,
       });
       return;
     }
