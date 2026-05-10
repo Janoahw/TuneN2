@@ -43,12 +43,45 @@ const ARTIST_SELECT = {
 
 export class DiscoverService {
   /**
+   * Helper: Map genre IDs to genre names.
+   */
+  private static async mapGenreIds(artists: any[]): Promise<any[]> {
+    if (!artists.length) return artists;
+
+    // Collect all unique genre IDs
+    const allGenreIds = Array.from(new Set(artists.flatMap((a) => a.genreIds || [])));
+
+    if (!allGenreIds.length) {
+      return artists.map((a) => ({
+        ...a,
+        genreIds: undefined,
+        genres: [],
+      }));
+    }
+
+    // Fetch all genres
+    const genres = await prisma.genre.findMany({
+      where: { id: { in: allGenreIds } },
+      select: { id: true, name: true },
+    });
+
+    const genreMap = new Map(genres.map((g) => [g.id, g.name]));
+
+    // Replace genreIds with genre names
+    return artists.map((a) => ({
+      ...a,
+      genreIds: undefined,
+      genres: (a.genreIds || []).map((id: number) => genreMap.get(id) || '').filter(Boolean),
+    }));
+  }
+
+  /**
    * Main discover feed — new artists, top performing songs, fastest growing artists.
    */
   static async getDiscoverFeed(limit = 10) {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const [newArtists, topPerformingSongs, fastestGrowingArtists] = await Promise.all([
+    const [rawNewArtists, topPerformingSongs, rawFastestGrowingArtists] = await Promise.all([
       // New artists — most recently created
       prisma.artistProfile.findMany({
         where: { user: { isBanned: false } },
@@ -88,16 +121,22 @@ export class DiscoverService {
     ]);
 
     // Sort fastest growing by recent follow count
-    const sortedFastest = fastestGrowingArtists
+    const rawSortedFastest = rawFastestGrowingArtists
       .sort((a, b) => b.follows.length - a.follows.length)
       .slice(0, limit)
       // Strip internal follow array from response
       .map(({ follows: _follows, ...rest }) => rest);
 
+    // Map genre IDs to names
+    const [newArtists, fastestGrowingArtists] = await Promise.all([
+      this.mapGenreIds(rawNewArtists),
+      this.mapGenreIds(rawSortedFastest),
+    ]);
+
     return {
       newArtists,
       topPerformingSongs,
-      fastestGrowingArtists: sortedFastest,
+      fastestGrowingArtists,
     };
   }
 
@@ -107,7 +146,7 @@ export class DiscoverService {
   static async search(q: string, type: 'all' | 'artists' | 'songs', page: number, limit: number) {
     const skip = (page - 1) * limit;
 
-    const [artists, songs] = await Promise.all([
+    const [rawArtists, songs] = await Promise.all([
       type !== 'songs'
         ? prisma.artistProfile.findMany({
             where: {
@@ -139,6 +178,8 @@ export class DiscoverService {
           })
         : Promise.resolve([]),
     ]);
+
+    const artists = await this.mapGenreIds(rawArtists);
 
     return { artists, songs, query: q };
   }
@@ -176,7 +217,7 @@ export class DiscoverService {
 
     if (!genre) throw new NotFoundError('Genre not found');
 
-    const [popularSongs, artistsInGenre] = await Promise.all([
+    const [popularSongs, rawArtistsInGenre] = await Promise.all([
       // Popular songs in genre by purchase count
       prisma.song.findMany({
         where: { status: 'active', genreId: genre.id },
@@ -208,14 +249,16 @@ export class DiscoverService {
       }),
     ]);
 
+    const topArtists = await this.mapGenreIds(rawArtistsInGenre);
+
     // Derive song + artist counts for the header card
     const songCount = genre._count.songs;
-    const artistCount = artistsInGenre.length;
+    const artistCount = topArtists.length;
 
     return {
       genre: { ...genre, songCount, artistCount },
       popularSongs,
-      topArtists: artistsInGenre,
+      topArtists,
     };
   }
 
@@ -231,7 +274,7 @@ export class DiscoverService {
       ...(genre ? { songs: { some: { status: 'active' as const, genre: { slug: genre } } } } : {}),
     };
 
-    const [artists, total] = await Promise.all([
+    const [rawArtists, total] = await Promise.all([
       prisma.artistProfile.findMany({
         where,
         select: ARTIST_SELECT,
@@ -242,9 +285,10 @@ export class DiscoverService {
       prisma.artistProfile.count({ where }),
     ]);
 
+    const items = await this.mapGenreIds(rawArtists);
     const totalPages = Math.ceil(total / limit);
     return {
-      items: artists,
+      items,
       total,
       page,
       limit,
