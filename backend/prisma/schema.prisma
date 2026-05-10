@@ -185,7 +185,7 @@ model Purchase {
   status          String   @default("completed") @db.VarChar(20) // 'pending'|'completed'|'failed'|'refunded'
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  buyer  User          @relation(fields: [buyerId], references: [id])
+  buyer  User          @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   song   Song          @relation(fields: [songId], references: [id])
   artist ArtistProfile @relation(fields: [artistId], references: [id])
 

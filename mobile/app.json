@@ -17,10 +17,10 @@
       "bundleIdentifier": "com.tunen2.app",
       "infoPlist": {
         "UIBackgroundModes": [
-          "audio",
           "audio"
         ],
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "TuneN2 needs access to your photos to set a profile picture."
       }
     },
     "android": {
@@ -32,7 +32,8 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-image-picker"
     ],
     "extra": {
       "router": {},

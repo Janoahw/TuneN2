@@ -41,10 +41,9 @@ export default function StripeConnectScreen() {
         {/* Header */}
         <View style={styles.topBar}>
           <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Feather name="arrow-left" size={20} color={colors.textPrimary} />
+            <Feather name="arrow-left" size={20} color={colors.accentPrimary} />
           </Pressable>
-          <Text style={styles.headerTitle}>Payment Setup</Text>
-          <View style={{ width: 20 }} />
+          <Text style={styles.stepText}>Step 2 of 2</Text>
         </View>
 
         {/* Progress bar */}
@@ -111,10 +110,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 8,
   },
-  headerTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: 18,
-    color: colors.textPrimary,
+  stepText: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 14,
+    color: colors.textSecondary,
   },
   progressTrack: {
     height: 4,
