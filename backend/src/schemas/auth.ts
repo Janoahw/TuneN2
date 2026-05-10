@@ -24,8 +24,12 @@ export const refreshSchema = z.object({
   refreshToken: z.string(),
 });
 
-export const verifyEmailSchema = z.object({
-  token: z.string(),
+export const verifyOtpSchema = z.object({
+  code: z.string().regex(/^\d{6}$/, 'OTP must be exactly 6 digits'),
+});
+
+export const resendOtpSchema = z.object({
+  email: z.string().email('Invalid email address'),
 });
 
 export const socialAuthSchema = z.object({

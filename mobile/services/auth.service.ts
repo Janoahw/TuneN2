@@ -54,13 +54,13 @@ export const authService = {
     return data.data.tokens;
   },
 
-  async verifyEmail(token: string): Promise<{ user: AuthUser }> {
-    const { data } = await api.post(ENDPOINTS.auth.verifyEmail, { token });
+  async verifyOtp(code: string): Promise<{ user: AuthUser }> {
+    const { data } = await api.post(ENDPOINTS.auth.verifyOtp, { code });
     return data.data;
   },
 
-  async resendVerification(email: string): Promise<void> {
-    await api.post(ENDPOINTS.auth.resendVerification, { email });
+  async resendOtp(): Promise<void> {
+    await api.post(ENDPOINTS.auth.resendOtp, {});
   },
 
   async socialAuth(params: SocialAuthParams): Promise<AuthResponse> {

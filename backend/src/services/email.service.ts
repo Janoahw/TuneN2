@@ -46,24 +46,24 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
   logger.info({ to: options.to, subject: options.subject }, 'Email sent');
 }
 
-export async function sendVerificationEmail(email: string, token: string): Promise<void> {
-  const verifyUrl = `tunen2://verify?token=${token}`;
-
+export async function sendOtpEmail(email: string, otp: string): Promise<void> {
   await sendEmail({
     to: email,
-    subject: 'Verify your TuneN2 account',
+    subject: 'Your TuneN2 Verification Code',
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px; background: #0A0A0F; color: #fff;">
         <h1 style="color: #6C5CE7; font-size: 28px; margin-bottom: 8px;">TuneN2</h1>
         <p style="color: #A0A0B0; font-size: 14px; margin-bottom: 32px;">Where independent music gets paid.</p>
         <h2 style="font-size: 20px; margin-bottom: 16px;">Verify your email</h2>
-        <p style="color: #A0A0B0; line-height: 1.6;">Click the button below to verify your email address and activate your account.</p>
-        <a href="${verifyUrl}" style="display: inline-block; margin: 24px 0; padding: 14px 32px; background: #6C5CE7; color: #fff; text-decoration: none; border-radius: 24px; font-weight: 600;">Verify Email</a>
-        <p style="color: #666680; font-size: 12px; margin-top: 32px;">If you didn't create a TuneN2 account, you can safely ignore this email.</p>
-        <p style="color: #666680; font-size: 12px;">This link expires in 24 hours.</p>
+        <p style="color: #A0A0B0; line-height: 1.6;">Enter this code in the TuneN2 app to verify your email address:</p>
+        <div style="margin: 32px 0; padding: 24px; background: #1A1A20; border-radius: 12px; text-align: center;">
+          <code style="font-size: 32px; letter-spacing: 8px; color: #6C5CE7; font-family: 'Monaco', 'Courier New', monospace; font-weight: 600;">${otp}</code>
+        </div>
+        <p style="color: #A0A0B0; font-size: 13px;">This code expires in 10 minutes.</p>
+        <p style="color: #666680; font-size: 12px; margin-top: 32px;">If you didn't request this code, you can safely ignore this email.</p>
       </div>
     `,
-    text: `Verify your TuneN2 account: ${verifyUrl}`,
+    text: `Your TuneN2 verification code: ${otp}\n\nThis code expires in 10 minutes.`,
   });
 }
 
