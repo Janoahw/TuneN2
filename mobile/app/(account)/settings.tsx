@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView, Alert } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
 import { colors, fontFamilies } from '@/theme';
@@ -45,6 +46,11 @@ export default function SettingsScreen() {
         style: 'destructive',
         onPress: async () => {
           await logout();
+          Toast.show({
+            type: 'success',
+            text1: 'Logged out',
+            text2: 'See you next time!',
+          });
           router.replace('/');
         },
       },
