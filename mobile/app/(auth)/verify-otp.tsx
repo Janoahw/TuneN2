@@ -10,7 +10,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/services/auth.service';
@@ -70,13 +72,34 @@ export default function VerifyOtpScreen() {
     setLoading(true);
     try {
       await authService.verifyOtp(otp);
-      // On success, auth store updates trigger redirect
+      
+      // Show success feedback
+      Toast.show({
+        type: 'success',
+        text1: 'Email Verified',
+        text2: 'Your email has been verified successfully.',
+        duration: 2000,
+        onPress: () => {
+          Toast.hide();
+          router.replace('/(tabs)/home');
+        },
+      });
+
+      // Auto-navigate after toast is shown
+      setTimeout(() => {
+        router.replace('/(tabs)/home');
+      }, 2500);
     } catch (err: any) {
       const message = err?.response?.data?.error?.message || 'Invalid OTP. Try again.';
       setError(message);
       setOtp('');
       inputRef.current?.focus();
-    } finally {
+      Toast.show({
+        type: 'error',
+        text1: 'Verification Failed',
+        text2: message,
+        duration: 3000,
+      });
       setLoading(false);
     }
   }, [otp]);
