@@ -2,22 +2,29 @@ import { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   Pressable,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { artistService } from '@/services/artist.service';
+import { authService } from '@/services/auth.service';
+import { userService } from '@/services/user.service';
+import { discoverService, type Genre } from '@/services/discover.service';
 import { useAuthStore } from '@/stores/authStore';
 import { colors, fontFamilies } from '@/theme';
 
@@ -28,22 +35,17 @@ const onboardingSchema = z.object({
 
 type OnboardingForm = z.infer<typeof onboardingSchema>;
 
-const GENRES = [
-  { id: 1, name: 'Afrobeats' },
-  { id: 2, name: 'Hip Hop' },
-  { id: 3, name: 'R&B' },
-  { id: 4, name: 'Pop' },
-  { id: 5, name: 'Amapiano' },
-  { id: 6, name: 'Gospel' },
-  { id: 7, name: 'Highlife' },
-  { id: 8, name: 'Reggae' },
-  { id: 9, name: 'Electronic' },
-  { id: 10, name: 'Jazz' },
-];
-
 export default function ArtistOnboardingScreen() {
   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+  const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const genresQuery = useQuery({
+    queryKey: ['genres'],
+    queryFn: () => discoverService.getGenres(),
+    staleTime: 10 * 60 * 1000,
+  });
 
   const { control, handleSubmit, setError } = useForm<OnboardingForm>({
     resolver: zodResolver(onboardingSchema),
@@ -56,35 +58,84 @@ export default function ArtistOnboardingScreen() {
     );
   };
 
+  const handlePickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Toast.show({
+        type: 'error',
+        text1: 'Permission required',
+        text2: 'Allow photo access to upload a profile picture.',
+      });
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (result.canceled || !result.assets[0]) return;
+    setProfileImageUri(result.assets[0].uri);
+  };
+
   const onSubmit = async (values: OnboardingForm) => {
     if (selectedGenres.length === 0) {
-      Alert.alert('Select a genre', 'Please select at least one genre');
+      Toast.show({
+        type: 'error',
+        text1: 'Genre required',
+        text2: 'Please select at least one genre.',
+      });
       return;
     }
 
     setLoading(true);
     try {
-      const result = await artistService.upgrade({
+      let profileImageUrl: string | undefined;
+
+      // Upload profile image if one was picked
+      if (profileImageUri) {
+        setUploadingImage(true);
+        const uploadData = await userService.getUploadUrl('avatar', 'image/jpeg');
+        const response = await fetch(profileImageUri);
+        const blob = await response.blob();
+        await fetch(uploadData.uploadUrl, {
+          method: 'PUT',
+          body: blob,
+          headers: { 'Content-Type': 'image/jpeg' },
+        });
+        profileImageUrl = uploadData.avatarUrl;
+        setUploadingImage(false);
+      }
+
+      await artistService.upgrade({
         artistName: values.artistName,
         bio: values.bio,
         genreIds: selectedGenres,
+        profileImageUrl,
       });
 
-      // Update auth store with artist status
+      // Refresh tokens so the new access token carries isArtist=true.
+      // The backend re-reads the DB on refresh, so the new pair will reflect
+      // the artist role we just granted.
       const authStore = useAuthStore.getState();
-      if (authStore.user) {
-        authStore.setAuth(
-          { ...authStore.user, isArtist: true },
-          authStore.accessToken!,
-          authStore.refreshToken!,
-        );
-      }
+      const newTokens = await authService.refresh(authStore.refreshToken!);
+      await authStore.setAuth(
+        { ...authStore.user!, isArtist: true },
+        newTokens.accessToken,
+        newTokens.refreshToken,
+      );
 
+      Toast.show({
+        type: 'success',
+        text1: 'Profile created!',
+        text2: 'Now connect your payout account.',
+      });
       router.push('/stripe-connect');
     } catch (err: any) {
-      const message = err?.response?.data?.message || 'Something went wrong';
+      setUploadingImage(false);
+      const message = err?.response?.data?.message || 'Something went wrong. Please try again.';
       setError('root', { message });
-      Alert.alert('Error', message);
+      Toast.show({ type: 'error', text1: 'Setup failed', text2: message });
     } finally {
       setLoading(false);
     }
@@ -140,36 +191,58 @@ export default function ArtistOnboardingScreen() {
 
             {/* Genre picker */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Primary Genre</Text>
-              <View style={styles.genreGrid}>
-                {GENRES.map((genre) => (
-                  <Pressable
-                    key={genre.id}
-                    style={[
-                      styles.genreChip,
-                      selectedGenres.includes(genre.id) && styles.genreChipActive,
-                    ]}
-                    onPress={() => toggleGenre(genre.id)}
-                  >
-                    <Text
+              <Text style={styles.label}>
+                Primary Genre <Text style={styles.labelHint}>(up to 5)</Text>
+              </Text>
+              {genresQuery.isLoading ? (
+                <ActivityIndicator
+                  size="small"
+                  color={colors.accentPrimary}
+                  style={{ marginTop: 8 }}
+                />
+              ) : (
+                <View style={styles.genreGrid}>
+                  {(genresQuery.data ?? []).map((genre: Genre) => (
+                    <Pressable
+                      key={genre.id}
                       style={[
-                        styles.genreChipText,
-                        selectedGenres.includes(genre.id) && styles.genreChipTextActive,
+                        styles.genreChip,
+                        selectedGenres.includes(genre.id) && styles.genreChipActive,
                       ]}
+                      onPress={() => toggleGenre(genre.id)}
                     >
-                      {genre.name}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
+                      <Text
+                        style={[
+                          styles.genreChipText,
+                          selectedGenres.includes(genre.id) && styles.genreChipTextActive,
+                        ]}
+                      >
+                        {genre.name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
             </View>
 
-            {/* Profile photo placeholder */}
+            {/* Profile photo */}
             <View style={styles.fieldGroup}>
               <Text style={styles.label}>Profile Photo</Text>
-              <Pressable style={styles.photoUpload}>
-                <Feather name="camera" size={20} color={colors.textTertiary} />
-                <Text style={styles.photoUploadText}>Tap to upload</Text>
+              <Pressable
+                style={styles.photoUpload}
+                onPress={handlePickImage}
+                disabled={uploadingImage}
+              >
+                {uploadingImage ? (
+                  <ActivityIndicator size="small" color={colors.accentPrimary} />
+                ) : profileImageUri ? (
+                  <Image source={{ uri: profileImageUri }} style={styles.photoPreview} />
+                ) : (
+                  <>
+                    <Feather name="camera" size={20} color={colors.textTertiary} />
+                    <Text style={styles.photoUploadText}>Tap to upload</Text>
+                  </>
+                )}
               </Pressable>
             </View>
           </View>
@@ -267,14 +340,25 @@ const styles = StyleSheet.create({
   genreChipTextActive: {
     color: '#FFFFFF',
   },
+  labelHint: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 12,
+    color: colors.textTertiary,
+  },
   photoUpload: {
-    height: 56,
+    height: 80,
     borderRadius: 12,
     backgroundColor: colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 8,
+    overflow: 'hidden',
+  },
+  photoPreview: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
   },
   photoUploadText: {
     fontFamily: fontFamilies.primary,

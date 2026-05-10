@@ -110,11 +110,26 @@ export class AuthService {
 
     const payload = verifyRefreshToken(refreshToken);
 
+    // Re-read from DB so role changes (e.g. isArtist upgrade) are reflected in
+    // the new token pair immediately, without requiring a full re-login.
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { id: true, email: true, isArtist: true, isAdmin: true, isBanned: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedError('User not found');
+    }
+
+    if (user.isBanned) {
+      throw new ForbiddenError('Account suspended');
+    }
+
     const newTokens = generateTokenPair({
-      userId: payload.userId,
-      email: payload.email,
-      isArtist: payload.isArtist,
-      isAdmin: payload.isAdmin,
+      userId: user.id,
+      email: user.email,
+      isArtist: user.isArtist,
+      isAdmin: user.isAdmin,
     });
 
     // Blacklist the old refresh token

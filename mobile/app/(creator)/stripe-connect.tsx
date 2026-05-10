@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Linking, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Linking } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { Button } from '@/components/ui/Button';
 import { artistService } from '@/services/artist.service';
 import { colors, fontFamilies } from '@/theme';
@@ -24,7 +25,7 @@ export default function StripeConnectScreen() {
       await Linking.openURL(url);
     } catch (err: any) {
       const message = err?.response?.data?.message || 'Failed to start payment setup';
-      Alert.alert('Error', message);
+      Toast.show({ type: 'error', text1: 'Setup failed', text2: message });
     } finally {
       setLoading(false);
     }
