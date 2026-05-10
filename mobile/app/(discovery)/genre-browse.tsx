@@ -96,6 +96,8 @@ export default function GenreBrowseScreen() {
     );
   }
 
+  console.log('Genre Data:', data); // Debug log for genre data
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -118,7 +120,7 @@ export default function GenreBrowseScreen() {
           <Text style={styles.heroGenreName}>{name ?? data?.name}</Text>
           {data && (
             <Text style={styles.heroStats}>
-              {data._count.songs} songs • {data._count.artists ?? 0} artists
+              {data.genre._count.songs} songs • {data.genre._count.artists ?? 0} artists
             </Text>
           )}
         </LinearGradient>

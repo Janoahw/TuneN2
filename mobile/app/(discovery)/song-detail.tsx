@@ -122,6 +122,8 @@ export default function SongDetailScreen() {
     }
   };
 
+  // console.log('Owned:', song.price);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* Top Bar */}
@@ -177,7 +179,7 @@ export default function SongDetailScreen() {
             ) : song.isFree ? (
               <Text style={styles.freeLabel}>Free</Text>
             ) : (
-              <Text style={styles.price}>${song.price?.toFixed(2)}</Text>
+              <Text style={styles.price}>${parseFloat(song.price).toFixed(2)}</Text>
             )}
           </View>
 
@@ -213,7 +215,9 @@ export default function SongDetailScreen() {
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
                   <Text style={styles.buyBtnText}>
-                    {song.isFree ? 'Get Song' : `Buy Now — $${song.price?.toFixed(2)}`}
+                    {song && song.isFree
+                      ? 'Get Song'
+                      : `Buy Now — $${parseFloat(song.price).toFixed(2)}`}
                   </Text>
                 )}
               </Pressable>
