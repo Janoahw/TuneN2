@@ -6,31 +6,19 @@ import {
   Pressable,
   ScrollView,
   TextInput,
-  Alert,
   ActivityIndicator,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
 import { songService } from '@/services/song.service';
 import { useCreateSong, useUploadUrl } from '@/hooks/useSong';
-
-const GENRES = [
-  { id: 1, name: 'Hip-Hop' },
-  { id: 2, name: 'R&B' },
-  { id: 3, name: 'Afrobeats' },
-  { id: 4, name: 'Pop' },
-  { id: 5, name: 'Electronic' },
-  { id: 6, name: 'Rock' },
-  { id: 7, name: 'Jazz' },
-  { id: 8, name: 'Classical' },
-  { id: 9, name: 'Reggae' },
-  { id: 10, name: 'Gospel' },
-];
+import { useGenres } from '@/hooks/useDiscover';
 
 const AUDIO_MIME_TYPES = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/flac', 'audio/x-flac'];
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -60,9 +48,10 @@ export default function UploadSongScreen() {
 
   const createSong = useCreateSong();
   const uploadUrl = useUploadUrl();
+  const { data: genres, isLoading: genresLoading } = useGenres();
 
   const earningsDisplay = price ? `$${(parseFloat(price || '0') * 0.8).toFixed(2)}` : '$0.00';
-  const genreName = GENRES.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
+  const genreName = genres?.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
 
   const pickAudioFile = useCallback(async () => {
     try {
@@ -75,7 +64,7 @@ export default function UploadSongScreen() {
 
       const asset = result.assets[0];
       if (asset.size && asset.size > MAX_FILE_SIZE) {
-        Alert.alert('File Too Large', 'Maximum file size is 50MB');
+        Toast.show({ type: 'error', text1: 'File Too Large', text2: 'Maximum file size is 50MB' });
         return;
       }
 
@@ -86,7 +75,7 @@ export default function UploadSongScreen() {
         mimeType: asset.mimeType ?? 'audio/mpeg',
       });
     } catch {
-      Alert.alert('Error', 'Failed to pick audio file');
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to pick audio file' });
     }
   }, []);
 
@@ -103,7 +92,11 @@ export default function UploadSongScreen() {
 
       const asset = result.assets[0];
       if (asset.width < 500 || asset.height < 500) {
-        Alert.alert('Image Too Small', 'Cover art must be at least 500×500px');
+        Toast.show({
+          type: 'error',
+          text1: 'Image Too Small',
+          text2: 'Cover art must be at least 500×500px',
+        });
         return;
       }
 
@@ -112,19 +105,33 @@ export default function UploadSongScreen() {
         mimeType: asset.mimeType ?? 'image/jpeg',
       });
     } catch {
-      Alert.alert('Error', 'Failed to pick cover art');
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to pick cover art' });
     }
   }, []);
 
   const handleUpload = useCallback(async () => {
-    if (!audioFile) return Alert.alert('Missing Audio', 'Select an audio file');
-    if (!title.trim()) return Alert.alert('Missing Title', 'Enter a song title');
-    if (!selectedGenre) return Alert.alert('Missing Genre', 'Select a genre');
+    if (!audioFile) {
+      Toast.show({ type: 'error', text1: 'Missing Audio', text2: 'Select an audio file' });
+      return;
+    }
+    if (!title.trim()) {
+      Toast.show({ type: 'error', text1: 'Missing Title', text2: 'Enter a song title' });
+      return;
+    }
+    if (!selectedGenre) {
+      Toast.show({ type: 'error', text1: 'Missing Genre', text2: 'Select a genre' });
+      return;
+    }
 
     const priceNum = parseFloat(price || '0');
     const isFree = priceNum === 0;
     if (!isFree && (priceNum < 0.49 || priceNum > 9.99)) {
-      return Alert.alert('Invalid Price', 'Price must be free ($0) or between $0.49 and $9.99');
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Price',
+        text2: 'Price must be free ($0) or between $0.49 and $9.99',
+      });
+      return;
     }
 
     setUploading(true);
@@ -175,11 +182,23 @@ export default function UploadSongScreen() {
       });
 
       setUploadProgress(100);
-      Alert.alert('Upload Started!', 'Your song is being processed. Check your catalog for status.', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      Toast.show({
+        type: 'success',
+        text1: 'Upload Started!',
+        text2: 'Your song is being processed. Check your catalog for status.',
+      });
+      router.back();
     } catch (err: any) {
-      Alert.alert('Upload Failed', err?.response?.data?.message || err?.message || 'Please try again');
+      const message =
+        err?.response?.data?.error?.details?.[0]?.message ||
+        err?.response?.data?.error?.message ||
+        err?.message ||
+        'Please try again';
+      Toast.show({
+        type: 'error',
+        text1: 'Upload Failed',
+        text2: message,
+      });
     } finally {
       setUploading(false);
     }
@@ -248,9 +267,7 @@ export default function UploadSongScreen() {
         {/* Genre */}
         <Text style={styles.label}>Genre</Text>
         <Pressable style={styles.input} onPress={() => setShowGenrePicker(!showGenrePicker)}>
-          <Text
-            style={[styles.inputText, !selectedGenre && { color: colors.textTertiary }]}
-          >
+          <Text style={[styles.inputText, !selectedGenre && { color: colors.textTertiary }]}>
             {genreName}
           </Text>
           <Feather name="chevron-down" size={18} color={colors.textSecondary} />
@@ -258,13 +275,10 @@ export default function UploadSongScreen() {
 
         {showGenrePicker && (
           <View style={styles.genreList}>
-            {GENRES.map((genre) => (
+            {genres?.map((genre) => (
               <Pressable
                 key={genre.id}
-                style={[
-                  styles.genreItem,
-                  selectedGenre === genre.id && styles.genreItemActive,
-                ]}
+                style={[styles.genreItem, selectedGenre === genre.id && styles.genreItemActive]}
                 onPress={() => {
                   setSelectedGenre(genre.id);
                   setShowGenrePicker(false);

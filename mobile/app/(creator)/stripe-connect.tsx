@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Linking, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Linking } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { Button } from '@/components/ui/Button';
 import { artistService } from '@/services/artist.service';
 import { colors, fontFamilies } from '@/theme';
@@ -24,7 +25,7 @@ export default function StripeConnectScreen() {
       await Linking.openURL(url);
     } catch (err: any) {
       const message = err?.response?.data?.message || 'Failed to start payment setup';
-      Alert.alert('Error', message);
+      Toast.show({ type: 'error', text1: 'Setup failed', text2: message });
     } finally {
       setLoading(false);
     }
@@ -40,10 +41,9 @@ export default function StripeConnectScreen() {
         {/* Header */}
         <View style={styles.topBar}>
           <Pressable onPress={() => router.back()} hitSlop={12}>
-            <Feather name="arrow-left" size={20} color={colors.textPrimary} />
+            <Feather name="arrow-left" size={20} color={colors.accentPrimary} />
           </Pressable>
-          <Text style={styles.headerTitle}>Payment Setup</Text>
-          <View style={{ width: 20 }} />
+          <Text style={styles.stepText}>Step 2 of 2</Text>
         </View>
 
         {/* Progress bar */}
@@ -110,9 +110,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 8,
   },
-  headerTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: 18,
+  stepText: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 15,
     color: colors.textPrimary,
   },
   progressTrack: {
@@ -182,11 +182,6 @@ const styles = StyleSheet.create({
   },
   stepNumActive: {
     color: '#FFFFFF',
-  },
-  stepText: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 15,
-    color: colors.textPrimary,
   },
   skipBtn: {
     alignItems: 'center',

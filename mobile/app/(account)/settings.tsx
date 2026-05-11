@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, Alert } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/stores/authStore';
 import { colors, fontFamilies } from '@/theme';
@@ -34,21 +36,31 @@ function SettingsRow({ icon, label, onPress, value, danger }: SettingsRowProps) 
 }
 
 export default function SettingsScreen() {
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
   const { logout } = useAuth();
   const email = useAuthStore((s) => s.user?.email);
 
   const handleLogout = () => {
-    Alert.alert('Log Out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Log Out',
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          router.replace('/');
-        },
-      },
-    ]);
+    if (!logoutConfirm) {
+      setLogoutConfirm(true);
+      Toast.show({
+        type: 'info',
+        text1: 'Log out?',
+        text2: 'Tap Log Out again to confirm.',
+        visibilityTime: 5000,
+      });
+      return;
+    }
+
+    logout().then(() => {
+      Toast.show({
+        type: 'success',
+        text1: 'Logged out',
+        text2: 'See you next time!',
+      });
+      router.replace('/');
+    });
+    setLogoutConfirm(false);
   };
 
   return (

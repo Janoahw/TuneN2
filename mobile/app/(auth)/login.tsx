@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
@@ -16,6 +15,7 @@ import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
@@ -32,7 +32,7 @@ export default function LoginScreen() {
   const { loginMutation, socialAuthMutation } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
-  const { control, handleSubmit, setError } = useForm<LoginForm>({
+  const { control, handleSubmit } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
@@ -40,10 +40,22 @@ export default function LoginScreen() {
   const onSubmit = async (values: LoginForm) => {
     try {
       await loginMutation.mutateAsync(values);
+      Toast.show({
+        type: 'success',
+        text1: 'Welcome back!',
+        text2: 'Logging you in...',
+      });
       router.replace('/(tabs)/home');
     } catch (err: any) {
-      const message = err?.response?.data?.message || 'Invalid email or password';
-      setError('root', { message });
+      const message =
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        'Invalid email or password';
+      Toast.show({
+        type: 'error',
+        text1: 'Login failed',
+        text2: message,
+      });
     }
   };
 
@@ -51,10 +63,11 @@ export default function LoginScreen() {
     // TODO: Replace with real OAuth flow once client IDs are configured
     // Apple: use expo-apple-authentication
     // Google: use @react-native-google-signin/google-signin or expo-auth-session
-    Alert.alert(
-      `${provider === 'apple' ? 'Apple' : 'Google'} Sign In`,
-      'Social sign-in will be available once OAuth credentials are configured.',
-    );
+    Toast.show({
+      type: 'info',
+      text1: `${provider === 'apple' ? 'Apple' : 'Google'} Sign In`,
+      text2: 'Social sign-in will be available once OAuth credentials are configured.',
+    });
   };
 
   return (
@@ -106,13 +119,6 @@ export default function LoginScreen() {
               autoComplete="password"
               textContentType="password"
             />
-
-            {loginMutation.error && (
-              <Text style={styles.formError}>
-                {(loginMutation.error as any)?.response?.data?.message ||
-                  'Invalid email or password'}
-              </Text>
-            )}
 
             <Pressable
               onPress={() => router.push('/(auth)/forgot-password')}
@@ -204,16 +210,6 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 24,
-  },
-  formError: {
-    fontFamily: fontFamilies.primary,
-    color: colors.error,
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 12,
-    backgroundColor: colors.errorBgSubtle,
-    padding: 12,
-    borderRadius: 12,
   },
   forgotRow: {
     alignItems: 'flex-end',

@@ -1,6 +1,6 @@
-import type { Request, Response, NextFunction } from "express";
-import { type AnyZodObject, type ZodTypeAny, ZodError } from "zod";
-import { ValidationError } from "../utils/errors.js";
+import type { Request, Response, NextFunction } from 'express';
+import { type AnyZodObject, type ZodTypeAny, ZodError } from 'zod';
+import { ValidationError } from '../utils/errors.js';
 
 interface ValidationSchema {
   body?: ZodTypeAny;
@@ -15,19 +15,21 @@ export function validate(schema: ValidationSchema) {
         req.body = await schema.body.parseAsync(req.body);
       }
       if (schema.query) {
-        req.query = await schema.query.parseAsync(req.query) as Record<string, string>;
+        const validatedQuery = await schema.query.parseAsync(req.query);
+        (req as any).validatedQuery = validatedQuery;
       }
       if (schema.params) {
-        req.params = await schema.params.parseAsync(req.params) as Record<string, string>;
+        const validatedParams = await schema.params.parseAsync(req.params);
+        (req as any).validatedParams = validatedParams;
       }
       next();
     } catch (error) {
       if (error instanceof ZodError) {
         const details = error.errors.map((e) => ({
-          path: e.path.join("."),
+          path: e.path.join('.'),
           message: e.message,
         }));
-        next(new ValidationError("Validation failed", details));
+        next(new ValidationError('Validation failed', details));
       } else {
         next(error);
       }

@@ -14,10 +14,8 @@ router.post(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const result = await PurchaseService.createPaymentIntent(
-      req.user!.id,
-      req.params.songId as string,
-    );
+    const { songId } = (req as any).validatedParams as { songId: string };
+    const result = await PurchaseService.createPaymentIntent(req.user!.id, songId);
     res.json({ success: true, data: result });
   },
 );
@@ -29,7 +27,8 @@ router.get(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const owned = await PurchaseService.checkOwnership(req.user!.id, req.params.songId as string);
+    const { songId } = (req as any).validatedParams as { songId: string };
+    const owned = await PurchaseService.checkOwnership(req.user!.id, songId);
     res.json({ success: true, data: { owned } });
   },
 );
@@ -41,7 +40,8 @@ router.get(
   authenticate,
   validate({ params: purchaseSongParamSchema }),
   async (req: Request, res: Response) => {
-    const result = await PurchaseService.getDownloadUrl(req.user!.id, req.params.songId as string);
+    const { songId } = (req as any).validatedParams as { songId: string };
+    const result = await PurchaseService.getDownloadUrl(req.user!.id, songId);
     res.json({ success: true, data: result });
   },
 );
@@ -53,7 +53,7 @@ router.get(
   authenticate,
   validate({ query: purchaseListQuerySchema }),
   async (req: Request, res: Response) => {
-    const { page, limit } = req.query as unknown as {
+    const { page, limit } = (req as any).validatedQuery as {
       page: number;
       limit: number;
     };
@@ -69,7 +69,7 @@ router.get(
   authenticate,
   validate({ query: purchaseListQuerySchema }),
   async (req: Request, res: Response) => {
-    const { page, limit } = req.query as unknown as {
+    const { page, limit } = (req as any).validatedQuery as {
       page: number;
       limit: number;
     };

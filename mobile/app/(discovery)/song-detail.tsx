@@ -7,7 +7,6 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -16,6 +15,7 @@ import { colors, fontFamilies, spacing, radius } from '@/theme';
 import { useSong } from '@/hooks/useSong';
 import { useOwnership, usePurchaseSong, useDownloadUrl } from '@/hooks/usePurchase';
 import { useAuthStore } from '@/stores/authStore';
+import Toast from 'react-native-toast-message';
 import * as FileSystem from 'expo-file-system';
 import { useState } from 'react';
 
@@ -60,12 +60,22 @@ export default function SongDetailScreen() {
 
   const handlePurchase = async () => {
     if (!isAuthenticated) {
+      Toast.show({
+        type: 'info',
+        text1: 'Sign in required',
+        text2: 'Please sign in to purchase songs.',
+      });
       router.push('/(auth)/login' as any);
       return;
     }
     try {
       const result = await purchaseMutation.mutateAsync(id!);
       if (result.purchased) {
+        Toast.show({
+          type: 'success',
+          text1: 'Purchase Successful!',
+          text2: `"${result.songTitle}" is now in your library.`,
+        });
         // Navigate to success screen
         router.push({
           pathname: '/purchase-confirm' as any,
@@ -88,8 +98,8 @@ export default function SongDetailScreen() {
         });
       }
     } catch (err: any) {
-      const msg = err?.response?.data?.message || 'Something went wrong';
-      Alert.alert('Purchase Error', msg);
+      const msg = err?.response?.data?.message || 'Something went wrong. Please try again.';
+      Toast.show({ type: 'error', text1: 'Purchase Failed', text2: msg });
     }
   };
 
@@ -97,6 +107,11 @@ export default function SongDetailScreen() {
     try {
       setDownloadProgress(0);
       const { downloadUrl, songTitle } = await downloadMutation.mutateAsync(id!);
+      Toast.show({
+        type: 'info',
+        text1: 'Downloading…',
+        text2: `Saving "${songTitle}" to your device.`,
+      });
       const fileUri =
         FileSystem.documentDirectory + `${songTitle.replace(/[^a-zA-Z0-9]/g, '_')}.mp3`;
 
@@ -113,14 +128,20 @@ export default function SongDetailScreen() {
       const result = await downloadResumable.downloadAsync();
       setDownloadProgress(null);
       if (result) {
-        Alert.alert('Download Complete', `"${songTitle}" saved to your device.`);
+        Toast.show({
+          type: 'success',
+          text1: 'Download Complete',
+          text2: `"${songTitle}" has been saved to your device.`,
+        });
       }
     } catch (err: any) {
       setDownloadProgress(null);
-      const msg = err?.response?.data?.message || 'Download failed';
-      Alert.alert('Error', msg);
+      const msg = err?.response?.data?.message || 'Download failed. Please try again.';
+      Toast.show({ type: 'error', text1: 'Download Failed', text2: msg });
     }
   };
+
+  // console.log('Owned:', song.price);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -177,7 +198,7 @@ export default function SongDetailScreen() {
             ) : song.isFree ? (
               <Text style={styles.freeLabel}>Free</Text>
             ) : (
-              <Text style={styles.price}>${song.price?.toFixed(2)}</Text>
+              <Text style={styles.price}>${parseFloat(song.price).toFixed(2)}</Text>
             )}
           </View>
 
@@ -213,7 +234,9 @@ export default function SongDetailScreen() {
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
                   <Text style={styles.buyBtnText}>
-                    {song.isFree ? 'Get Song' : `Buy Now — $${song.price?.toFixed(2)}`}
+                    {song && song.isFree
+                      ? 'Get Song'
+                      : `Buy Now — $${parseFloat(song.price).toFixed(2)}`}
                   </Text>
                 )}
               </Pressable>

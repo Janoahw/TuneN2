@@ -64,7 +64,7 @@ function ArtistListRow({ artist }: { artist: ArtistSummary }) {
 export default function AllArtistsScreen() {
   const { data, isLoading } = useArtists();
 
-  const artists: ArtistSummary[] = data?.artists ?? [];
+  const artists: ArtistSummary[] = data?.items ?? [];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -83,8 +83,8 @@ export default function AllArtistsScreen() {
         <FlatList
           data={artists}
           keyExtractor={(a) => a.id}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => <ArtistListRow artist={item} />}
+          contentContainerStyle={styles.list as any}
+          renderItem={({ item }: { item: ArtistSummary }) => <ArtistListRow artist={item} />}
           ListFooterComponent={null}
           ListEmptyComponent={
             <View style={styles.emptyState}>

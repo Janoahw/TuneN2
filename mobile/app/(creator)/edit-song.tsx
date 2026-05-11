@@ -6,34 +6,23 @@ import {
   Pressable,
   ScrollView,
   TextInput,
-  Alert,
   Image,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, fontFamilies, spacing, radius } from '@/theme';
 import { useSong, useUpdateSong, useUploadUrl } from '@/hooks/useSong';
 import { songService } from '@/services/song.service';
-
-const GENRES = [
-  { id: 1, name: 'Hip-Hop' },
-  { id: 2, name: 'R&B' },
-  { id: 3, name: 'Afrobeats' },
-  { id: 4, name: 'Pop' },
-  { id: 5, name: 'Electronic' },
-  { id: 6, name: 'Rock' },
-  { id: 7, name: 'Jazz' },
-  { id: 8, name: 'Classical' },
-  { id: 9, name: 'Reggae' },
-  { id: 10, name: 'Gospel' },
-];
+import { useGenres } from '@/hooks/useDiscover';
 
 export default function EditSongScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: song, isLoading } = useSong(id!);
+  const { data: genres } = useGenres();
   const updateSong = useUpdateSong();
 
   const [title, setTitle] = useState('');
@@ -42,7 +31,9 @@ export default function EditSongScreen() {
   const [isFree, setIsFree] = useState(false);
   const [description, setDescription] = useState('');
   const [coverUri, setCoverUri] = useState<string | null>(null);
-  const [newCoverImage, setNewCoverImage] = useState<{ uri: string; mimeType: string } | null>(null);
+  const [newCoverImage, setNewCoverImage] = useState<{ uri: string; mimeType: string } | null>(
+    null,
+  );
   const [showGenrePicker, setShowGenrePicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -57,7 +48,7 @@ export default function EditSongScreen() {
     setCoverUri(song.coverArtUrl ?? null);
   }, [song]);
 
-  const genreName = GENRES.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
+  const genreName = genres?.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
 
   const pickNewCover = useCallback(async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -74,11 +65,19 @@ export default function EditSongScreen() {
 
   const handleSave = useCallback(async () => {
     if (!id) return;
-    if (!title.trim()) return Alert.alert('Missing Title', 'Enter a song title');
+    if (!title.trim()) {
+      Toast.show({ type: 'error', text1: 'Missing Title', text2: 'Enter a song title' });
+      return;
+    }
 
     const priceNum = parseFloat(price || '0');
     if (!isFree && (priceNum < 0.49 || priceNum > 9.99)) {
-      return Alert.alert('Invalid Price', 'Price must be free ($0) or between $0.49 and $9.99');
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Price',
+        text2: 'Price must be free ($0) or between $0.49 and $9.99',
+      });
+      return;
     }
 
     setSaving(true);
@@ -111,11 +110,18 @@ export default function EditSongScreen() {
         },
       });
 
-      Alert.alert('Saved', 'Song updated successfully', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      Toast.show({ type: 'success', text1: 'Saved', text2: 'Song updated successfully' });
+      router.back();
     } catch (err: any) {
-      Alert.alert('Error', err?.response?.data?.message || 'Failed to update song');
+      const message =
+        err?.response?.data?.error?.details?.[0]?.message ||
+        err?.response?.data?.error?.message ||
+        'Failed to update song';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: message,
+      });
     } finally {
       setSaving(false);
     }
@@ -190,7 +196,7 @@ export default function EditSongScreen() {
 
         {showGenrePicker && (
           <View style={styles.genreList}>
-            {GENRES.map((genre) => (
+            {genres?.map((genre) => (
               <Pressable
                 key={genre.id}
                 style={[styles.genreItem, selectedGenre === genre.id && styles.genreItemActive]}

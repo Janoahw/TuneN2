@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+// import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMyArtistProfile, useConnectStatus } from '@/hooks/useArtist';
 import { useAuthStore } from '@/stores/authStore';
 import { colors, fontFamilies, spacing } from '@/theme';
+import { useRouter } from 'expo-router';
 
 function getInitials(name: string): string {
   return name
@@ -20,6 +21,7 @@ export default function ArtistDashboardScreen() {
   const user = useAuthStore((s) => s.user);
   const { data: artist } = useMyArtistProfile();
   const { data: connect } = useConnectStatus();
+  const router = useRouter();
 
   const balance = artist?.wallet?.balance ?? 0;
   const initials = getInitials(user?.displayName || 'A');
@@ -30,7 +32,7 @@ export default function ArtistDashboardScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.heading}>Dashboard</Text>
-          <Pressable onPress={() => router.push('/profile-edit')}>
+          <Pressable onPress={() => router.push('/(creator)/edit-artist-profile')}>
             <LinearGradient
               colors={colors.gradientBrand as unknown as [string, string]}
               start={{ x: 0, y: 0 }}
@@ -80,14 +82,14 @@ export default function ArtistDashboardScreen() {
         <View style={styles.actionsRow}>
           <Pressable
             style={[styles.actionButton, { backgroundColor: colors.accentPrimary }]}
-            onPress={() => {}}
+            onPress={() => router.push('/(creator)/upload-song')}
           >
             <Feather name="upload" size={20} color={colors.onPrimary} />
             <Text style={styles.actionText}>Upload Song</Text>
           </Pressable>
           <Pressable
             style={[styles.actionButton, { backgroundColor: colors.bgSecondary }]}
-            onPress={() => {}}
+            onPress={() => router.push('/(creator)/song-management')}
           >
             <Feather name="music" size={20} color={colors.textPrimary} />
             <Text style={[styles.actionText, { color: colors.textPrimary }]}>My Songs</Text>

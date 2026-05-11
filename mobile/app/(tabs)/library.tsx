@@ -151,6 +151,7 @@ export default function LibraryScreen() {
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.chipRow}
+        style={styles.chipScroll}
       >
         {FILTER_CHIPS.map((chip) => (
           <Pressable
@@ -174,10 +175,7 @@ export default function LibraryScreen() {
           <Feather name="headphones" size={64} color={colors.textTertiary} />
           <Text style={styles.emptyTitle}>Your library is empty</Text>
           <Text style={styles.emptySubtitle}>Songs you purchase will appear here</Text>
-          <Pressable
-            style={styles.signInBtn}
-            onPress={() => router.push('/(tabs)/explore' as any)}
-          >
+          <Pressable style={styles.signInBtn} onPress={() => router.push('/(tabs)/search' as any)}>
             <Text style={styles.signInText}>Discover Music</Text>
           </Pressable>
         </View>
@@ -272,6 +270,9 @@ const styles = StyleSheet.create({
   },
 
   // Filter Chips
+  chipScroll: {
+    flexGrow: 0,
+  },
   chipRow: {
     flexDirection: 'row',
     gap: spacing[2],

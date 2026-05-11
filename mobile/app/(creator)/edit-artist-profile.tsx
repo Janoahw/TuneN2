@@ -1,28 +1,17 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useMyArtistProfile, useUpdateArtistProfile } from '@/hooks/useArtist';
+import { useGenres } from '@/hooks/useDiscover';
 import { colors, fontFamilies, spacing } from '@/theme';
-
-const GENRES = [
-  'Afrobeats',
-  'Amapiano',
-  'Hip Hop',
-  'R&B',
-  'Pop',
-  'Dancehall',
-  'Highlife',
-  'Gospel',
-  'Jazz',
-  'Electronic',
-] as const;
 
 const editSchema = z.object({
   artistName: z.string().min(2, 'Artist name is required'),
@@ -32,7 +21,8 @@ const editSchema = z.object({
 type FormData = z.infer<typeof editSchema>;
 
 export default function EditArtistProfileScreen() {
-  const { data: artist, isLoading } = useMyArtistProfile();
+  const { data: artist, isLoading: artistLoading } = useMyArtistProfile();
+  const { data: allGenres, isLoading: genresLoading } = useGenres();
   const updateProfile = useUpdateArtistProfile();
   const [selectedGenres, setSelectedGenres] = useState<number[]>(artist?.genreIds ?? []);
 
@@ -48,9 +38,9 @@ export default function EditArtistProfileScreen() {
     },
   });
 
-  const toggleGenre = (idx: number) => {
+  const toggleGenre = (genreId: number) => {
     setSelectedGenres((prev) =>
-      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx],
+      prev.includes(genreId) ? prev.filter((id) => id !== genreId) : [...prev, genreId],
     );
   };
 
@@ -61,13 +51,22 @@ export default function EditArtistProfileScreen() {
         bio: data.bio,
         genreIds: selectedGenres,
       });
+      Toast.show({
+        type: 'success',
+        text1: 'Profile updated',
+        text2: 'Your changes have been saved.',
+      });
       router.back();
-    } catch {
-      Alert.alert('Error', 'Could not update profile. Please try again.');
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error?.details?.[0]?.message ||
+        err?.response?.data?.error?.message ||
+        'Could not update profile. Please try again.';
+      Toast.show({ type: 'error', text1: 'Update failed', text2: message });
     }
   };
 
-  if (isLoading) {
+  if (artistLoading || genresLoading) {
     return (
       <SafeAreaView style={styles.safe}>
         <View style={styles.loadingContainer}>
@@ -113,15 +112,15 @@ export default function EditArtistProfileScreen() {
         {/* Genre Picker */}
         <Text style={styles.label}>Genres</Text>
         <View style={styles.chipGrid}>
-          {GENRES.map((genre, idx) => {
-            const active = selectedGenres.includes(idx);
+          {allGenres?.map((genre) => {
+            const active = selectedGenres.includes(genre.id);
             return (
               <Pressable
-                key={genre}
+                key={genre.id}
                 style={[styles.chip, active && styles.chipActive]}
-                onPress={() => toggleGenre(idx)}
+                onPress={() => toggleGenre(genre.id)}
               >
-                <Text style={[styles.chipText, active && styles.chipTextActive]}>{genre}</Text>
+                <Text style={[styles.chipText, active && styles.chipTextActive]}>{genre.name}</Text>
               </Pressable>
             );
           })}

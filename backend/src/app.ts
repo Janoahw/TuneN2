@@ -47,6 +47,21 @@ app.use('/api/v1/webhooks/stripe', express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Custom JSON serializer to handle BigInt
+app.use((req, res, next) => {
+  const originalJson = res.json;
+  res.json = function (body) {
+    const serialized = JSON.stringify(body, (_key, value) => {
+      if (typeof value === 'bigint') {
+        return value.toString();
+      }
+      return value;
+    });
+    return originalJson.call(this, JSON.parse(serialized));
+  };
+  next();
+});
+
 // Cookie parsing
 app.use(cookieParser());
 

@@ -18,7 +18,7 @@ router.get(
   '/discover',
   validate({ query: discoverQuerySchema }),
   async (req: Request, res: Response) => {
-    const { limit } = req.query as unknown as { limit: number };
+    const { limit } = (req as any).validatedQuery as { limit: number };
     const data = await DiscoverService.getDiscoverFeed(limit);
     res.json({ success: true, data });
   },
@@ -30,7 +30,7 @@ router.get(
   '/search',
   validate({ query: searchQuerySchema }),
   async (req: Request, res: Response) => {
-    const { q, type, page, limit } = req.query as unknown as {
+    const { q, type, page, limit } = (req as any).validatedQuery as {
       q: string;
       type: 'all' | 'artists' | 'songs';
       page: number;
@@ -52,7 +52,8 @@ router.get(
   '/genres/:slug',
   validate({ params: genreSlugParamSchema }),
   async (req: Request, res: Response) => {
-    const data = await DiscoverService.getGenreDetail(req.params.slug as string);
+    const { slug } = (req as any).validatedParams as { slug: string };
+    const data = await DiscoverService.getGenreDetail(slug);
     res.json({ success: true, data });
   },
 );
@@ -63,7 +64,7 @@ router.get(
   '/artists',
   validate({ query: artistsListQuerySchema }),
   async (req: Request, res: Response) => {
-    const { page, limit, genre } = req.query as unknown as {
+    const { page, limit, genre } = (req as any).validatedQuery as {
       page: number;
       limit: number;
       genre?: string;
