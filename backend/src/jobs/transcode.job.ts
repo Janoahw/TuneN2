@@ -110,14 +110,20 @@ function transcodeToAAC(inputPath: string, outputPath: string): Promise<void> {
     execFile(
       'ffmpeg',
       [
-        '-i', inputPath,
-        '-vn',                    // no video
-        '-acodec', 'aac',        // AAC codec
-        '-b:a', '128k',          // 128kbps bitrate
-        '-ar', '44100',          // 44.1kHz sample rate
-        '-ac', '2',              // stereo
-        '-movflags', '+faststart', // streaming optimization
-        '-y',                     // overwrite output
+        '-i',
+        inputPath,
+        '-vn', // no video
+        '-acodec',
+        'aac', // AAC codec
+        '-b:a',
+        '128k', // 128kbps bitrate
+        '-ar',
+        '44100', // 44.1kHz sample rate
+        '-ac',
+        '2', // stereo
+        '-movflags',
+        '+faststart', // streaming optimization
+        '-y', // overwrite output
         outputPath,
       ],
       { timeout: 5 * 60 * 1000 }, // 5-minute timeout
@@ -168,7 +174,7 @@ const transcodeWorker = new Worker<TranscodeJobData>(
 
       // 5. Update song record: status → 'active', stream_url → outputKey
       await job.updateProgress(90);
-      await prisma.song.update({
+      const song = await prisma.song.update({
         where: { id: songId },
         data: {
           status: 'active',
@@ -179,6 +185,16 @@ const transcodeWorker = new Worker<TranscodeJobData>(
 
       await job.updateProgress(100);
       logger.info({ songId, durationSeconds }, 'Transcode complete');
+
+      // Notify followers of new song
+      const { NotificationService } = await import('../services/notification.service.js');
+      NotificationService.notifyNewSong({
+        artistId: song.artistId,
+        songId: song.id,
+        songTitle: song.title,
+      }).catch((err) => {
+        logger.error({ err, songId }, 'Failed to send new song notifications');
+      });
     } finally {
       // Clean up temp files
       fs.rmSync(tmpDir, { recursive: true, force: true });

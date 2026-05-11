@@ -20,6 +20,9 @@ import { libraryRouter } from './routes/library.routes.js';
 import { webhookRouter } from './routes/webhook.routes.js';
 import { discoverRouter } from './routes/discover.routes.js';
 import { walletRouter } from './routes/wallet.routes.js';
+import { deviceRouter } from './routes/device.routes.js';
+import { notificationRouter } from './routes/notification.routes.js';
+import { reportRouter } from './routes/report.routes.js';
 
 const app = express();
 
@@ -79,6 +82,9 @@ app.use('/api/v1/songs', purchaseRouter);
 app.use('/api/v1/library', libraryRouter);
 app.use('/api/v1', discoverRouter);
 app.use('/api/v1/wallet', walletRouter);
+app.use('/api/v1/devices', deviceRouter);
+app.use('/api/v1/notifications', notificationRouter);
+app.use('/api/v1/reports', reportRouter);
 app.use('/api/v1/webhooks', webhookRouter);
 
 // ── 404 handler ─────────────────────────────

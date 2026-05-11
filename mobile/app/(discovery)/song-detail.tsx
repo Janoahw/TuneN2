@@ -18,6 +18,7 @@ import { useAuthStore } from '@/stores/authStore';
 import Toast from 'react-native-toast-message';
 import * as FileSystem from 'expo-file-system';
 import { useState } from 'react';
+import { ReportModal } from '@/components/ReportModal';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const COVER_SIZE = 280;
@@ -45,6 +46,7 @@ export default function SongDetailScreen() {
   const purchaseMutation = usePurchaseSong();
   const downloadMutation = useDownloadUrl();
   const [downloadProgress, setDownloadProgress] = useState<number | null>(null);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
 
   if (isLoading || !song) {
     return (
@@ -151,8 +153,8 @@ export default function SongDetailScreen() {
           <Feather name="arrow-left" size={24} color={colors.textPrimary} />
         </Pressable>
         <Text style={styles.topBarTitle}>Song</Text>
-        <Pressable hitSlop={12}>
-          <Feather name="more-horizontal" size={24} color={colors.textPrimary} />
+        <Pressable hitSlop={12} onPress={() => setReportModalVisible(true)}>
+          <Feather name="flag" size={22} color={colors.textPrimary} />
         </Pressable>
       </View>
 
@@ -290,6 +292,16 @@ export default function SongDetailScreen() {
 
         <View style={{ height: spacing[10] }} />
       </ScrollView>
+
+      {/* Report Modal */}
+      {song && (
+        <ReportModal
+          songId={id!}
+          songTitle={song.title}
+          visible={reportModalVisible}
+          onClose={() => setReportModalVisible(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }

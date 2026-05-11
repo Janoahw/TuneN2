@@ -34,4 +34,19 @@ export const ENDPOINTS = {
     withdraw: '/wallet/withdraw',
     withdrawals: '/wallet/withdrawals',
   },
+  devices: {
+    register: '/devices',
+    remove: '/devices',
+  },
+  notifications: {
+    list: '/notifications',
+    markRead: (id: string) => `/notifications/${id}/read`,
+    markAllRead: '/notifications/read-all',
+  },
+  reports: {
+    create: '/reports',
+    myReports: '/reports/my',
+    admin: '/admin/reports',
+    update: (id: string) => `/admin/reports/${id}`,
+  },
 } as const;
