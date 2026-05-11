@@ -6,28 +6,41 @@ import {
   type SignupParams,
   type SocialAuthParams,
 } from '@/services/auth.service';
+import { DeviceService } from '@/services/device.service';
 
 export function useAuth() {
   const { user, isAuthenticated, isLoading, setAuth, clearAuth, setTokens } = useAuthStore();
 
   const loginMutation = useMutation({
     mutationFn: (params: LoginParams) => authService.login(params),
-    onSuccess: (data) => {
-      setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
+    onSuccess: async (data) => {
+      await setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
+      // Register push token in the background
+      DeviceService.registerCurrentDevice().catch((err) => {
+        console.warn('Failed to register push token:', err);
+      });
     },
   });
 
   const signupMutation = useMutation({
     mutationFn: (params: SignupParams) => authService.signup(params),
-    onSuccess: (data) => {
-      setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
+    onSuccess: async (data) => {
+      await setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
+      // Register push token in the background
+      DeviceService.registerCurrentDevice().catch((err) => {
+        console.warn('Failed to register push token:', err);
+      });
     },
   });
 
   const socialAuthMutation = useMutation({
     mutationFn: (params: SocialAuthParams) => authService.socialAuth(params),
-    onSuccess: (data) => {
-      setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
+    onSuccess: async (data) => {
+      await setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
+      // Register push token in the background
+      DeviceService.registerCurrentDevice().catch((err) => {
+        console.warn('Failed to register push token:', err);
+      });
     },
   });
 

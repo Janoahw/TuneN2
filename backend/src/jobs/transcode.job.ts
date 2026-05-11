@@ -168,7 +168,7 @@ const transcodeWorker = new Worker<TranscodeJobData>(
 
       // 5. Update song record: status → 'active', stream_url → outputKey
       await job.updateProgress(90);
-      await prisma.song.update({
+      const song = await prisma.song.update({
         where: { id: songId },
         data: {
           status: 'active',
@@ -179,6 +179,16 @@ const transcodeWorker = new Worker<TranscodeJobData>(
 
       await job.updateProgress(100);
       logger.info({ songId, durationSeconds }, 'Transcode complete');
+
+      // Notify followers of new song
+      const { NotificationService } = await import('../services/notification.service.js');
+      NotificationService.notifyNewSong({
+        artistId: song.artistId,
+        songId: song.id,
+        songTitle: song.title,
+      }).catch((err) => {
+        logger.error({ err, songId }, 'Failed to send new song notifications');
+      });
     } finally {
       // Clean up temp files
       fs.rmSync(tmpDir, { recursive: true, force: true });

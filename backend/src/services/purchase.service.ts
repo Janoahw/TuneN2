@@ -185,7 +185,19 @@ export class PurchaseService {
     const platformFee = amountDecimal * (PLATFORM_FEE_PERCENT / 100);
     const artistEarnings = amountDecimal - platformFee;
 
+    let purchaseData: { buyerId: string; songId: string; songTitle: string; amount: number } | null = null;
+
     await prisma.$transaction(async (tx) => {
+      // Get song details for notification
+      const song = await tx.song.findUnique({
+        where: { id: songId },
+        select: { title: true },
+      });
+
+      if (song) {
+        purchaseData = { buyerId, songId, songTitle: song.title, amount: amountDecimal };
+      }
+
       // 1. Update/create purchase as completed
       await tx.purchase.upsert({
         where: { buyerId_songId: { buyerId, songId } },
@@ -242,6 +254,20 @@ export class PurchaseService {
       { paymentIntentId, buyerId, songId, artistEarnings },
       'Purchase completed and wallet credited',
     );
+
+    // Send purchase confirmation notification to buyer
+    if (purchaseData) {
+      const { NotificationService } = await import('./notification.service.js');
+      NotificationService.notifyPurchase({
+        buyerId: purchaseData.buyerId,
+        artistId,
+        songId: purchaseData.songId,
+        songTitle: purchaseData.songTitle,
+        amount: purchaseData.amount,
+      }).catch((err) => {
+        logger.error({ err, buyerId }, 'Failed to send purchase notification');
+      });
+    }
   }
 
   /**

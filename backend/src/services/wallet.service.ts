@@ -229,6 +229,15 @@ export class WalletService {
   static async handleTransferPaid(stripeTransferId: string) {
     const withdrawal = await prisma.withdrawal.findFirst({
       where: { stripeTransferId },
+      include: {
+        wallet: {
+          select: {
+            artist: {
+              select: { id: true },
+            },
+          },
+        },
+      },
     });
     if (!withdrawal) {
       logger.warn({ stripeTransferId }, 'No withdrawal found for transfer.paid');
@@ -247,6 +256,16 @@ export class WalletService {
     ]);
 
     logger.info({ withdrawalId: withdrawal.id, stripeTransferId }, 'Withdrawal completed');
+
+    // Notify artist of payout completion
+    const { NotificationService } = await import('./notification.service.js');
+    const artistId = withdrawal.wallet.artist.id;
+    NotificationService.notifyPayout({
+      artistId,
+      amount: withdrawal.netAmountCents / 100,
+    }).catch((err) => {
+      logger.error({ err, withdrawalId: withdrawal.id }, 'Failed to send payout notification');
+    });
   }
 
   // ─── S8.6: Handle transfer.failed webhook ────────────────────────────

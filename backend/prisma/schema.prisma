@@ -30,6 +30,7 @@ model User {
   follows        Follow[]
   downloads      Download[]
   notifications  Notification[]
+  deviceTokens   DeviceToken[]
   contentReports ContentReport[] @relation("reporter")
   reviewedReports ContentReport[] @relation("reviewer")
   emailOtps       EmailOTP[]
@@ -317,6 +318,23 @@ model Notification {
   @@index([userId])
   @@index([userId, isRead])
   @@map("notifications")
+}
+
+// ─── DEVICE TOKENS (Push Notifications) ─────────────────
+
+model DeviceToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @db.VarChar(500) // Expo push token
+  platform  String   @db.VarChar(10) // 'ios' | 'android'
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, token])
+  @@index([userId])
+  @@map("device_tokens")
 }
 
 // ─── CONTENT REPORTS ─────────────────────────────────────
