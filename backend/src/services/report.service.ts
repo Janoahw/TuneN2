@@ -196,7 +196,7 @@ export class ReportService {
 
     logger.info(
       { reportId: params.reportId, status: params.status, action: params.action },
-      'Report status updated'
+      'Report status updated',
     );
 
     return updatedReport;

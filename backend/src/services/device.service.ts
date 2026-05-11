@@ -5,7 +5,11 @@ export class DeviceService {
   /**
    * Register a device token for push notifications
    */
-  static async registerToken(params: { userId: string; token: string; platform: 'ios' | 'android' }) {
+  static async registerToken(params: {
+    userId: string;
+    token: string;
+    platform: 'ios' | 'android';
+  }) {
     try {
       const device = await prisma.deviceToken.upsert({
         where: {

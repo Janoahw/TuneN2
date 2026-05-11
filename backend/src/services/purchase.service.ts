@@ -185,7 +185,12 @@ export class PurchaseService {
     const platformFee = amountDecimal * (PLATFORM_FEE_PERCENT / 100);
     const artistEarnings = amountDecimal - platformFee;
 
-    let purchaseData: { buyerId: string; songId: string; songTitle: string; amount: number } | null = null;
+    let purchaseData: {
+      buyerId: string;
+      songId: string;
+      songTitle: string;
+      amount: number;
+    } | null = null;
 
     await prisma.$transaction(async (tx) => {
       // Get song details for notification

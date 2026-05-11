@@ -8,16 +8,22 @@ import type { ContentReport } from '@/services/report.service';
 
 function ReportCard({ item }: { item: ContentReport }) {
   const statusColor =
-    item.status === 'pending' ? colors.warning :
-    item.status === 'resolved' ? colors.success :
-    item.status === 'dismissed' ? colors.textTertiary :
-    colors.textSecondary;
+    item.status === 'pending'
+      ? colors.warning
+      : item.status === 'resolved'
+        ? colors.success
+        : item.status === 'dismissed'
+          ? colors.textTertiary
+          : colors.textSecondary;
 
   const statusLabel =
-    item.status === 'pending' ? 'Under Review' :
-    item.status === 'resolved' ? 'Content Removed' :
-    item.status === 'dismissed' ? 'No Action Taken' :
-    'Reviewed';
+    item.status === 'pending'
+      ? 'Under Review'
+      : item.status === 'resolved'
+        ? 'Content Removed'
+        : item.status === 'dismissed'
+          ? 'No Action Taken'
+          : 'Reviewed';
 
   return (
     <View style={styles.card}>

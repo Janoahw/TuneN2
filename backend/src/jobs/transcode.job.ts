@@ -110,14 +110,20 @@ function transcodeToAAC(inputPath: string, outputPath: string): Promise<void> {
     execFile(
       'ffmpeg',
       [
-        '-i', inputPath,
-        '-vn',                    // no video
-        '-acodec', 'aac',        // AAC codec
-        '-b:a', '128k',          // 128kbps bitrate
-        '-ar', '44100',          // 44.1kHz sample rate
-        '-ac', '2',              // stereo
-        '-movflags', '+faststart', // streaming optimization
-        '-y',                     // overwrite output
+        '-i',
+        inputPath,
+        '-vn', // no video
+        '-acodec',
+        'aac', // AAC codec
+        '-b:a',
+        '128k', // 128kbps bitrate
+        '-ar',
+        '44100', // 44.1kHz sample rate
+        '-ac',
+        '2', // stereo
+        '-movflags',
+        '+faststart', // streaming optimization
+        '-y', // overwrite output
         outputPath,
       ],
       { timeout: 5 * 60 * 1000 }, // 5-minute timeout

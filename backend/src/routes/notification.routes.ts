@@ -45,7 +45,7 @@ router.get(
       },
       error: null,
     });
-  }
+  },
 );
 
 /**
@@ -87,7 +87,7 @@ router.patch(
       data: updated,
       error: null,
     });
-  }
+  },
 );
 
 /**

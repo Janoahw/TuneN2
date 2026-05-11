@@ -30,7 +30,7 @@ router.post(
       },
       error: null,
     });
-  }
+  },
 );
 
 /**
@@ -52,7 +52,7 @@ router.delete(
       data: { message: 'Device token removed successfully' },
       error: null,
     });
-  }
+  },
 );
 
 export const deviceRouter = router;

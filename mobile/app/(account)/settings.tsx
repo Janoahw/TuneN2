@@ -96,7 +96,11 @@ export default function SettingsScreen() {
         {/* App Section */}
         <Text style={styles.sectionTitle}>App</Text>
         <View style={styles.card}>
-          <SettingsRow icon="bell" label="Notifications" onPress={() => router.push('/notifications' as any)} />
+          <SettingsRow
+            icon="bell"
+            label="Notifications"
+            onPress={() => router.push('/notifications' as any)}
+          />
           <View style={styles.separator} />
           <SettingsRow icon="info" label="About" value="1.0.0" />
         </View>

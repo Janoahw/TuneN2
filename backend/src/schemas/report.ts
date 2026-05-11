@@ -3,7 +3,9 @@ import { z } from 'zod';
 export const createReportSchema = z.object({
   songId: z.string().uuid('Invalid song ID'),
   reason: z.enum(['copyright', 'inappropriate', 'spam', 'other'], {
-    errorMap: () => ({ message: 'Invalid reason. Must be copyright, inappropriate, spam, or other' }),
+    errorMap: () => ({
+      message: 'Invalid reason. Must be copyright, inappropriate, spam, or other',
+    }),
   }),
   description: z.string().max(1000).optional(),
 });

@@ -50,7 +50,7 @@ router.post(
       data: report,
       error: null,
     });
-  }
+  },
 );
 
 /**
@@ -72,7 +72,7 @@ router.get(
       data: result,
       error: null,
     });
-  }
+  },
 );
 
 /**
@@ -110,7 +110,7 @@ router.get(
       data: result,
       error: null,
     });
-  }
+  },
 );
 
 /**
@@ -151,7 +151,7 @@ router.patch(
       data: report,
       error: null,
     });
-  }
+  },
 );
 
 export const reportRouter = router;

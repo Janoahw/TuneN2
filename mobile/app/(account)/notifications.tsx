@@ -2,7 +2,11 @@ import { View, Text, StyleSheet, FlatList, Pressable, RefreshControl } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from '@/hooks/useNotifications';
+import {
+  useNotifications,
+  useMarkNotificationRead,
+  useMarkAllNotificationsRead,
+} from '@/hooks/useNotifications';
 import { colors, fontFamilies, spacing } from '@/theme';
 import type { Notification } from '@/services/notification.service';
 
@@ -21,12 +25,17 @@ function NotificationItem({ item }: { item: Notification }) {
   };
 
   const icon =
-    item.type === 'new_release' ? 'music' :
-    item.type === 'purchase_success' ? 'shopping-bag' :
-    item.type === 'payout_processed' ? 'dollar-sign' :
-    item.type === 'report_action' ? 'shield' :
-    item.type === 'collaboration_request' ? 'users' :
-    'bell';
+    item.type === 'new_release'
+      ? 'music'
+      : item.type === 'purchase_success'
+        ? 'shopping-bag'
+        : item.type === 'payout_processed'
+          ? 'dollar-sign'
+          : item.type === 'report_action'
+            ? 'shield'
+            : item.type === 'collaboration_request'
+              ? 'users'
+              : 'bell';
 
   return (
     <Pressable
@@ -38,7 +47,11 @@ function NotificationItem({ item }: { item: Notification }) {
       onPress={handlePress}
     >
       <View style={[styles.iconContainer, !item.isRead && styles.iconUnread]}>
-        <Feather name={icon} size={20} color={item.isRead ? colors.textSecondary : colors.accentPrimary} />
+        <Feather
+          name={icon}
+          size={20}
+          color={item.isRead ? colors.textSecondary : colors.accentPrimary}
+        />
       </View>
       <View style={styles.notificationContent}>
         <Text style={styles.notificationTitle}>{item.title}</Text>
