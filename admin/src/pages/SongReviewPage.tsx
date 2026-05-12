@@ -1,5 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { AudioLines, Music4 } from 'lucide-react';
+import { DataRefreshButton } from '../components/DataRefreshButton';
 import { Layout } from '../components/Layout';
 import { StatusBadge } from '../components/StatusBadge';
 import { adminApi } from '../services/api';
@@ -43,27 +45,32 @@ export default function SongReviewPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-white text-2xl font-bold font-['Space_Grotesk']">Song Review</h1>
-          <button
-            onClick={() => navigate(-1)}
-            className="text-[#00CCCC] text-sm font-normal hover:underline"
-          >
-            Back to Queue
-          </button>
+          <div className="flex items-center gap-2">
+            <DataRefreshButton
+              queryKeys={[['admin-song'], ['admin-content-songs'], ['admin-content-stats']]}
+            />
+            <button
+              onClick={() => navigate(-1)}
+              className="text-[#00CCCC] text-sm font-normal hover:underline"
+            >
+              Back to Queue
+            </button>
+          </div>
         </div>
 
         {/* Song Info */}
-        <div className="bg-[#111114] rounded-xl p-5 flex gap-6">
+        <div className="flex gap-6 rounded-xl bg-surface-alt p-5">
           {/* Cover Art */}
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             {data.coverArtUrl ? (
               <img
                 src={data.coverArtUrl}
                 alt={data.title}
-                className="w-[200px] h-[200px] rounded-lg object-cover"
+                className="h-50 w-50 rounded-lg object-cover"
               />
             ) : (
-              <div className="w-[200px] h-[200px] rounded-lg bg-[#BF5AF2] flex items-center justify-center text-white text-4xl">
-                ♫
+              <div className="flex h-50 w-50 items-center justify-center rounded-lg bg-accent-warm text-white">
+                <Music4 className="h-12 w-12" strokeWidth={1.75} />
               </div>
             )}
           </div>
@@ -119,14 +126,17 @@ export default function SongReviewPage() {
         </div>
 
         {/* Audio Preview */}
-        <div className="bg-[#111114] rounded-xl p-5 flex flex-col gap-3">
+        <div className="flex flex-col gap-3 rounded-xl bg-surface-alt p-5">
           <h2 className="text-white text-base font-semibold font-['Space_Grotesk']">
             Audio Preview
           </h2>
 
           {/* Waveform placeholder */}
           <div className="bg-[#1A1A1E] rounded-lg h-12 flex items-center justify-center">
-            <div className="text-[#6E6E78] text-sm">🎵 Audio waveform visualization</div>
+            <div className="flex items-center gap-2 text-[#6E6E78] text-sm">
+              <AudioLines className="h-4 w-4" strokeWidth={1.75} />
+              <span>Audio waveform visualization</span>
+            </div>
           </div>
 
           {/* Audio Controls */}
@@ -140,7 +150,7 @@ export default function SongReviewPage() {
         </div>
 
         {/* Report History */}
-        <div className="bg-[#111114] rounded-xl p-5 flex flex-col gap-3">
+        <div className="flex flex-col gap-3 rounded-xl bg-surface-alt p-5">
           <h2 className="text-white text-base font-semibold font-['Space_Grotesk']">
             Report History
           </h2>

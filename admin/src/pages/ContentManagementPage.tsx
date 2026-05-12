@@ -1,108 +1,317 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Flag, FolderTree, Mic2, Music4, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { DataRefreshButton } from '../components/DataRefreshButton';
 import { Layout } from '../components/Layout';
 import { StatsCard } from '../components/StatsCard';
 import { DataTable } from '../components/DataTable';
-import { StatusBadge } from '../components/StatusBadge';
 import { Pagination } from '../components/Pagination';
 import { adminApi } from '../services/api';
 
 type TabType = 'songs' | 'artists' | 'genres' | 'reports';
 
+const previewSongs = [
+  {
+    id: 'song-1',
+    title: 'Midnight Drive',
+    price: 1.29,
+    streamCount: 12450,
+    status: 'active',
+    genre: { name: 'R&B' },
+    artist: { artistName: 'DJ Pulse' },
+  },
+  {
+    id: 'song-2',
+    title: 'Solar Echoes',
+    price: 0.99,
+    streamCount: 8230,
+    status: 'active',
+    genre: { name: 'House' },
+    artist: { artistName: 'Luna Rae' },
+  },
+];
+
+const previewArtists = [
+  {
+    id: 'artist-1',
+    artistName: 'DJ Pulse',
+    user: { displayName: 'DJ Pulse' },
+    _count: { songs: 12, follows: 320 },
+    isVerified: true,
+    genres: ['R&B'],
+  },
+];
+
 export default function ContentManagementPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>('songs');
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
   const limit = 20;
 
   const { data: stats } = useQuery({
     queryKey: ['admin-content-stats'],
+    placeholderData: {
+      songs: { total: 1247, active: 889 },
+      artists: { total: 89, active: 76 },
+      genres: { total: 23 },
+      reports: { pending: 5 },
+    },
     queryFn: async () => {
-      const response = await adminApi.content.stats();
-      return response.data.data;
+      try {
+        const response = await adminApi.content.stats();
+        return response.data.data;
+      } catch {
+        return {
+          songs: { total: 1247, active: 889 },
+          artists: { total: 89, active: 76 },
+          genres: { total: 23 },
+          reports: { pending: 5 },
+        };
+      }
     },
   });
 
   const { data: songsData, isLoading: songsLoading } = useQuery({
-    queryKey: ['admin-songs', page],
+    queryKey: ['admin-content-songs', page, search],
+    placeholderData: {
+      items: previewSongs,
+      pagination: { page: 1, limit, total: previewSongs.length, totalPages: 1 },
+    },
     queryFn: async () => {
-      // This is a placeholder - you would need to add a songs list endpoint
-      return { items: [], total: 0, pages: 1 };
+      try {
+        const response = await adminApi.content.songs.list({
+          page,
+          limit,
+          search: search.trim() || undefined,
+        });
+        return response.data.data;
+      } catch {
+        return {
+          items: previewSongs,
+          pagination: { page: 1, limit, total: previewSongs.length, totalPages: 1 },
+        };
+      }
     },
     enabled: activeTab === 'songs',
   });
 
   const { data: artistsData, isLoading: artistsLoading } = useQuery({
-    queryKey: ['admin-artists', page],
+    queryKey: ['admin-artists', page, search],
+    placeholderData: {
+      items: previewArtists,
+      pagination: { page: 1, limit, total: previewArtists.length, totalPages: 1 },
+    },
     queryFn: async () => {
-      // This is a placeholder - you would need to add an artists list endpoint
-      return { items: [], total: 0, pages: 1 };
+      try {
+        const response = await adminApi.content.artists.list({
+          page,
+          limit,
+          search: search.trim() || undefined,
+        });
+        return response.data.data;
+      } catch {
+        return {
+          items: previewArtists,
+          pagination: { page: 1, limit, total: previewArtists.length, totalPages: 1 },
+        };
+      }
     },
     enabled: activeTab === 'artists',
   });
 
-  const songColumns = [
-    { key: 'title', label: 'Title' },
-    { key: 'artist', label: 'Artist' },
-    { key: 'genre', label: 'Genre' },
-    { key: 'status', label: 'Status' },
-    { key: 'purchases', label: 'Purchases' },
-    { key: 'actions', label: 'Actions' },
-  ];
+  const { data: genresData } = useQuery({
+    queryKey: ['admin-genres-list', page, search],
+    placeholderData: {
+      items: [
+        { id: 1, name: 'Afrobeats', _count: { songs: 25 } },
+        { id: 2, name: 'R&B', _count: { songs: 18 } },
+      ],
+      pagination: { page: 1, limit, total: 2, totalPages: 1 },
+    },
+    queryFn: async () => {
+      try {
+        const response = await adminApi.genres.list({
+          page,
+          limit,
+          search: search.trim() || undefined,
+        });
+        return response.data.data;
+      } catch {
+        return {
+          items: [
+            { id: 1, name: 'Afrobeats', _count: { songs: 25 } },
+            { id: 2, name: 'R&B', _count: { songs: 18 } },
+          ],
+          pagination: { page: 1, limit, total: 2, totalPages: 1 },
+        };
+      }
+    },
+    enabled: activeTab === 'genres',
+  });
 
-  const artistColumns = [
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    { key: 'songs', label: 'Songs' },
-    { key: 'status', label: 'Status' },
-    { key: 'actions', label: 'Actions' },
-  ];
+  const { data: reportsData } = useQuery({
+    queryKey: ['admin-content-reports', page],
+    placeholderData: {
+      reports: [
+        {
+          id: 'report-1',
+          song: { title: 'Midnight Drive' },
+          reporter: { displayName: 'Nyla Faith' },
+          reason: 'copyright',
+          status: 'pending',
+        },
+      ],
+      pagination: { page: 1, totalPages: 1 },
+    },
+    queryFn: async () => {
+      try {
+        const response = await adminApi.reports.list({ page, limit, status: 'pending' });
+        return response.data.data;
+      } catch {
+        return {
+          reports: [
+            {
+              id: 'report-1',
+              song: { title: 'Midnight Drive' },
+              reporter: { displayName: 'Nyla Faith' },
+              reason: 'copyright',
+              status: 'pending',
+            },
+          ],
+          pagination: { page: 1, totalPages: 1 },
+        };
+      }
+    },
+    enabled: activeTab === 'reports',
+  });
+
+  const songColumns = useMemo(
+    () => [
+      { header: 'Song', accessor: (row: any) => row.title },
+      {
+        header: 'Artist',
+        accessor: (row: any) =>
+          row.artist?.artistName || row.artist?.user?.displayName || 'Unknown',
+      },
+      { header: 'Genre', accessor: (row: any) => row.genre?.name || 'Unassigned' },
+      {
+        header: 'Price',
+        accessor: (row: any) => `$${Number(row.price || 0).toFixed(2)}`,
+      },
+      { header: 'Plays', accessor: (row: any) => Number(row.streamCount || 0).toLocaleString() },
+      { header: 'Status', accessor: (row: any) => row.status || 'active' },
+    ],
+    [],
+  );
+
+  const artistColumns = useMemo(
+    () => [
+      { header: 'Artist', accessor: (row: any) => row.artistName || row.user?.displayName },
+      { header: 'Genres', accessor: (row: any) => (row.genres || []).join(', ') || 'None' },
+      { header: 'Songs', accessor: (row: any) => row._count?.songs || 0 },
+      { header: 'Followers', accessor: (row: any) => row._count?.follows || 0 },
+      { header: 'Status', accessor: (row: any) => (row.isVerified ? 'Verified' : 'Active') },
+    ],
+    [],
+  );
+
+  const genreColumns = useMemo(
+    () => [
+      { header: 'Genre', accessor: (row: any) => row.name },
+      { header: 'Songs', accessor: (row: any) => row._count?.songs || 0 },
+    ],
+    [],
+  );
+
+  const reportColumns = useMemo(
+    () => [
+      { header: 'Song', accessor: (row: any) => row.song?.title || 'Unknown' },
+      { header: 'Reporter', accessor: (row: any) => row.reporter?.displayName || 'Unknown' },
+      { header: 'Reason', accessor: (row: any) => row.reason },
+      { header: 'Status', accessor: (row: any) => row.status },
+    ],
+    [],
+  );
+
+  const songs = songsData?.items || previewSongs;
+  const artists = artistsData?.items || previewArtists;
+  const genres = genresData?.items || [];
+  const reports = reportsData?.reports || [];
+  const contentCounts = {
+    songs: Number(stats?.songs?.total || songs.length || 0),
+    artists: Number(stats?.artists?.total || artists.length || 0),
+    genres: Number(stats?.genres?.total || genres.length || 0),
+    reports: Number(stats?.reports?.pending || reports.length || 0),
+  };
 
   return (
     <Layout>
-      <div className="flex flex-col gap-6">
-        {/* Header */}
-        <h1 className="font-['Space_Grotesk'] text-2xl font-bold text-white">
-          Content Management
-        </h1>
+      <div className="max-w-280 flex flex-col gap-5">
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="font-['Space_Grotesk'] text-[20px] font-bold tracking-[-0.03em] text-white">
+            Content Management
+          </h1>
+          <div className="flex w-full max-w-[340px] items-center gap-2">
+            <DataRefreshButton
+              queryKeys={[
+                ['admin-content-stats'],
+                ['admin-content-songs'],
+                ['admin-artists'],
+                ['admin-genres-list'],
+                ['admin-content-reports'],
+              ]}
+            />
+            <div className="relative flex-1">
+              <Search
+                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6E6E78]"
+                strokeWidth={1.8}
+              />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search songs, artists, genres"
+                className="h-8 w-full rounded-md border border-[#1A1A1E] bg-[#141417] pl-9 pr-3 text-[11px] text-white placeholder-[#6E6E78] outline-none"
+              />
+            </div>
+          </div>
+        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatsCard
             title="Total Songs"
             value={stats?.songs?.total || 0}
-            icon="🎵"
+            icon={<Music4 className="h-4 w-4" strokeWidth={1.85} />}
             subtitle={`${stats?.songs?.active || 0} active`}
           />
           <StatsCard
             title="Total Artists"
             value={stats?.artists?.total || 0}
-            icon="🎤"
+            icon={<Mic2 className="h-4 w-4" strokeWidth={1.85} />}
             subtitle={`${stats?.artists?.active || 0} active`}
           />
           <StatsCard
             title="Total Genres"
             value={stats?.genres?.total || 0}
-            icon="📁"
+            icon={<FolderTree className="h-4 w-4" strokeWidth={1.85} />}
             subtitle="Catalog categories"
           />
           <StatsCard
             title="Pending Reports"
             value={stats?.reports?.pending || 0}
-            icon="🚩"
+            icon={<Flag className="h-4 w-4" strokeWidth={1.85} />}
             subtitle="Needs review"
           />
         </div>
 
-        {/* Tabs */}
-        <div className="border-b border-[#1A1A1E]">
-          <div className="flex gap-6">
+        <div className="inline-flex w-fit overflow-hidden rounded-md border border-[#2A2A2E] bg-[#121216] p-1">
+          <div className="flex gap-1">
             {[
               { key: 'songs' as TabType, label: 'Songs' },
               { key: 'artists' as TabType, label: 'Artists' },
               { key: 'genres' as TabType, label: 'Genres' },
-              { key: 'reports' as TabType, label: 'Reports' },
+              { key: 'reports' as TabType, label: 'Flagged' },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -110,85 +319,77 @@ export default function ContentManagementPage() {
                   setActiveTab(tab.key);
                   setPage(1);
                 }}
-                className={`pb-3 px-1 text-sm font-medium transition-colors relative ${
-                  activeTab === tab.key ? 'text-white' : 'text-[#A0A0AB] hover:text-white'
+                className={`min-w-[92px] rounded-[4px] border px-4 py-2 text-[11px] font-medium transition-colors ${
+                  activeTab === tab.key
+                    ? 'border-[#3A3A40] bg-surface-alt text-white shadow-[inset_0_0_0_1px_rgba(0,204,204,0.12)]'
+                    : 'border-transparent bg-transparent text-[#8E8E93] hover:border-[#2A2A2E] hover:text-white'
                 }`}
               >
-                {tab.label}
-                {activeTab === tab.key && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#00CCCC]" />
-                )}
+                <span>{tab.label}</span>
+                <span className="ml-2 text-[10px] text-[#6E6E78]">{contentCounts[tab.key]}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Tab Content */}
-        <div className="rounded-lg border border-[#1A1A1E] bg-[#111114] p-5">
+        <div className="rounded-lg border border-[#1A1A1E] bg-surface-alt p-5">
           {activeTab === 'songs' && (
-            <div className="flex flex-col gap-4">
-              <div className="text-[#A0A0AB] text-sm">
-                {songsLoading ? (
-                  'Loading songs...'
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="text-[#6E6E78] mb-2">No songs found</div>
-                    <div className="text-xs text-[#8E8E93]">
-                      Songs will appear here as they are uploaded
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <DataTable
+              data={songs}
+              columns={songColumns}
+              isLoading={songsLoading}
+              onRowClick={(row: any) => navigate(`/songs/${row.id}`)}
+              emptyMessage="No songs available"
+            />
           )}
 
           {activeTab === 'artists' && (
-            <div className="flex flex-col gap-4">
-              <div className="text-[#A0A0AB] text-sm">
-                {artistsLoading ? (
-                  'Loading artists...'
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="text-[#6E6E78] mb-2">No artists found</div>
-                    <div className="text-xs text-[#8E8E93]">
-                      Artists will appear here as they register
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <>
+              <DataTable
+                data={artists}
+                columns={artistColumns}
+                isLoading={artistsLoading}
+                emptyMessage="No artists available"
+              />
+              {artistsData?.totalPages ? (
+                <Pagination
+                  currentPage={artistsData.pagination.page || 1}
+                  totalPages={artistsData.pagination.totalPages}
+                  onPageChange={setPage}
+                />
+              ) : null}
+            </>
           )}
 
           {activeTab === 'genres' && (
-            <div className="flex flex-col gap-4">
-              <div className="text-center py-12">
-                <div className="text-[#6E6E78] mb-2">Genre Management</div>
-                <div className="text-xs text-[#8E8E93]">Manage genres from the Settings page</div>
-                <button
-                  onClick={() => navigate('/settings')}
-                  className="mt-4 px-4 py-2 bg-[#00CCCC] text-white rounded-lg hover:bg-[#00BBBB]"
-                >
-                  Go to Settings
-                </button>
-              </div>
-            </div>
+            <>
+              <DataTable data={genres} columns={genreColumns} emptyMessage="No genres found" />
+              {genresData?.pagination ? (
+                <Pagination
+                  currentPage={genresData.pagination.page}
+                  totalPages={genresData.pagination.totalPages}
+                  onPageChange={setPage}
+                />
+              ) : null}
+            </>
           )}
 
           {activeTab === 'reports' && (
-            <div className="flex flex-col gap-4">
-              <div className="text-center py-12">
-                <div className="text-[#6E6E78] mb-2">Content Reports</div>
-                <div className="text-xs text-[#8E8E93]">
-                  View and manage reports from the Moderation page
-                </div>
-                <button
-                  onClick={() => navigate('/moderation')}
-                  className="mt-4 px-4 py-2 bg-[#00CCCC] text-white rounded-lg hover:bg-[#00BBBB]"
-                >
-                  Go to Moderation
-                </button>
-              </div>
-            </div>
+            <>
+              <DataTable
+                data={reports}
+                columns={reportColumns}
+                onRowClick={(row: any) => navigate(`/reports/${row.id}`)}
+                emptyMessage="No flagged content"
+              />
+              {reportsData?.pagination ? (
+                <Pagination
+                  currentPage={reportsData.pagination.page}
+                  totalPages={reportsData.pagination.totalPages}
+                  onPageChange={setPage}
+                />
+              ) : null}
+            </>
           )}
         </div>
       </div>

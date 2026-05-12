@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryProvider } from './providers/QueryProvider';
 import LoginPage from './pages/LoginPage';
@@ -12,23 +13,113 @@ import PayoutDetailPage from './pages/PayoutDetailPage';
 import ContentManagementPage from './pages/ContentManagementPage';
 import SettingsPage from './pages/SettingsPage';
 
+function hasAdminSession() {
+  return Boolean(localStorage.getItem('adminToken'));
+}
+
+function ProtectedRoute({ children }: { children: ReactElement }) {
+  if (!hasAdminSession()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function LoginRoute() {
+  if (hasAdminSession()) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <LoginPage />;
+}
+
 export default function App() {
   return (
     <QueryProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/users/:userId" element={<UserDetailPage />} />
-          <Route path="/moderation" element={<ModerationPage />} />
-          <Route path="/reports/:reportId" element={<ReportDetailPage />} />
-          <Route path="/songs/:songId" element={<SongReviewPage />} />
-          <Route path="/financials" element={<FinancialsPage />} />
-          <Route path="/payouts/:withdrawalId" element={<PayoutDetailPage />} />
-          <Route path="/content" element={<ContentManagementPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginRoute />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <UsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users/:userId"
+            element={
+              <ProtectedRoute>
+                <UserDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/moderation"
+            element={
+              <ProtectedRoute>
+                <ModerationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/:reportId"
+            element={
+              <ProtectedRoute>
+                <ReportDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/songs/:songId"
+            element={
+              <ProtectedRoute>
+                <SongReviewPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/financials"
+            element={
+              <ProtectedRoute>
+                <FinancialsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/payouts/:withdrawalId"
+            element={
+              <ProtectedRoute>
+                <PayoutDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/content"
+            element={
+              <ProtectedRoute>
+                <ContentManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to={hasAdminSession() ? '/' : '/login'} replace />} />
         </Routes>
       </BrowserRouter>
     </QueryProvider>

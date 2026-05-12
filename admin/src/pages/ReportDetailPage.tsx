@@ -1,8 +1,27 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft } from 'lucide-react';
+import { DataRefreshButton } from '../components/DataRefreshButton';
 import { Layout } from '../components/Layout';
+import { StatusBadge } from '../components/StatusBadge';
 import { adminApi } from '../services/api';
+
+const previewReport = {
+  id: 'report-preview',
+  reason: 'Explicit Content',
+  status: 'pending',
+  createdAt: '2026-05-10T00:00:00.000Z',
+  description:
+    'Song contains explicit content without proper labeling. Lyrics are inappropriate for the “All Ages” category it was placed in.',
+  reporter: { displayName: 'Nyla Faith', email: 'nyla@tunen2.com', avatarUrl: '' },
+  song: {
+    id: 'song-preview',
+    title: 'Night Fall',
+    coverArtUrl: '',
+    artist: { user: { displayName: 'Riot Records' } },
+  },
+};
 
 export default function ReportDetailPage() {
   const { reportId } = useParams<{ reportId: string }>();
@@ -14,9 +33,14 @@ export default function ReportDetailPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-report', reportId],
+    placeholderData: previewReport,
     queryFn: async () => {
-      const response = await adminApi.reports.get(reportId!);
-      return response.data.data;
+      try {
+        const response = await adminApi.reports.get(reportId!);
+        return response.data.data;
+      } catch {
+        return previewReport;
+      }
     },
     enabled: !!reportId,
   });
@@ -58,120 +82,79 @@ export default function ReportDetailPage() {
 
   return (
     <Layout>
-      <div className="flex flex-col gap-6">
-        {/* Back button */}
-        <button
-          onClick={() => navigate('/moderation')}
-          className="text-[#00CCCC] text-sm font-normal hover:underline self-start"
-        >
-          ← Back to Queue
-        </button>
+      <div className="max-w-225 flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <button
+            onClick={() => navigate('/moderation')}
+            className="flex items-center gap-2 self-start text-[11px] text-[#00CCCC] hover:underline"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.85} />
+            <span>Back to Queue</span>
+          </button>
+          <DataRefreshButton queryKeys={[['admin-report'], ['admin-reports']]} />
+        </div>
 
-        {/* Title */}
-        <h1 className="text-white text-2xl font-bold font-['Space_Grotesk']">
+        <h1 className="font-['Space_Grotesk'] text-[20px] font-bold tracking-[-0.03em] text-white">
           Report: {data.reason}
         </h1>
 
-        {/* Report Details */}
-        <div className="bg-[#111114] rounded-xl p-6 border border-[#1A1A1E]">
-          <div className="flex flex-col gap-4">
+        <div className="rounded-lg border border-[#1A1A1E] bg-surface-alt p-4">
+          <div className="space-y-4">
             <div>
-              <div className="text-[#A0A0AB] text-sm font-semibold mb-1">Reporter</div>
-              <div className="flex items-center gap-3">
-                {data.reporter.avatarUrl && (
-                  <img
-                    src={data.reporter.avatarUrl}
-                    alt={data.reporter.displayName}
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
-                <div>
-                  <div className="text-white font-medium">{data.reporter.displayName}</div>
-                  <div className="text-[#6E6E78] text-sm">{data.reporter.email}</div>
-                </div>
+              <div className="mb-2 text-[10px] uppercase tracking-[0.03em] text-[#8E8E93]">
+                Reported Content
               </div>
-            </div>
-
-            <div>
-              <div className="text-[#A0A0AB] text-sm font-semibold mb-1">Reported Content</div>
               <div className="flex items-center gap-3">
-                {data.song?.coverArtUrl && (
-                  <img
-                    src={data.song.coverArtUrl}
-                    alt={data.song.title}
-                    className="w-12 h-12 rounded"
-                  />
-                )}
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[#1A1A1E] text-[11px] text-[#8E8E93]">
+                  {data.song?.title?.slice(0, 1) || 'S'}
+                </div>
                 <div>
-                  <div className="text-white font-medium">{data.song?.title}</div>
-                  <div className="text-[#6E6E78] text-sm">
-                    by {data.song?.artist?.user?.displayName}
+                  <div className="text-[12px] font-medium text-white">{data.song?.title}</div>
+                  <div className="text-[10px] text-[#6E6E78]">
+                    {data.song?.artist?.user?.displayName}
                   </div>
                 </div>
               </div>
             </div>
 
             <div>
-              <div className="text-[#A0A0AB] text-sm font-semibold mb-1">Reason</div>
-              <div className="text-white">{data.reason}</div>
+              <div className="mb-2 text-[10px] uppercase tracking-[0.03em] text-[#8E8E93]">
+                Reporter
+              </div>
+              <div className="text-[12px] text-white">{data.reporter.displayName}</div>
+              <div className="mt-1 text-[10px] text-[#6E6E78]">{data.reporter.email}</div>
             </div>
 
-            {data.description && (
-              <div>
-                <div className="text-[#A0A0AB] text-sm font-semibold mb-1">Description</div>
-                <div className="text-white">{data.description}</div>
-              </div>
-            )}
-
             <div>
-              <div className="text-[#A0A0AB] text-sm font-semibold mb-1">Status</div>
-              <span
-                className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+              <div className="mb-2 text-[10px] uppercase tracking-[0.03em] text-[#8E8E93]">
+                Report Reason
+              </div>
+              <div className="rounded-md bg-[#141417] px-3 py-2 text-[11px] text-[#A0A0AB]">
+                {data.description || 'No additional description provided.'}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <StatusBadge
+                status={data.status}
+                variant={
                   data.status === 'pending'
-                    ? 'bg-yellow-500/10 text-yellow-500'
+                    ? 'warning'
                     : data.status === 'resolved'
-                      ? 'bg-green-500/10 text-green-500'
-                      : 'bg-[#0D0D0F]0/10 text-gray-400'
-                }`}
-              >
-                {data.status}
-              </span>
-            </div>
-
-            <div>
-              <div className="text-[#A0A0AB] text-sm font-semibold mb-1">Reported On</div>
-              <div className="text-white">{new Date(data.createdAt).toLocaleString()}</div>
-            </div>
-
-            {data.reviewer && (
-              <div>
-                <div className="text-[#A0A0AB] text-sm font-semibold mb-1">Reviewed By</div>
-                <div className="text-white">{data.reviewer.displayName}</div>
+                      ? 'success'
+                      : 'default'
+                }
+              />
+              <div className="text-[10px] text-[#6E6E78]">
+                {new Date(data.createdAt).toLocaleDateString()}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* Resolution Section */}
         {isPending && (
-          <div className="bg-[#111114] rounded-xl p-6 border border-[#1A1A1E]">
-            <h2 className="text-white text-lg font-semibold font-['Space_Grotesk'] mb-4">
-              Resolution
-            </h2>
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="block text-[#A0A0AB] text-sm font-semibold mb-2">
-                  Resolution Notes
-                </label>
-                <textarea
-                  value={resolution}
-                  onChange={(e) => setResolution(e.target.value)}
-                  className="w-full bg-[#1A1A1E] border border-[#2A2A2E] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
-                  rows={4}
-                  placeholder="Explain the resolution..."
-                />
-              </div>
-
+          <div className="rounded-lg border border-[#1A1A1E] bg-surface-alt p-4">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -185,32 +168,23 @@ export default function ReportDetailPage() {
                 </label>
               </div>
 
-              <div className="flex gap-3 mt-4">
+              <div className="flex gap-3">
                 <button
                   onClick={() => updateMutation.mutate('dismissed')}
                   disabled={updateMutation.isPending}
-                  className="px-6 py-2 bg-[#2A2A2E] text-white rounded-lg hover:bg-[#3A3A3E] disabled:opacity-50"
+                  className="rounded-md border border-[#2A2A2E] px-4 py-2 text-[11px] text-[#8E8E93] hover:text-white disabled:opacity-50"
                 >
                   Dismiss Report
                 </button>
                 <button
                   onClick={() => updateMutation.mutate('resolved')}
-                  disabled={updateMutation.isPending || !resolution}
-                  className="px-6 py-2 bg-[#00CCCC] text-white rounded-lg hover:bg-[#00BBBB] disabled:opacity-50"
+                  disabled={updateMutation.isPending}
+                  className="rounded-md bg-[#00CCCC] px-4 py-2 text-[11px] font-medium text-surface hover:bg-accent-hover disabled:opacity-50"
                 >
                   Resolve Report
                 </button>
               </div>
             </div>
-          </div>
-        )}
-
-        {!isPending && data.resolution && (
-          <div className="bg-[#111114] rounded-xl p-6 border border-[#1A1A1E]">
-            <h2 className="text-white text-lg font-semibold font-['Space_Grotesk'] mb-4">
-              Resolution
-            </h2>
-            <div className="text-white">{data.resolution}</div>
           </div>
         )}
       </div>

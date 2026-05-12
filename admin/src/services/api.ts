@@ -78,17 +78,29 @@ export const adminApi = {
   settings: {
     get: () => api.get('/admin/settings'),
     update: (data: {
+      platformName?: string;
+      supportEmail?: string;
+      maxUploadSizeMb?: number;
       commissionRate?: number;
       minSongPrice?: number;
       maxSongPrice?: number;
       artistSubscriptionPrice?: number;
       withdrawalFeeRate?: number;
       minWithdrawalAmount?: number;
+      autoModeration?: boolean;
+      allowDownloads?: boolean;
+      analyticsSync?: boolean;
+      maintenanceMode?: boolean;
+      signupsPerHour?: number;
+      songUploadsPerMinute?: number;
+      webhookTimeout?: number;
     }) => api.patch('/admin/settings', data),
   },
 
   // Genre management
   genres: {
+    list: (params?: { page?: number; limit?: number; search?: string }) =>
+      api.get('/admin/genres', { params }),
     create: (data: { name: string; slug: string }) => api.post('/admin/genres', data),
     update: (genreId: string, data: { name?: string; slug?: string }) =>
       api.patch(`/admin/genres/${genreId}`, data),
@@ -111,10 +123,30 @@ export const adminApi = {
   content: {
     stats: () => api.get('/admin/content/stats'),
     songs: {
+      list: (params?: { page?: number; limit?: number; search?: string }) =>
+        api.get('/admin/content/songs', { params }),
       get: (songId: string) => api.get(`/admin/songs/${songId}`),
+    },
+    artists: {
+      list: (params?: { page?: number; limit?: number; search?: string }) =>
+        api.get('/admin/content/artists', { params }),
     },
     withdrawals: {
       get: (withdrawalId: string) => api.get(`/admin/financials/withdrawals/${withdrawalId}`),
     },
+  },
+
+  discover: {
+    feed: (limit = 10) => api.get('/discover', { params: { limit } }),
+    search: (params: {
+      q: string;
+      type: 'all' | 'artists' | 'songs';
+      page?: number;
+      limit?: number;
+    }) => api.get('/search', { params }),
+    artists: (params?: { page?: number; limit?: number; genre?: string }) =>
+      api.get('/artists', { params }),
+    genres: () => api.get('/genres'),
+    recommendedSongs: () => api.get('/songs/recommended'),
   },
 };

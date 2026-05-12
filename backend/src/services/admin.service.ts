@@ -6,6 +6,8 @@ import type {
   AdminFinancialsQuery,
   AdminTransactionsQuery,
   AdminWithdrawalsQuery,
+  AdminContentListQuery,
+  AdminGenresQuery,
   AdminUpdateSettings,
   AdminCreateGenre,
   AdminUpdateGenre,
@@ -16,7 +18,58 @@ function decimalToCents(value: unknown): number {
   return Math.round(Number(value ?? 0) * 100);
 }
 
+const DEFAULT_PLATFORM_SETTINGS = {
+  id: 1,
+  platformName: 'TuneN2',
+  supportEmail: 'support@tunen2.com',
+  maxUploadSizeMb: 50,
+  commissionRate: 0.2,
+  minSongPrice: 99,
+  maxSongPrice: 99999,
+  artistSubscriptionPrice: 999,
+  withdrawalFeeRate: 0.0023,
+  minWithdrawalAmount: 1000,
+  autoModeration: true,
+  allowDownloads: true,
+  analyticsSync: true,
+  maintenanceMode: false,
+  signupsPerHour: 100,
+  songUploadsPerMinute: 5,
+  webhookTimeout: 30,
+};
+
 export class AdminService {
+  private async ensurePlatformSettings() {
+    return prisma.platformSetting.upsert({
+      where: { id: DEFAULT_PLATFORM_SETTINGS.id },
+      update: {},
+      create: DEFAULT_PLATFORM_SETTINGS,
+    });
+  }
+
+  private mapPlatformSettings(
+    settings: Awaited<ReturnType<AdminService['ensurePlatformSettings']>>,
+  ) {
+    return {
+      platformName: settings.platformName,
+      supportEmail: settings.supportEmail,
+      maxUploadSizeMb: settings.maxUploadSizeMb,
+      commissionRate: Number(settings.commissionRate),
+      minSongPrice: settings.minSongPrice,
+      maxSongPrice: settings.maxSongPrice,
+      artistSubscriptionPrice: settings.artistSubscriptionPrice,
+      withdrawalFeeRate: Number(settings.withdrawalFeeRate),
+      minWithdrawalAmount: settings.minWithdrawalAmount,
+      autoModeration: settings.autoModeration,
+      allowDownloads: settings.allowDownloads,
+      analyticsSync: settings.analyticsSync,
+      maintenanceMode: settings.maintenanceMode,
+      signupsPerHour: settings.signupsPerHour,
+      songUploadsPerMinute: settings.songUploadsPerMinute,
+      webhookTimeout: settings.webhookTimeout,
+    };
+  }
+
   /**
    * USER MANAGEMENT
    */
@@ -557,16 +610,8 @@ export class AdminService {
    */
 
   async getPlatformSettings() {
-    // For MVP, return hardcoded settings
-    // In production, these would come from a settings table
-    return {
-      commissionRate: 0.2, // 20%
-      minSongPrice: 99, // $0.99
-      maxSongPrice: 99999, // $999.99
-      artistSubscriptionPrice: 999, // $9.99/mo
-      withdrawalFeeRate: 0.0023, // 0.23%
-      minWithdrawalAmount: 1000, // $10
-    };
+    const settings = await this.ensurePlatformSettings();
+    return this.mapPlatformSettings(settings);
   }
 
   async updatePlatformSettings(data: AdminUpdateSettings) {
@@ -588,12 +633,60 @@ export class AdminService {
       throw new BadRequestError('Max song price must be greater than min song price');
     }
 
-    return updatedSettings;
+    const persistedSettings = await prisma.platformSetting.update({
+      where: { id: DEFAULT_PLATFORM_SETTINGS.id },
+      data,
+    });
+
+    return this.mapPlatformSettings(persistedSettings);
   }
 
   /**
    * GENRE MANAGEMENT
    */
+
+  async getGenres(query: AdminGenresQuery) {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+    const where = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { slug: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
+
+    const [items, total] = await Promise.all([
+      prisma.genre.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          _count: {
+            select: {
+              songs: true,
+            },
+          },
+        },
+        orderBy: { name: 'asc' },
+      }),
+      prisma.genre.count({ where }),
+    ]);
+
+    return {
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
 
   async createGenre(data: AdminCreateGenre) {
     // Check if genre with same slug already exists
@@ -681,6 +774,136 @@ export class AdminService {
     });
 
     return { message: 'Genre deleted successfully' };
+  }
+
+  /**
+   * CONTENT MANAGEMENT - Catalog Lists
+   */
+
+  async getContentSongs(query: AdminContentListQuery) {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+    const where = search
+      ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' as const } },
+            { artist: { artistName: { contains: search, mode: 'insensitive' as const } } },
+            {
+              artist: { user: { displayName: { contains: search, mode: 'insensitive' as const } } },
+            },
+          ],
+        }
+      : {};
+
+    const [items, total] = await Promise.all([
+      prisma.song.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          price: true,
+          streamCount: true,
+          status: true,
+          genre: {
+            select: {
+              name: true,
+            },
+          },
+          artist: {
+            select: {
+              artistName: true,
+              user: {
+                select: {
+                  displayName: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.song.count({ where }),
+    ]);
+
+    return {
+      items: items.map((song) => ({
+        ...song,
+        price: Number(song.price),
+        streamCount: Number(song.streamCount || 0),
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getContentArtists(query: AdminContentListQuery) {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+    const where = search
+      ? {
+          OR: [
+            { artistName: { contains: search, mode: 'insensitive' as const } },
+            { user: { displayName: { contains: search, mode: 'insensitive' as const } } },
+            { user: { email: { contains: search, mode: 'insensitive' as const } } },
+          ],
+        }
+      : {};
+
+    const [items, total] = await Promise.all([
+      prisma.artistProfile.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          artistName: true,
+          genreIds: true,
+          isVerified: true,
+          user: {
+            select: {
+              displayName: true,
+              email: true,
+            },
+          },
+          _count: {
+            select: {
+              songs: true,
+              follows: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.artistProfile.count({ where }),
+    ]);
+
+    const uniqueGenreIds = [...new Set(items.flatMap((artist) => artist.genreIds))];
+    const genres = uniqueGenreIds.length
+      ? await prisma.genre.findMany({
+          where: { id: { in: uniqueGenreIds } },
+          select: { id: true, name: true },
+        })
+      : [];
+    const genreMap = new Map(genres.map((genre) => [genre.id, genre.name]));
+
+    return {
+      items: items.map((artist) => ({
+        ...artist,
+        genres: artist.genreIds.map((genreId) => genreMap.get(genreId)).filter(Boolean),
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   /**

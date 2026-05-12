@@ -44,18 +44,40 @@ export const adminWithdrawalsQuerySchema = z.object({
   status: z.enum(['pending', 'completed', 'failed']).optional(),
 });
 
+export const adminContentListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  search: z.string().optional(),
+});
+
+export const adminGenresQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  search: z.string().optional(),
+});
+
 export const adminArtistIdParamSchema = z.object({
   artistId: z.string().uuid(),
 });
 
 // Platform settings schemas
 export const adminUpdateSettingsSchema = z.object({
+  platformName: z.string().min(1).max(100).optional(),
+  supportEmail: z.string().email().max(255).optional(),
+  maxUploadSizeMb: z.number().int().min(1).max(1024).optional(),
   commissionRate: z.number().min(0).max(1).optional(), // 0.20 = 20%
   minSongPrice: z.number().int().min(0).optional(), // cents
   maxSongPrice: z.number().int().min(0).optional(), // cents
   artistSubscriptionPrice: z.number().int().min(0).optional(), // cents
   withdrawalFeeRate: z.number().min(0).max(1).optional(), // 0.0023 = 0.23%
   minWithdrawalAmount: z.number().int().min(0).optional(), // cents
+  autoModeration: z.boolean().optional(),
+  allowDownloads: z.boolean().optional(),
+  analyticsSync: z.boolean().optional(),
+  maintenanceMode: z.boolean().optional(),
+  signupsPerHour: z.number().int().min(1).max(100000).optional(),
+  songUploadsPerMinute: z.number().int().min(1).max(1000).optional(),
+  webhookTimeout: z.number().int().min(1).max(600).optional(),
 });
 
 // Genre management schemas
@@ -105,6 +127,8 @@ export type AdminUnbanUser = z.infer<typeof adminUnbanUserSchema>;
 export type AdminFinancialsQuery = z.infer<typeof adminFinancialsQuerySchema>;
 export type AdminTransactionsQuery = z.infer<typeof adminTransactionsQuerySchema>;
 export type AdminWithdrawalsQuery = z.infer<typeof adminWithdrawalsQuerySchema>;
+export type AdminContentListQuery = z.infer<typeof adminContentListQuerySchema>;
+export type AdminGenresQuery = z.infer<typeof adminGenresQuerySchema>;
 export type AdminArtistIdParam = z.infer<typeof adminArtistIdParamSchema>;
 export type AdminUpdateSettings = z.infer<typeof adminUpdateSettingsSchema>;
 export type AdminCreateGenre = z.infer<typeof adminCreateGenreSchema>;

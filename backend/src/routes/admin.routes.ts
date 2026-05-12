@@ -11,6 +11,8 @@ import {
   adminFinancialsQuerySchema,
   adminTransactionsQuerySchema,
   adminWithdrawalsQuerySchema,
+  adminContentListQuerySchema,
+  adminGenresQuerySchema,
   adminArtistIdParamSchema,
   adminUpdateSettingsSchema,
   adminCreateGenreSchema,
@@ -224,6 +226,20 @@ router.patch('/settings', validate({ body: adminUpdateSettingsSchema }), async (
  * GENRE MANAGEMENT
  */
 
+// GET /api/v1/admin/genres
+// List genres
+router.get('/genres', validate({ query: adminGenresQuerySchema }), async (req, res, next) => {
+  try {
+    const result = await adminService.getGenres((req as any).validatedQuery);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // POST /api/v1/admin/genres
 // Create new genre
 router.post('/genres', validate({ body: adminCreateGenreSchema }), async (req, res, next) => {
@@ -307,6 +323,42 @@ router.get(
 /**
  * CONTENT MANAGEMENT
  */
+
+// GET /api/v1/admin/content/songs
+// Get content song catalog
+router.get(
+  '/content/songs',
+  validate({ query: adminContentListQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getContentSongs((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/content/artists
+// Get content artist catalog
+router.get(
+  '/content/artists',
+  validate({ query: adminContentListQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getContentArtists((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 // GET /api/v1/admin/songs/:songId
 // Get song detail for review

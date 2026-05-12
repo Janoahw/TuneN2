@@ -1,3 +1,4 @@
+import { Music4 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../services/api';
@@ -35,17 +36,22 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="grid min-h-screen bg-[#0D0D0F] text-white lg:grid-cols-[600px_1fr]">
-      <section className="flex items-center justify-center bg-[#111114] px-6 py-12">
-        <div className="w-full max-w-[380px]">
-          <div className="mb-7">
-            <h1 className="font-['Space_Grotesk'] text-lg font-bold text-[#00CCCC]">TuneN2</h1>
-            <p className="mt-1 text-xs text-[#8E8E93]">Admin Dashboard</p>
+    <div className="grid min-h-screen bg-surface text-white lg:grid-cols-[600px_1fr]">
+      <section className="flex items-center justify-center bg-surface-alt px-6 py-12">
+        <div className="w-full max-w-90">
+          <div className="mb-8">
+            <h1 className="font-['Space_Grotesk'] text-[20px] font-bold tracking-[-0.03em] text-[#00CCCC]">
+              TuneN2
+            </h1>
+            <p className="mt-1 text-[11px] text-[#8E8E93]">Admin Dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="mb-1 block text-xs font-medium text-[#8E8E93]">
+              <label
+                htmlFor="email"
+                className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.03em] text-[#8E8E93]"
+              >
                 Email Address
               </label>
               <input
@@ -54,13 +60,16 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-10 w-full rounded-md border border-[#1A1A1E] bg-[#1A1A1E] px-3 text-sm text-white placeholder-[#5A5A6E] outline-none transition focus:border-[#00CCCC] focus:ring-1 focus:ring-[#00CCCC]"
+                className="h-12 w-full rounded-md border border-[#1A1A1E] bg-[#1A1A1E] px-3 text-[13px] text-white placeholder-[#5A5A6E] outline-none transition focus:border-[#00CCCC] focus:ring-1 focus:ring-[#00CCCC]"
                 placeholder="admin@tunen2.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1 block text-xs font-medium text-[#8E8E93]">
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.03em] text-[#8E8E93]"
+              >
                 Password
               </label>
               <input
@@ -69,17 +78,19 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-10 w-full rounded-md border border-[#1A1A1E] bg-[#1A1A1E] px-3 text-sm text-white placeholder-[#5A5A6E] outline-none transition focus:border-[#00CCCC] focus:ring-1 focus:ring-[#00CCCC]"
+                className="h-12 w-full rounded-md border border-[#1A1A1E] bg-[#1A1A1E] px-3 text-[13px] text-white placeholder-[#5A5A6E] outline-none transition focus:border-[#00CCCC] focus:ring-1 focus:ring-[#00CCCC]"
                 placeholder="••••••••"
               />
             </div>
 
-            {error && <p className="rounded-md bg-[#FF453A]/10 p-3 text-xs text-[#FF453A]">{error}</p>}
+            {error && (
+              <p className="rounded-md bg-[#FF453A]/10 p-3 text-[11px] text-[#FF453A]">{error}</p>
+            )}
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="h-10 w-full rounded-md bg-[#00CCCC] px-4 text-xs font-semibold text-[#0D0D0F] transition hover:bg-[#00BBBB] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-10 w-full rounded-md bg-[#00CCCC] px-4 text-[11px] font-semibold text-surface transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? 'Signing in...' : 'Sign In'}
             </button>
@@ -89,9 +100,11 @@ export default function LoginPage() {
 
       <section className="hidden items-center justify-center bg-[linear-gradient(135deg,#00CCCC_0%,#BF5AF2_100%)] lg:flex">
         <div className="text-center text-white">
-          <div className="mb-4 text-5xl text-white/45">♫</div>
-          <h2 className="font-['Space_Grotesk'] text-lg font-bold">Manage Your Platform</h2>
-          <p className="mt-2 text-xs text-white/80">Monitor users, content, and financials</p>
+          <Music4 className="mx-auto mb-4 h-12 w-12 text-white/45" strokeWidth={1.6} />
+          <h2 className="font-['Space_Grotesk'] text-[28px] font-bold tracking-[-0.03em]">
+            Manage Your Platform
+          </h2>
+          <p className="mt-2 text-[12px] text-white/80">Monitor users, content, and financials</p>
         </div>
       </section>
     </div>
