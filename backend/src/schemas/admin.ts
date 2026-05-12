@@ -44,6 +44,10 @@ export const adminWithdrawalsQuerySchema = z.object({
   status: z.enum(['pending', 'completed', 'failed']).optional(),
 });
 
+export const adminFinancialChartQuerySchema = z.object({
+  months: z.coerce.number().int().min(3).max(12).default(6),
+});
+
 export const adminContentListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
@@ -127,6 +131,7 @@ export type AdminUnbanUser = z.infer<typeof adminUnbanUserSchema>;
 export type AdminFinancialsQuery = z.infer<typeof adminFinancialsQuerySchema>;
 export type AdminTransactionsQuery = z.infer<typeof adminTransactionsQuerySchema>;
 export type AdminWithdrawalsQuery = z.infer<typeof adminWithdrawalsQuerySchema>;
+export type AdminFinancialChartQuery = z.infer<typeof adminFinancialChartQuerySchema>;
 export type AdminContentListQuery = z.infer<typeof adminContentListQuerySchema>;
 export type AdminGenresQuery = z.infer<typeof adminGenresQuerySchema>;
 export type AdminArtistIdParam = z.infer<typeof adminArtistIdParamSchema>;

@@ -11,6 +11,7 @@ import {
   adminFinancialsQuerySchema,
   adminTransactionsQuerySchema,
   adminWithdrawalsQuerySchema,
+  adminFinancialChartQuerySchema,
   adminContentListQuerySchema,
   adminGenresQuerySchema,
   adminArtistIdParamSchema,
@@ -142,6 +143,24 @@ router.get(
   async (req, res, next) => {
     try {
       const result = await adminService.getTransactions((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/financials/charts
+// Financial chart series and breakdown
+router.get(
+  '/financials/charts',
+  validate({ query: adminFinancialChartQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getFinancialChartData((req as any).validatedQuery);
       res.json({
         success: true,
         data: result,

@@ -4,6 +4,7 @@ import type {
   AdminBanUser,
   AdminUnbanUser,
   AdminFinancialsQuery,
+  AdminFinancialChartQuery,
   AdminTransactionsQuery,
   AdminWithdrawalsQuery,
   AdminContentListQuery,
@@ -458,6 +459,97 @@ export class AdminService {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getFinancialChartData(query: AdminFinancialChartQuery) {
+    const monthCount = query.months || 6;
+    const now = new Date();
+    const startOfWindow = new Date(now.getFullYear(), now.getMonth() - (monthCount - 1), 1);
+
+    const purchases = await prisma.purchase.findMany({
+      where: {
+        createdAt: {
+          gte: startOfWindow,
+        },
+        status: 'completed',
+      },
+      select: {
+        amount: true,
+        platformFee: true,
+        artistEarnings: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const completedWithdrawals = await prisma.withdrawal.aggregate({
+      where: {
+        status: 'completed',
+      },
+      _sum: {
+        amountCents: true,
+      },
+    });
+
+    const monthLabels = Array.from({ length: monthCount }, (_, index) => {
+      const date = new Date(now.getFullYear(), now.getMonth() - (monthCount - 1) + index, 1);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+      return {
+        key,
+        label: date.toLocaleDateString('en-US', { month: 'short' }),
+        grossRevenueCents: 0,
+        platformFeesCents: 0,
+        artistEarningsCents: 0,
+      };
+    });
+
+    const monthMap = new Map(monthLabels.map((month) => [month.key, month]));
+
+    purchases.forEach((purchase) => {
+      const date = new Date(purchase.createdAt);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const bucket = monthMap.get(monthKey);
+
+      if (!bucket) return;
+
+      bucket.grossRevenueCents += decimalToCents(purchase.amount);
+      bucket.platformFeesCents += decimalToCents(purchase.platformFee);
+      bucket.artistEarningsCents += decimalToCents(purchase.artistEarnings);
+    });
+
+    const grossRevenueCents = monthLabels.reduce((sum, month) => sum + month.grossRevenueCents, 0);
+    const platformFeesCents = monthLabels.reduce((sum, month) => sum + month.platformFeesCents, 0);
+    const artistEarningsCents = monthLabels.reduce(
+      (sum, month) => sum + month.artistEarningsCents,
+      0,
+    );
+
+    return {
+      trend: monthLabels,
+      breakdown: [
+        {
+          key: 'artist_earnings',
+          label: 'Artist Earnings',
+          valueCents: artistEarningsCents,
+        },
+        {
+          key: 'platform_fees',
+          label: 'Platform Fees',
+          valueCents: platformFeesCents,
+        },
+        {
+          key: 'completed_payouts',
+          label: 'Completed Payouts',
+          valueCents: Number(completedWithdrawals._sum.amountCents || 0),
+        },
+      ],
+      totals: {
+        grossRevenueCents,
+        platformFeesCents,
+        artistEarningsCents,
       },
     };
   }

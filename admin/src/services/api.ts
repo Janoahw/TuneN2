@@ -58,6 +58,7 @@ export const adminApi = {
   financials: {
     overview: (params?: { startDate?: Date; endDate?: Date }) =>
       api.get('/admin/financials/overview', { params }),
+    charts: (params?: { months?: number }) => api.get('/admin/financials/charts', { params }),
     transactions: (params?: {
       page?: number;
       limit?: number;

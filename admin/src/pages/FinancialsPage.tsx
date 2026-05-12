@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight } from 'lucide-react';
 import { DataRefreshButton } from '../components/DataRefreshButton';
+import { FinancialBreakdownChart } from '../components/FinancialBreakdownChart';
+import { FinancialLineChart } from '../components/FinancialLineChart';
 import { Layout } from '../components/Layout';
 import { StatsCard } from '../components/StatsCard';
 import { DataTable } from '../components/DataTable';
@@ -52,6 +54,52 @@ const previewWithdrawals = [
   },
 ];
 
+const previewChartData = {
+  trend: [
+    {
+      label: 'Dec',
+      grossRevenueCents: 412000,
+      platformFeesCents: 82400,
+      artistEarningsCents: 329600,
+    },
+    {
+      label: 'Jan',
+      grossRevenueCents: 523000,
+      platformFeesCents: 104600,
+      artistEarningsCents: 418400,
+    },
+    {
+      label: 'Feb',
+      grossRevenueCents: 488000,
+      platformFeesCents: 97600,
+      artistEarningsCents: 390400,
+    },
+    {
+      label: 'Mar',
+      grossRevenueCents: 566000,
+      platformFeesCents: 113200,
+      artistEarningsCents: 452800,
+    },
+    {
+      label: 'Apr',
+      grossRevenueCents: 615000,
+      platformFeesCents: 123000,
+      artistEarningsCents: 492000,
+    },
+    {
+      label: 'May',
+      grossRevenueCents: 672000,
+      platformFeesCents: 134400,
+      artistEarningsCents: 537600,
+    },
+  ],
+  breakdown: [
+    { key: 'artist_earnings', label: 'Artist Earnings', valueCents: 649300 },
+    { key: 'platform_fees', label: 'Platform Fees', valueCents: 1284720 },
+    { key: 'completed_payouts', label: 'Completed Payouts', valueCents: 2191200 },
+  ],
+};
+
 export default function FinancialsPage() {
   const [view, setView] = useState<'overview' | 'transactions' | 'withdrawals'>('overview');
   const [transactionPage, setTransactionPage] = useState(1);
@@ -67,6 +115,19 @@ export default function FinancialsPage() {
         return previewOverview;
       }
     },
+  });
+
+  const { data: chartData } = useQuery({
+    queryKey: ['admin-financials-charts'],
+    queryFn: async () => {
+      try {
+        const response = await adminApi.financials.charts({ months: 6 });
+        return response.data.data;
+      } catch {
+        return previewChartData;
+      }
+    },
+    enabled: view === 'overview',
   });
 
   const { data: transactions, isLoading: transactionsLoading } = useQuery({
@@ -182,6 +243,7 @@ export default function FinancialsPage() {
           <DataRefreshButton
             queryKeys={[
               ['admin-financials-overview'],
+              ['admin-financials-charts'],
               ['admin-transactions'],
               ['admin-withdrawals'],
             ]}
@@ -250,18 +312,8 @@ export default function FinancialsPage() {
             </div>
 
             <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="rounded-lg border border-[#1A1A1E] bg-[#111114] p-4">
-                <div className="mb-3 text-[11px] text-white">Revenue Over Time</div>
-                <div className="flex h-[140px] items-center justify-center rounded-lg bg-[#0D0D0F] text-[10px] text-[#6E6E78]">
-                  Line Chart — Revenue by Month
-                </div>
-              </div>
-              <div className="rounded-lg border border-[#1A1A1E] bg-[#111114] p-4">
-                <div className="mb-3 text-[11px] text-white">Revenue Breakdown</div>
-                <div className="flex h-[140px] items-center justify-center rounded-lg bg-[#0D0D0F] text-[10px] text-[#6E6E78]">
-                  Pie Chart — Song Sales vs Subs vs Fees
-                </div>
-              </div>
+              <FinancialLineChart data={chartData?.trend || previewChartData.trend} />
+              <FinancialBreakdownChart data={chartData?.breakdown || previewChartData.breakdown} />
             </div>
 
             <div className="rounded-lg border border-[#1A1A1E] bg-[#111114] p-4">

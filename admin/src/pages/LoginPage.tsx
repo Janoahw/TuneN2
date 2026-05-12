@@ -1,4 +1,4 @@
-import { Music4 } from 'lucide-react';
+import { Eye, EyeOff, Music4 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../services/api';
@@ -7,6 +7,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -72,15 +73,25 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-12 w-full rounded-md border border-[#1A1A1E] bg-[#1A1A1E] px-3 text-[13px] text-white placeholder-[#5A5A6E] outline-none transition focus:border-[#00CCCC] focus:ring-1 focus:ring-[#00CCCC]"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 w-full rounded-md border border-[#1A1A1E] bg-[#1A1A1E] px-3 pr-11 text-[13px] text-white placeholder-[#5A5A6E] outline-none transition focus:border-[#00CCCC] focus:ring-1 focus:ring-[#00CCCC]"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-[#8E8E93] transition hover:text-white"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             {error && (
