@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { ControlledInput } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -148,7 +148,7 @@ export default function LoginScreen() {
               onPress={() => handleSocialAuth('apple')}
               disabled={socialAuthMutation.isPending}
             >
-              <Feather name="smartphone" size={20} color={colors.textPrimary} />
+              <FontAwesome name="apple" size={20} color={colors.textPrimary} />
               <Text style={styles.socialLabel}>Apple</Text>
             </Pressable>
             <Pressable
@@ -156,7 +156,7 @@ export default function LoginScreen() {
               onPress={() => handleSocialAuth('google')}
               disabled={socialAuthMutation.isPending}
             >
-              <Text style={styles.googleIcon}>G</Text>
+              <FontAwesome name="google" size={20} color={colors.textPrimary} />
               <Text style={styles.socialLabel}>Google</Text>
             </Pressable>
           </View>
@@ -253,11 +253,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgSecondary,
     borderWidth: 1,
     borderColor: colors.borderDefault,
-  },
-  googleIcon: {
-    fontFamily: fontFamilies.primaryBold,
-    fontSize: 18,
-    color: colors.textPrimary,
   },
   socialLabel: {
     fontFamily: fontFamilies.primaryMedium,
