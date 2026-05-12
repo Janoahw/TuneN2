@@ -114,9 +114,7 @@ export default function UserDetailPage() {
                 />
               )}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {user.displayName}
-                </h1>
+                <h1 className="text-2xl font-bold text-gray-900">{user.displayName}</h1>
                 <p className="text-gray-600">{user.email}</p>
                 <div className="flex items-center gap-3 mt-2">
                   <StatusBadge
@@ -124,11 +122,7 @@ export default function UserDetailPage() {
                     variant={user.isBanned ? 'error' : 'success'}
                   />
                   <span className="text-sm text-gray-600">
-                    {user.isAdmin
-                      ? 'Admin'
-                      : user.isArtist
-                        ? 'Artist'
-                        : 'Fan'}
+                    {user.isAdmin ? 'Admin' : user.isArtist ? 'Artist' : 'Fan'}
                   </span>
                 </div>
               </div>
@@ -161,12 +155,8 @@ export default function UserDetailPage() {
         {/* Stats */}
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm text-gray-600 font-medium">
-              Total Purchases
-            </h3>
-            <p className="text-3xl font-bold text-gray-900 mt-2">
-              {stats.totalPurchases}
-            </p>
+            <h3 className="text-sm text-gray-600 font-medium">Total Purchases</h3>
+            <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalPurchases}</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="text-sm text-gray-600 font-medium">Total Spent</h3>
@@ -179,9 +169,7 @@ export default function UserDetailPage() {
         {/* Artist Profile */}
         {user.artistProfile && (
           <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Artist Profile
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Artist Profile</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Artist Name</p>
@@ -192,9 +180,7 @@ export default function UserDetailPage() {
                 <StatusBadge
                   status={user.artistProfile.subscriptionStatus}
                   variant={
-                    user.artistProfile.subscriptionStatus === 'active'
-                      ? 'success'
-                      : 'warning'
+                    user.artistProfile.subscriptionStatus === 'active' ? 'success' : 'warning'
                   }
                 />
               </div>
@@ -203,19 +189,13 @@ export default function UserDetailPage() {
                   <div>
                     <p className="text-sm text-gray-600">Balance</p>
                     <p className="font-medium">
-                      $
-                      {(
-                        user.artistProfile.wallet.balanceCents / 100
-                      ).toFixed(2)}
+                      ${(user.artistProfile.wallet.balanceCents / 100).toFixed(2)}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Total Earned</p>
                     <p className="font-medium">
-                      $
-                      {(
-                        user.artistProfile.wallet.totalEarnedCents / 100
-                      ).toFixed(2)}
+                      ${(user.artistProfile.wallet.totalEarnedCents / 100).toFixed(2)}
                     </p>
                   </div>
                 </>
@@ -227,9 +207,7 @@ export default function UserDetailPage() {
         {/* Recent Purchases */}
         {user.purchases && user.purchases.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Recent Purchases
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Purchases</h2>
             <DataTable
               data={user.purchases}
               columns={purchaseColumns}
@@ -243,9 +221,7 @@ export default function UserDetailPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-md w-full">
               <h3 className="text-xl font-bold mb-4">Ban User</h3>
-              <p className="text-gray-600 mb-4">
-                Please provide a reason for banning this user:
-              </p>
+              <p className="text-gray-600 mb-4">Please provide a reason for banning this user:</p>
               <textarea
                 value={banReason}
                 onChange={(e) => setBanReason(e.target.value)}
@@ -277,9 +253,7 @@ export default function UserDetailPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-md w-full">
               <h3 className="text-xl font-bold mb-4">Unban User</h3>
-              <p className="text-gray-600 mb-4">
-                Optional note for unbanning this user:
-              </p>
+              <p className="text-gray-600 mb-4">Optional note for unbanning this user:</p>
               <textarea
                 value={unbanNote}
                 onChange={(e) => setUnbanNote(e.target.value)}

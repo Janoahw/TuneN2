@@ -49,13 +49,9 @@ export default function SettingsPage() {
       commissionRate: parseFloat(formData.commissionRate),
       minSongPrice: Math.round(parseFloat(formData.minSongPrice) * 100),
       maxSongPrice: Math.round(parseFloat(formData.maxSongPrice) * 100),
-      artistSubscriptionPrice: Math.round(
-        parseFloat(formData.artistSubscriptionPrice) * 100,
-      ),
+      artistSubscriptionPrice: Math.round(parseFloat(formData.artistSubscriptionPrice) * 100),
       withdrawalFeeRate: parseFloat(formData.withdrawalFeeRate),
-      minWithdrawalAmount: Math.round(
-        parseFloat(formData.minWithdrawalAmount) * 100,
-      ),
+      minWithdrawalAmount: Math.round(parseFloat(formData.minWithdrawalAmount) * 100),
     });
   };
 
@@ -72,9 +68,7 @@ export default function SettingsPage() {
       <div className="max-w-5xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-2">
-            Manage platform configuration and genres
-          </p>
+          <p className="text-gray-600 mt-2">Manage platform configuration and genres</p>
         </div>
 
         {/* View Tabs */}
@@ -107,9 +101,7 @@ export default function SettingsPage() {
         {view === 'platform' && settings && (
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                Platform Configuration
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900">Platform Configuration</h2>
               {!editingSettings && (
                 <button
                   onClick={handleEditSettings}
@@ -130,20 +122,14 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Min Song Price</p>
-                  <p className="text-lg font-medium">
-                    ${(settings.minSongPrice / 100).toFixed(2)}
-                  </p>
+                  <p className="text-lg font-medium">${(settings.minSongPrice / 100).toFixed(2)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Max Song Price</p>
-                  <p className="text-lg font-medium">
-                    ${(settings.maxSongPrice / 100).toFixed(2)}
-                  </p>
+                  <p className="text-lg font-medium">${(settings.maxSongPrice / 100).toFixed(2)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">
-                    Artist Subscription Price
-                  </p>
+                  <p className="text-sm text-gray-600">Artist Subscription Price</p>
                   <p className="text-lg font-medium">
                     ${(settings.artistSubscriptionPrice / 100).toFixed(2)}/month
                   </p>
@@ -165,9 +151,7 @@ export default function SettingsPage() {
               <>
                 <div className="grid grid-cols-2 gap-6 mb-6">
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">
-                      Commission Rate (%)
-                    </label>
+                    <label className="block text-sm text-gray-600 mb-2">Commission Rate (%)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -182,9 +166,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">
-                      Min Song Price ($)
-                    </label>
+                    <label className="block text-sm text-gray-600 mb-2">Min Song Price ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -199,9 +181,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">
-                      Max Song Price ($)
-                    </label>
+                    <label className="block text-sm text-gray-600 mb-2">Max Song Price ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -222,9 +202,7 @@ export default function SettingsPage() {
                     <input
                       type="number"
                       step="0.01"
-                      value={(
-                        formData.artistSubscriptionPrice / 100
-                      ).toFixed(2)}
+                      value={(formData.artistSubscriptionPrice / 100).toFixed(2)}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
@@ -235,9 +213,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">
-                      Withdrawal Fee (%)
-                    </label>
+                    <label className="block text-sm text-gray-600 mb-2">Withdrawal Fee (%)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -252,9 +228,7 @@ export default function SettingsPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">
-                      Min Withdrawal ($)
-                    </label>
+                    <label className="block text-sm text-gray-600 mb-2">Min Withdrawal ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -293,36 +267,26 @@ export default function SettingsPage() {
         {/* Genre Management */}
         {view === 'genres' && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">
-              Create New Genre
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Create New Genre</h2>
 
             <div className="grid grid-cols-2 gap-6 mb-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-2">
-                  Genre Name
-                </label>
+                <label className="block text-sm text-gray-600 mb-2">Genre Name</label>
                 <input
                   type="text"
                   value={newGenre.name}
-                  onChange={(e) =>
-                    setNewGenre({ ...newGenre, name: e.target.value })
-                  }
+                  onChange={(e) => setNewGenre({ ...newGenre, name: e.target.value })}
                   onBlur={handleGenreSlugGenerate}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                   placeholder="e.g., Hip Hop"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-2">
-                  Slug (URL-friendly)
-                </label>
+                <label className="block text-sm text-gray-600 mb-2">Slug (URL-friendly)</label>
                 <input
                   type="text"
                   value={newGenre.slug}
-                  onChange={(e) =>
-                    setNewGenre({ ...newGenre, slug: e.target.value })
-                  }
+                  onChange={(e) => setNewGenre({ ...newGenre, slug: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                   placeholder="e.g., hip-hop"
                 />
@@ -331,20 +295,15 @@ export default function SettingsPage() {
 
             <button
               onClick={() => createGenreMutation.mutate(newGenre)}
-              disabled={
-                !newGenre.name ||
-                !newGenre.slug ||
-                createGenreMutation.isPending
-              }
+              disabled={!newGenre.name || !newGenre.slug || createGenreMutation.isPending}
               className="px-4 py-2 bg-[#00CCCC] text-white rounded-lg hover:bg-[#00BBBB] disabled:opacity-50"
             >
               {createGenreMutation.isPending ? 'Creating...' : 'Create Genre'}
             </button>
 
             <p className="text-sm text-gray-500 mt-6">
-              Note: To view, edit, or delete existing genres, use the database
-              admin panel or API directly. Full genre CRUD UI coming in future
-              updates.
+              Note: To view, edit, or delete existing genres, use the database admin panel or API
+              directly. Full genre CRUD UI coming in future updates.
             </p>
           </div>
         )}

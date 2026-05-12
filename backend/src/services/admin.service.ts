@@ -1,4 +1,4 @@
-import { prisma } from "../config/database.js";
+import { prisma } from '../config/database.js';
 import type {
   AdminUsersQuery,
   AdminBanUser,
@@ -9,8 +9,8 @@ import type {
   AdminUpdateSettings,
   AdminCreateGenre,
   AdminUpdateGenre,
-} from "../schemas/admin.js";
-import { NotFoundError, BadRequestError } from "../utils/errors.js";
+} from '../schemas/admin.js';
+import { NotFoundError, BadRequestError } from '../utils/errors.js';
 
 export class AdminService {
   /**
@@ -26,25 +26,25 @@ export class AdminService {
     // Search filter
     if (search) {
       where.OR = [
-        { email: { contains: search, mode: "insensitive" } },
-        { displayName: { contains: search, mode: "insensitive" } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { displayName: { contains: search, mode: 'insensitive' } },
       ];
     }
 
     // Role filter
-    if (role === "admin") {
+    if (role === 'admin') {
       where.isAdmin = true;
-    } else if (role === "artist") {
+    } else if (role === 'artist') {
       where.isArtist = true;
-    } else if (role === "fan") {
+    } else if (role === 'fan') {
       where.isArtist = false;
       where.isAdmin = false;
     }
 
     // Status filter
-    if (status === "banned") {
+    if (status === 'banned') {
       where.isBanned = true;
-    } else if (status === "active") {
+    } else if (status === 'active') {
       where.isBanned = false;
     }
 
@@ -64,7 +64,7 @@ export class AdminService {
           createdAt: true,
           updatedAt: true,
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       }),
       prisma.user.count({ where }),
     ]);
@@ -106,7 +106,7 @@ export class AdminService {
               },
             },
           },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
           take: 10,
         },
         artistProfile: {
@@ -131,7 +131,7 @@ export class AdminService {
     });
 
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError('User not found');
     }
 
     // Get purchase stats
@@ -156,15 +156,15 @@ export class AdminService {
     });
 
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError('User not found');
     }
 
     if (user.isBanned) {
-      throw new BadRequestError("User is already banned");
+      throw new BadRequestError('User is already banned');
     }
 
     if (user.isAdmin) {
-      throw new BadRequestError("Cannot ban admin users");
+      throw new BadRequestError('Cannot ban admin users');
     }
 
     // Ban user and log the action
@@ -194,11 +194,11 @@ export class AdminService {
     });
 
     if (!user) {
-      throw new NotFoundError("User not found");
+      throw new NotFoundError('User not found');
     }
 
     if (!user.isBanned) {
-      throw new BadRequestError("User is not banned");
+      throw new BadRequestError('User is not banned');
     }
 
     const updatedUser = await prisma.user.update({
@@ -249,7 +249,7 @@ export class AdminService {
     const withdrawalStats = await prisma.withdrawal.aggregate({
       where: {
         ...where,
-        status: "completed",
+        status: 'completed',
       },
       _sum: {
         amountCents: true,
@@ -261,7 +261,7 @@ export class AdminService {
     // Pending withdrawals
     const pendingWithdrawals = await prisma.withdrawal.aggregate({
       where: {
-        status: "pending",
+        status: 'pending',
       },
       _sum: { amountCents: true },
       _count: true,
@@ -272,7 +272,7 @@ export class AdminService {
       prisma.artistProfile.count({
         where: {
           subscriptionStatus: {
-            in: ["active", "trialing"],
+            in: ['active', 'trialing'],
           },
         },
       }),
@@ -285,7 +285,7 @@ export class AdminService {
 
     // Total songs
     const totalSongs = await prisma.song.count({
-      where: { status: "active" },
+      where: { status: 'active' },
     });
 
     return {
@@ -365,7 +365,7 @@ export class AdminService {
             },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       }),
       prisma.walletTransaction.count({ where }),
     ]);
@@ -419,7 +419,7 @@ export class AdminService {
             },
           },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       }),
       prisma.withdrawal.count({ where }),
     ]);
@@ -450,15 +450,15 @@ export class AdminService {
     });
 
     if (!artist) {
-      throw new NotFoundError("Artist not found");
+      throw new NotFoundError('Artist not found');
     }
 
     // Get earnings breakdown
     const earnings = await prisma.walletTransaction.groupBy({
-      by: ["type"],
+      by: ['type'],
       where: {
         walletId: artist.wallet?.id,
-        type: "song_sale",
+        type: 'song_sale',
       },
       _sum: {
         amountCents: true,
@@ -478,7 +478,7 @@ export class AdminService {
         createdAt: true,
         processedAt: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: 20,
     });
 
@@ -495,7 +495,7 @@ export class AdminService {
         description: true,
         createdAt: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: 20,
     });
 
@@ -555,9 +555,7 @@ export class AdminService {
       updatedSettings.minSongPrice &&
       updatedSettings.maxSongPrice < updatedSettings.minSongPrice
     ) {
-      throw new BadRequestError(
-        "Max song price must be greater than min song price",
-      );
+      throw new BadRequestError('Max song price must be greater than min song price');
     }
 
     return updatedSettings;
@@ -574,7 +572,7 @@ export class AdminService {
     });
 
     if (existing) {
-      throw new BadRequestError("Genre with this slug already exists");
+      throw new BadRequestError('Genre with this slug already exists');
     }
 
     const genre = await prisma.genre.create({
@@ -593,7 +591,7 @@ export class AdminService {
     });
 
     if (!genre) {
-      throw new NotFoundError("Genre not found");
+      throw new NotFoundError('Genre not found');
     }
 
     // If updating slug, check it's not taken
@@ -603,7 +601,7 @@ export class AdminService {
       });
 
       if (existing) {
-        throw new BadRequestError("Genre with this slug already exists");
+        throw new BadRequestError('Genre with this slug already exists');
       }
     }
 
@@ -621,7 +619,7 @@ export class AdminService {
     });
 
     if (!genre) {
-      throw new NotFoundError("Genre not found");
+      throw new NotFoundError('Genre not found');
     }
 
     // Check if any songs use this genre
@@ -634,9 +632,7 @@ export class AdminService {
     });
 
     if (songCount > 0) {
-      throw new BadRequestError(
-        `Cannot delete genre: ${songCount} songs are using it`,
-      );
+      throw new BadRequestError(`Cannot delete genre: ${songCount} songs are using it`);
     }
 
     // Check if any artist profiles use this genre
@@ -649,15 +645,13 @@ export class AdminService {
     });
 
     if (artistCount > 0) {
-      throw new BadRequestError(
-        `Cannot delete genre: ${artistCount} artist profiles are using it`,
-      );
+      throw new BadRequestError(`Cannot delete genre: ${artistCount} artist profiles are using it`);
     }
 
     await prisma.genre.delete({
       where: { id: genreId },
     });
 
-    return { message: "Genre deleted successfully" };
+    return { message: 'Genre deleted successfully' };
   }
 }

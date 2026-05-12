@@ -1,12 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // User management schemas
 export const adminUsersQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().optional(),
-  role: z.enum(["fan", "artist", "admin"]).optional(),
-  status: z.enum(["active", "banned"]).optional(),
+  role: z.enum(['fan', 'artist', 'admin']).optional(),
+  status: z.enum(['active', 'banned']).optional(),
 });
 
 export const adminUserIdParamSchema = z.object({
@@ -31,13 +31,7 @@ export const adminTransactionsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(50),
   type: z
-    .enum([
-      "song_sale",
-      "withdrawal",
-      "withdrawal_fee",
-      "platform_fee",
-      "withdrawal_reversal",
-    ])
+    .enum(['song_sale', 'withdrawal', 'withdrawal_fee', 'platform_fee', 'withdrawal_reversal'])
     .optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
@@ -47,7 +41,7 @@ export const adminTransactionsQuerySchema = z.object({
 export const adminWithdrawalsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
-  status: z.enum(["pending", "completed", "failed"]).optional(),
+  status: z.enum(['pending', 'completed', 'failed']).optional(),
 });
 
 export const adminArtistIdParamSchema = z.object({
@@ -71,7 +65,7 @@ export const adminCreateGenreSchema = z.object({
     .string()
     .min(1)
     .max(50)
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase alphanumeric with hyphens"),
+    .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
 });
 
 export const adminUpdateGenreSchema = z.object({
@@ -80,7 +74,7 @@ export const adminUpdateGenreSchema = z.object({
     .string()
     .min(1)
     .max(50)
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase alphanumeric with hyphens")
+    .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens')
     .optional(),
 });
 
@@ -94,9 +88,7 @@ export type AdminUserIdParam = z.infer<typeof adminUserIdParamSchema>;
 export type AdminBanUser = z.infer<typeof adminBanUserSchema>;
 export type AdminUnbanUser = z.infer<typeof adminUnbanUserSchema>;
 export type AdminFinancialsQuery = z.infer<typeof adminFinancialsQuerySchema>;
-export type AdminTransactionsQuery = z.infer<
-  typeof adminTransactionsQuerySchema
->;
+export type AdminTransactionsQuery = z.infer<typeof adminTransactionsQuerySchema>;
 export type AdminWithdrawalsQuery = z.infer<typeof adminWithdrawalsQuerySchema>;
 export type AdminArtistIdParam = z.infer<typeof adminArtistIdParamSchema>;
 export type AdminUpdateSettings = z.infer<typeof adminUpdateSettingsSchema>;

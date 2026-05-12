@@ -8,9 +8,7 @@ import { Pagination } from '../components/Pagination';
 import { adminApi } from '../services/api';
 
 export default function FinancialsPage() {
-  const [view, setView] = useState<'overview' | 'transactions' | 'withdrawals'>(
-    'overview',
-  );
+  const [view, setView] = useState<'overview' | 'transactions' | 'withdrawals'>('overview');
   const [transactionPage, setTransactionPage] = useState(1);
   const [withdrawalPage, setWithdrawalPage] = useState(1);
 
@@ -53,8 +51,7 @@ export default function FinancialsPage() {
     },
     {
       header: 'Artist',
-      accessor: (row: any) =>
-        row.wallet?.artist?.artistName || 'N/A',
+      accessor: (row: any) => row.wallet?.artist?.artistName || 'N/A',
     },
     {
       header: 'Amount',
@@ -93,11 +90,7 @@ export default function FinancialsPage() {
         <StatusBadge
           status={row.status}
           variant={
-            row.status === 'completed'
-              ? 'success'
-              : row.status === 'failed'
-                ? 'error'
-                : 'warning'
+            row.status === 'completed' ? 'success' : row.status === 'failed' ? 'error' : 'warning'
           }
         />
       ),
@@ -112,12 +105,8 @@ export default function FinancialsPage() {
     <Layout>
       <div className="max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Financial Overview
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Monitor platform revenue, payouts, and transactions
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Financial Overview</h1>
+          <p className="text-gray-600 mt-2">Monitor platform revenue, payouts, and transactions</p>
         </div>
 
         {/* View Tabs */}
@@ -172,10 +161,7 @@ export default function FinancialsPage() {
                 title="Artist Earnings"
                 value={`$${(overview.revenue.artistEarnings / 100).toFixed(2)}`}
               />
-              <StatsCard
-                title="Transactions"
-                value={overview.revenue.transactionCount}
-              />
+              <StatsCard title="Transactions" value={overview.revenue.transactionCount} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -194,15 +180,9 @@ export default function FinancialsPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <StatsCard
-                title="Active Artists"
-                value={overview.platform.activeArtists}
-              />
+              <StatsCard title="Active Artists" value={overview.platform.activeArtists} />
               <StatsCard title="Total Fans" value={overview.platform.totalFans} />
-              <StatsCard
-                title="Total Songs"
-                value={overview.platform.totalSongs}
-              />
+              <StatsCard title="Total Songs" value={overview.platform.totalSongs} />
             </div>
           </>
         )}

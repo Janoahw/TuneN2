@@ -4,19 +4,13 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export function Pagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: PaginationProps) {
+export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const visiblePages = pages.filter(
     (page) =>
-      page === 1 ||
-      page === totalPages ||
-      (page >= currentPage - 1 && page <= currentPage + 1),
+      page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1),
   );
 
   return (

@@ -1,8 +1,8 @@
-import { Router } from "express";
-import { AdminService } from "../services/admin.service.js";
-import { authenticate } from "../middleware/auth.js";
-import { requireAdmin } from "../middleware/requireAdmin.js";
-import { validate } from "../middleware/validate.js";
+import { Router } from 'express';
+import { AdminService } from '../services/admin.service.js';
+import { authenticate } from '../middleware/auth.js';
+import { requireAdmin } from '../middleware/requireAdmin.js';
+import { validate } from '../middleware/validate.js';
 import {
   adminUsersQuerySchema,
   adminUserIdParamSchema,
@@ -16,7 +16,7 @@ import {
   adminCreateGenreSchema,
   adminUpdateGenreSchema,
   adminGenreIdParamSchema,
-} from "../schemas/admin.js";
+} from '../schemas/admin.js';
 
 const router = Router();
 const adminService = new AdminService();
@@ -30,26 +30,22 @@ router.use(authenticate, requireAdmin);
 
 // GET /api/v1/admin/users
 // List all users with search and filters
-router.get(
-  "/users",
-  validate({ query: adminUsersQuerySchema }),
-  async (req, res, next) => {
-    try {
-      const result = await adminService.getUsers(req.query);
-      res.json({
-        success: true,
-        data: result,
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-);
+router.get('/users', validate({ query: adminUsersQuerySchema }), async (req, res, next) => {
+  try {
+    const result = await adminService.getUsers(req.query);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // GET /api/v1/admin/users/:userId
 // Get user detail with stats
 router.get(
-  "/users/:userId",
+  '/users/:userId',
   validate({ params: adminUserIdParamSchema }),
   async (req, res, next) => {
     try {
@@ -67,22 +63,18 @@ router.get(
 // PATCH /api/v1/admin/users/:userId/ban
 // Ban a user
 router.patch(
-  "/users/:userId/ban",
+  '/users/:userId/ban',
   validate({
     params: adminUserIdParamSchema,
     body: adminBanUserSchema,
   }),
   async (req, res, next) => {
     try {
-      const result = await adminService.banUser(
-        req.params.userId,
-        req.body,
-        req.user!.id,
-      );
+      const result = await adminService.banUser(req.params.userId, req.body, req.user!.id);
       res.json({
         success: true,
         data: result,
-        message: "User banned successfully",
+        message: 'User banned successfully',
       });
     } catch (error) {
       next(error);
@@ -93,22 +85,18 @@ router.patch(
 // PATCH /api/v1/admin/users/:userId/unban
 // Unban a user
 router.patch(
-  "/users/:userId/unban",
+  '/users/:userId/unban',
   validate({
     params: adminUserIdParamSchema,
     body: adminUnbanUserSchema,
   }),
   async (req, res, next) => {
     try {
-      const result = await adminService.unbanUser(
-        req.params.userId,
-        req.body,
-        req.user!.id,
-      );
+      const result = await adminService.unbanUser(req.params.userId, req.body, req.user!.id);
       res.json({
         success: true,
         data: result,
-        message: "User unbanned successfully",
+        message: 'User unbanned successfully',
       });
     } catch (error) {
       next(error);
@@ -123,7 +111,7 @@ router.patch(
 // GET /api/v1/admin/financials/overview
 // Platform financial overview
 router.get(
-  "/financials/overview",
+  '/financials/overview',
   validate({ query: adminFinancialsQuerySchema }),
   async (req, res, next) => {
     try {
@@ -141,7 +129,7 @@ router.get(
 // GET /api/v1/admin/financials/transactions
 // All platform transactions
 router.get(
-  "/financials/transactions",
+  '/financials/transactions',
   validate({ query: adminTransactionsQuerySchema }),
   async (req, res, next) => {
     try {
@@ -159,7 +147,7 @@ router.get(
 // GET /api/v1/admin/financials/withdrawals
 // All withdrawal requests
 router.get(
-  "/financials/withdrawals",
+  '/financials/withdrawals',
   validate({ query: adminWithdrawalsQuerySchema }),
   async (req, res, next) => {
     try {
@@ -177,13 +165,11 @@ router.get(
 // GET /api/v1/admin/financials/artists/:artistId
 // Artist financial details
 router.get(
-  "/financials/artists/:artistId",
+  '/financials/artists/:artistId',
   validate({ params: adminArtistIdParamSchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getArtistFinancials(
-        req.params.artistId,
-      );
+      const result = await adminService.getArtistFinancials(req.params.artistId);
       res.json({
         success: true,
         data: result,
@@ -200,7 +186,7 @@ router.get(
 
 // GET /api/v1/admin/settings
 // Get platform settings
-router.get("/settings", async (req, res, next) => {
+router.get('/settings', async (req, res, next) => {
   try {
     const result = await adminService.getPlatformSettings();
     res.json({
@@ -214,22 +200,18 @@ router.get("/settings", async (req, res, next) => {
 
 // PATCH /api/v1/admin/settings
 // Update platform settings
-router.patch(
-  "/settings",
-  validate({ body: adminUpdateSettingsSchema }),
-  async (req, res, next) => {
-    try {
-      const result = await adminService.updatePlatformSettings(req.body);
-      res.json({
-        success: true,
-        data: result,
-        message: "Settings updated successfully",
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-);
+router.patch('/settings', validate({ body: adminUpdateSettingsSchema }), async (req, res, next) => {
+  try {
+    const result = await adminService.updatePlatformSettings(req.body);
+    res.json({
+      success: true,
+      data: result,
+      message: 'Settings updated successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * GENRE MANAGEMENT
@@ -237,41 +219,34 @@ router.patch(
 
 // POST /api/v1/admin/genres
 // Create new genre
-router.post(
-  "/genres",
-  validate({ body: adminCreateGenreSchema }),
-  async (req, res, next) => {
-    try {
-      const result = await adminService.createGenre(req.body);
-      res.status(201).json({
-        success: true,
-        data: result,
-        message: "Genre created successfully",
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-);
+router.post('/genres', validate({ body: adminCreateGenreSchema }), async (req, res, next) => {
+  try {
+    const result = await adminService.createGenre(req.body);
+    res.status(201).json({
+      success: true,
+      data: result,
+      message: 'Genre created successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // PATCH /api/v1/admin/genres/:genreId
 // Update genre
 router.patch(
-  "/genres/:genreId",
+  '/genres/:genreId',
   validate({
     params: adminGenreIdParamSchema,
     body: adminUpdateGenreSchema,
   }),
   async (req, res, next) => {
     try {
-      const result = await adminService.updateGenre(
-        req.params.genreId,
-        req.body,
-      );
+      const result = await adminService.updateGenre(req.params.genreId, req.body);
       res.json({
         success: true,
         data: result,
-        message: "Genre updated successfully",
+        message: 'Genre updated successfully',
       });
     } catch (error) {
       next(error);
@@ -282,7 +257,7 @@ router.patch(
 // DELETE /api/v1/admin/genres/:genreId
 // Delete genre
 router.delete(
-  "/genres/:genreId",
+  '/genres/:genreId',
   validate({ params: adminGenreIdParamSchema }),
   async (req, res, next) => {
     try {

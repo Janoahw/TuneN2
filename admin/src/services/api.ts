@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const BASE_URL =
-  (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_API_BASE_URL || '/api/v1';
+  (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_API_BASE_URL ||
+  '/api/v1';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -32,10 +33,8 @@ export const adminApi = {
       status?: 'active' | 'banned';
     }) => api.get('/admin/users', { params }),
     get: (userId: string) => api.get(`/admin/users/${userId}`),
-    ban: (userId: string, reason: string) =>
-      api.patch(`/admin/users/${userId}/ban`, { reason }),
-    unban: (userId: string, note?: string) =>
-      api.patch(`/admin/users/${userId}/unban`, { note }),
+    ban: (userId: string, reason: string) => api.patch(`/admin/users/${userId}/ban`, { reason }),
+    unban: (userId: string, note?: string) => api.patch(`/admin/users/${userId}/unban`, { note }),
   },
 
   // Financial management
@@ -55,8 +54,7 @@ export const adminApi = {
       limit?: number;
       status?: 'pending' | 'completed' | 'failed';
     }) => api.get('/admin/financials/withdrawals', { params }),
-    artistFinancials: (artistId: string) =>
-      api.get(`/admin/financials/artists/${artistId}`),
+    artistFinancials: (artistId: string) => api.get(`/admin/financials/artists/${artistId}`),
   },
 
   // Platform settings
@@ -74,8 +72,7 @@ export const adminApi = {
 
   // Genre management
   genres: {
-    create: (data: { name: string; slug: string }) =>
-      api.post('/admin/genres', data),
+    create: (data: { name: string; slug: string }) => api.post('/admin/genres', data),
     update: (genreId: string, data: { name?: string; slug?: string }) =>
       api.patch(`/admin/genres/${genreId}`, data),
     delete: (genreId: string) => api.delete(`/admin/genres/${genreId}`),
@@ -98,4 +95,3 @@ export const adminApi = {
     ) => api.patch(`/admin/reports/${reportId}`, data),
   },
 };
-

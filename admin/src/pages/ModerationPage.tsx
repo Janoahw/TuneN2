@@ -68,14 +68,11 @@ export default function ModerationPage() {
     },
     {
       header: 'Content',
-      accessor: (row: any) =>
-        row.targetType === 'song' ? 'Song' : 'Artist Profile',
+      accessor: (row: any) => (row.targetType === 'song' ? 'Song' : 'Artist Profile'),
     },
     {
       header: 'Reason',
-      accessor: (row: any) => (
-        <div className="max-w-xs truncate">{row.reason}</div>
-      ),
+      accessor: (row: any) => <div className="max-w-xs truncate">{row.reason}</div>,
     },
     {
       header: 'Status',
@@ -83,11 +80,7 @@ export default function ModerationPage() {
         <StatusBadge
           status={row.status}
           variant={
-            row.status === 'pending'
-              ? 'warning'
-              : row.status === 'resolved'
-                ? 'success'
-                : 'default'
+            row.status === 'pending' ? 'warning' : row.status === 'resolved' ? 'success' : 'default'
           }
         />
       ),
@@ -102,9 +95,7 @@ export default function ModerationPage() {
     <Layout>
       <div className="max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Content Moderation
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">Content Moderation</h1>
           <p className="text-gray-600 mt-2">Review and manage reported content</p>
         </div>
 
@@ -112,11 +103,7 @@ export default function ModerationPage() {
         <div className="mb-6">
           <select
             value={statusFilter || ''}
-            onChange={(e) =>
-              setStatusFilter(
-                e.target.value ? (e.target.value as any) : undefined,
-              )
-            }
+            onChange={(e) => setStatusFilter(e.target.value ? (e.target.value as any) : undefined)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
           >
             <option value="">All Reports</option>
@@ -151,10 +138,7 @@ export default function ModerationPage() {
 
               <div className="mb-4">
                 <p className="text-sm text-gray-600">Report Type</p>
-                <StatusBadge
-                  status={selectedReport.reportType}
-                  variant="warning"
-                />
+                <StatusBadge status={selectedReport.reportType} variant="warning" />
               </div>
 
               <div className="mb-4">
@@ -202,9 +186,7 @@ export default function ModerationPage() {
                         onChange={(e) => setRemoveContent(e.target.checked)}
                         className="w-4 h-4 text-[#00CCCC] focus:ring-[#00CCCC]"
                       />
-                      <span className="text-sm text-gray-700">
-                        Remove content from platform
-                      </span>
+                      <span className="text-sm text-gray-700">Remove content from platform</span>
                     </label>
                   </div>
 
