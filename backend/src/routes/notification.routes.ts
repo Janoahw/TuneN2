@@ -16,7 +16,7 @@ router.get(
   authenticate,
   validate({ query: getNotificationsSchema }),
   async (req: Request, res: Response) => {
-    const { page, limit } = req.query as { page: number; limit: number };
+    const { page, limit } = (req as any).validatedQuery as { page: number; limit: number };
     const userId = req.user!.id;
     const skip = (page - 1) * limit;
 
@@ -57,7 +57,7 @@ router.patch(
   authenticate,
   validate({ params: markReadSchema }),
   async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { id } = (req as any).validatedParams as { id: string };
     const userId = req.user!.id;
 
     // Ensure notification belongs to user

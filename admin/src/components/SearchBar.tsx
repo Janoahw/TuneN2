@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface SearchBarProps {
   placeholder?: string;
@@ -12,21 +12,19 @@ export function SearchBar({
   debounceMs = 300,
 }: SearchBarProps) {
   const [value, setValue] = useState('');
-  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+  const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setValue(newValue);
 
-    if (timeoutId) {
-      clearTimeout(timeoutId);
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
     }
 
-    const newTimeoutId = setTimeout(() => {
+    timeoutId.current = setTimeout(() => {
       onSearch(newValue);
     }, debounceMs);
-
-    setTimeoutId(newTimeoutId);
   };
 
   return (
@@ -36,7 +34,7 @@ export function SearchBar({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="w-full px-4 py-2 pl-10 border border-[#1A1A1E] bg-[#111114] text-white placeholder-[#8E8E93] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC] focus:border-transparent"
+        className="h-10 w-full rounded-lg border border-[#1A1A1E] bg-[#111114] px-4 py-2 pl-10 text-sm text-white placeholder-[#8E8E93] outline-none transition focus:border-transparent focus:ring-2 focus:ring-[#00CCCC]"
       />
       <svg
         className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"

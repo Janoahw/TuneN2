@@ -301,7 +301,7 @@ export default function SettingsPage() {
               {createGenreMutation.isPending ? 'Creating...' : 'Create Genre'}
             </button>
 
-            <p className="text-sm text-gray-500 mt-6">
+            <p className="text-sm text-[#8E8E93] mt-6">
               Note: To view, edit, or delete existing genres, use the database admin panel or API
               directly. Full genre CRUD UI coming in future updates.
             </p>

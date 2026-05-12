@@ -12,6 +12,10 @@ import type {
 } from '../schemas/admin.js';
 import { NotFoundError, BadRequestError } from '../utils/errors.js';
 
+function decimalToCents(value: unknown): number {
+  return Math.round(Number(value ?? 0) * 100);
+}
+
 export class AdminService {
   /**
    * USER MANAGEMENT
@@ -96,7 +100,7 @@ export class AdminService {
         purchases: {
           select: {
             id: true,
-            amountCents: true,
+            amount: true,
             createdAt: true,
             song: {
               select: {
@@ -120,8 +124,8 @@ export class AdminService {
             createdAt: true,
             wallet: {
               select: {
-                balanceCents: true,
-                totalEarnedCents: true,
+                balance: true,
+                totalEarned: true,
                 totalWithdrawn: true,
               },
             },
@@ -137,15 +141,36 @@ export class AdminService {
     // Get purchase stats
     const purchaseStats = await prisma.purchase.aggregate({
       where: { buyerId: userId },
-      _sum: { amountCents: true },
+      _sum: { amount: true },
       _count: true,
     });
 
+    const normalizedUser = {
+      ...user,
+      purchases: user.purchases.map((purchase) => ({
+        ...purchase,
+        amountCents: decimalToCents(purchase.amount),
+      })),
+      artistProfile: user.artistProfile
+        ? {
+            ...user.artistProfile,
+            wallet: user.artistProfile.wallet
+              ? {
+                  ...user.artistProfile.wallet,
+                  balanceCents: decimalToCents(user.artistProfile.wallet.balance),
+                  totalEarnedCents: decimalToCents(user.artistProfile.wallet.totalEarned),
+                  totalWithdrawn: decimalToCents(user.artistProfile.wallet.totalWithdrawn),
+                }
+              : null,
+          }
+        : null,
+    };
+
     return {
-      user,
+      user: normalizedUser,
       stats: {
         totalPurchases: purchaseStats._count || 0,
-        totalSpent: purchaseStats._sum.amountCents || 0,
+        totalSpent: decimalToCents(purchaseStats._sum?.amount),
       },
     };
   }
@@ -238,9 +263,9 @@ export class AdminService {
     const purchaseStats = await prisma.purchase.aggregate({
       where,
       _sum: {
-        amountCents: true,
-        platformFeeCents: true,
-        artistEarningsCents: true,
+        amount: true,
+        platformFee: true,
+        artistEarnings: true,
       },
       _count: true,
     });
@@ -290,9 +315,9 @@ export class AdminService {
 
     return {
       revenue: {
-        total: purchaseStats._sum.amountCents || 0,
-        platformFees: purchaseStats._sum.platformFeeCents || 0,
-        artistEarnings: purchaseStats._sum.artistEarningsCents || 0,
+        total: decimalToCents(purchaseStats._sum?.amount),
+        platformFees: decimalToCents(purchaseStats._sum?.platformFee),
+        artistEarnings: decimalToCents(purchaseStats._sum?.artistEarnings),
         transactionCount: purchaseStats._count || 0,
       },
       withdrawals: {
@@ -343,10 +368,9 @@ export class AdminService {
         select: {
           id: true,
           type: true,
-          amountCents: true,
-          balanceAfterCents: true,
+          amount: true,
+          netAmount: true,
           referenceId: true,
-          description: true,
           createdAt: true,
           wallet: {
             select: {
@@ -371,7 +395,11 @@ export class AdminService {
     ]);
 
     return {
-      transactions,
+      transactions: transactions.map((transaction) => ({
+        ...transaction,
+        amountCents: decimalToCents(transaction.amount),
+        balanceAfterCents: decimalToCents(transaction.netAmount),
+      })),
       pagination: {
         page,
         limit,
@@ -398,16 +426,15 @@ export class AdminService {
           amountCents: true,
           feeCents: true,
           status: true,
-          createdAt: true,
-          processedAt: true,
-          failureReason: true,
+          requestedAt: true,
+          completedAt: true,
           wallet: {
             select: {
               artist: {
                 select: {
                   artistName: true,
                   userId: true,
-                  stripeConnectId: true,
+                  stripeAccountId: true,
                   user: {
                     select: {
                       email: true,
@@ -419,7 +446,7 @@ export class AdminService {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { requestedAt: 'desc' },
       }),
       prisma.withdrawal.count({ where }),
     ]);
@@ -461,7 +488,7 @@ export class AdminService {
         type: 'song_sale',
       },
       _sum: {
-        amountCents: true,
+        amount: true,
       },
     });
 
@@ -475,10 +502,10 @@ export class AdminService {
         amountCents: true,
         feeCents: true,
         status: true,
-        createdAt: true,
-        processedAt: true,
+        requestedAt: true,
+        completedAt: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { requestedAt: 'desc' },
       take: 20,
     });
 
@@ -490,9 +517,8 @@ export class AdminService {
       select: {
         id: true,
         type: true,
-        amountCents: true,
-        balanceAfterCents: true,
-        description: true,
+        amount: true,
+        netAmount: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
@@ -506,19 +532,23 @@ export class AdminService {
         email: artist.user.email,
         displayName: artist.user.displayName,
         subscriptionStatus: artist.subscriptionStatus,
-        stripeConnectId: artist.stripeConnectId,
+        stripeConnectId: artist.stripeAccountId,
       },
       wallet: {
-        balanceCents: artist.wallet?.balanceCents || 0,
-        totalEarnedCents: artist.wallet?.totalEarnedCents || 0,
-        totalWithdrawn: artist.wallet?.totalWithdrawn || 0,
+        balanceCents: decimalToCents(artist.wallet?.balance),
+        totalEarnedCents: decimalToCents(artist.wallet?.totalEarned),
+        totalWithdrawn: decimalToCents(artist.wallet?.totalWithdrawn),
       },
       earnings: earnings.map((e) => ({
         type: e.type,
-        total: e._sum.amountCents || 0,
+        total: decimalToCents(e._sum?.amount),
       })),
       payouts,
-      transactions,
+      transactions: transactions.map((transaction) => ({
+        ...transaction,
+        amountCents: decimalToCents(transaction.amount),
+        balanceAfterCents: decimalToCents(transaction.netAmount),
+      })),
     };
   }
 
@@ -585,7 +615,7 @@ export class AdminService {
     return genre;
   }
 
-  async updateGenre(genreId: string, data: AdminUpdateGenre) {
+  async updateGenre(genreId: number, data: AdminUpdateGenre) {
     const genre = await prisma.genre.findUnique({
       where: { id: genreId },
     });
@@ -613,7 +643,7 @@ export class AdminService {
     return updatedGenre;
   }
 
-  async deleteGenre(genreId: string) {
+  async deleteGenre(genreId: number) {
     const genre = await prisma.genre.findUnique({
       where: { id: genreId },
     });
@@ -625,9 +655,7 @@ export class AdminService {
     // Check if any songs use this genre
     const songCount = await prisma.song.count({
       where: {
-        genreIds: {
-          has: genreId,
-        },
+        genreId,
       },
     });
 
@@ -660,7 +688,7 @@ export class AdminService {
    */
 
   async getReportDetail(reportId: string) {
-    const report = await prisma.report.findUnique({
+    const report = await prisma.contentReport.findUnique({
       where: { id: reportId },
       include: {
         reporter: {
@@ -736,7 +764,7 @@ export class AdminService {
             name: true,
           },
         },
-        reports: {
+        contentReports: {
           include: {
             reporter: {
               select: {
@@ -760,7 +788,7 @@ export class AdminService {
       prisma.purchase.count({
         where: { songId },
       }),
-      prisma.report.count({
+      prisma.contentReport.count({
         where: { songId, status: 'pending' },
       }),
     ]);
@@ -782,14 +810,18 @@ export class AdminService {
     const withdrawal = await prisma.withdrawal.findUnique({
       where: { id: withdrawalId },
       include: {
-        artist: {
+        wallet: {
           include: {
-            user: {
-              select: {
-                id: true,
-                displayName: true,
-                email: true,
-                avatarUrl: true,
+            artist: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    displayName: true,
+                    email: true,
+                    avatarUrl: true,
+                  },
+                },
               },
             },
           },
@@ -812,7 +844,7 @@ export class AdminService {
     const [totalSongs, activeSongs, totalArtists, activeArtists, totalGenres, pendingReports] =
       await Promise.all([
         prisma.song.count(),
-        prisma.song.count({ where: { isActive: true } }),
+        prisma.song.count({ where: { status: 'active' } }),
         prisma.artistProfile.count(),
         prisma.artistProfile.count({
           where: {
@@ -822,7 +854,7 @@ export class AdminService {
           },
         }),
         prisma.genre.count(),
-        prisma.report.count({ where: { status: 'pending' } }),
+        prisma.contentReport.count({ where: { status: 'pending' } }),
       ]);
 
     return {

@@ -79,7 +79,7 @@ export const adminUpdateGenreSchema = z.object({
 });
 
 export const adminGenreIdParamSchema = z.object({
-  genreId: z.string().uuid(),
+  genreId: z.coerce.number().int().min(1),
 });
 
 // Report detail schema

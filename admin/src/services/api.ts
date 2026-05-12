@@ -9,10 +9,23 @@ const api = axios.create({
   withCredentials: true,
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('adminToken');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminRefreshToken');
+      localStorage.removeItem('adminUser');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -23,6 +36,10 @@ export default api;
 
 // Admin API endpoints
 export const adminApi = {
+  auth: {
+    login: (data: { email: string; password: string }) => api.post('/auth/login', data),
+  },
+
   // User management
   users: {
     list: (params?: {
@@ -86,13 +103,8 @@ export const adminApi = {
       status?: 'pending' | 'resolved' | 'dismissed';
     }) => api.get('/reports/admin', { params }),
     get: (reportId: string) => api.get(`/admin/reports/${reportId}`),
-    update: (
-      reportId: string,
-      data: {
-        status: 'pending' | 'resolved' | 'dismissed';
-        action?: string;
-      },
-    ) => api.patch(`/reports/admin/${reportId}`, data),
+    update: (reportId: string, data: { status: 'resolved' | 'dismissed'; action?: string }) =>
+      api.patch(`/reports/admin/${reportId}`, data),
   },
 
   // Content management

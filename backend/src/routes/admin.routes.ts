@@ -35,7 +35,7 @@ router.use(authenticate, requireAdmin);
 // List all users with search and filters
 router.get('/users', validate({ query: adminUsersQuerySchema }), async (req, res, next) => {
   try {
-    const result = await adminService.getUsers(req.query);
+    const result = await adminService.getUsers((req as any).validatedQuery);
     res.json({
       success: true,
       data: result,
@@ -52,7 +52,8 @@ router.get(
   validate({ params: adminUserIdParamSchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getUserDetail(req.params.userId);
+      const { userId } = (req as any).validatedParams;
+      const result = await adminService.getUserDetail(userId);
       res.json({
         success: true,
         data: result,
@@ -73,7 +74,8 @@ router.patch(
   }),
   async (req, res, next) => {
     try {
-      const result = await adminService.banUser(req.params.userId, req.body, req.user!.id);
+      const { userId } = (req as any).validatedParams;
+      const result = await adminService.banUser(userId, req.body, req.user!.id);
       res.json({
         success: true,
         data: result,
@@ -95,7 +97,8 @@ router.patch(
   }),
   async (req, res, next) => {
     try {
-      const result = await adminService.unbanUser(req.params.userId, req.body, req.user!.id);
+      const { userId } = (req as any).validatedParams;
+      const result = await adminService.unbanUser(userId, req.body, req.user!.id);
       res.json({
         success: true,
         data: result,
@@ -118,7 +121,7 @@ router.get(
   validate({ query: adminFinancialsQuerySchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getFinancialOverview(req.query);
+      const result = await adminService.getFinancialOverview((req as any).validatedQuery);
       res.json({
         success: true,
         data: result,
@@ -136,7 +139,7 @@ router.get(
   validate({ query: adminTransactionsQuerySchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getTransactions(req.query);
+      const result = await adminService.getTransactions((req as any).validatedQuery);
       res.json({
         success: true,
         data: result,
@@ -154,7 +157,7 @@ router.get(
   validate({ query: adminWithdrawalsQuerySchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getWithdrawals(req.query);
+      const result = await adminService.getWithdrawals((req as any).validatedQuery);
       res.json({
         success: true,
         data: result,
@@ -172,7 +175,8 @@ router.get(
   validate({ params: adminArtistIdParamSchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getArtistFinancials(req.params.artistId);
+      const { artistId } = (req as any).validatedParams;
+      const result = await adminService.getArtistFinancials(artistId);
       res.json({
         success: true,
         data: result,
@@ -245,7 +249,8 @@ router.patch(
   }),
   async (req, res, next) => {
     try {
-      const result = await adminService.updateGenre(req.params.genreId, req.body);
+      const { genreId } = (req as any).validatedParams;
+      const result = await adminService.updateGenre(genreId, req.body);
       res.json({
         success: true,
         data: result,
@@ -264,7 +269,8 @@ router.delete(
   validate({ params: adminGenreIdParamSchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.deleteGenre(req.params.genreId);
+      const { genreId } = (req as any).validatedParams;
+      const result = await adminService.deleteGenre(genreId);
       res.json({
         success: true,
         data: result,
@@ -286,7 +292,8 @@ router.get(
   validate({ params: adminReportIdParamSchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getReportDetail(req.params.reportId);
+      const { reportId } = (req as any).validatedParams;
+      const result = await adminService.getReportDetail(reportId);
       res.json({
         success: true,
         data: result,
@@ -308,7 +315,8 @@ router.get(
   validate({ params: adminSongIdParamSchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getSongDetail(req.params.songId);
+      const { songId } = (req as any).validatedParams;
+      const result = await adminService.getSongDetail(songId);
       res.json({
         success: true,
         data: result,
@@ -340,7 +348,8 @@ router.get(
   validate({ params: adminWithdrawalIdParamSchema }),
   async (req, res, next) => {
     try {
-      const result = await adminService.getWithdrawalDetail(req.params.withdrawalId);
+      const { withdrawalId } = (req as any).validatedParams;
+      const result = await adminService.getWithdrawalDetail(withdrawalId);
       res.json({
         success: true,
         data: result,

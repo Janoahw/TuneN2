@@ -25,7 +25,7 @@ export default function ReportDetailPage() {
     mutationFn: async (newStatus: 'resolved' | 'dismissed') => {
       return await adminApi.reports.update(reportId!, {
         status: newStatus,
-        action: resolution,
+        action: removeContent ? 'remove_content' : 'no_action',
       });
     },
     onSuccess: () => {
