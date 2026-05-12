@@ -154,7 +154,10 @@ export default function LibraryScreen() {
           <View style={styles.emptyState}>
             <Feather name="lock" size={64} color={colors.textTertiary} />
             <Text style={styles.emptyTitle}>Sign in to see your library</Text>
-            <Pressable style={styles.signInBtn} onPress={() => router.push('/(auth)/login' as any)}>
+            <Pressable
+              style={styles.signInBtn}
+              onPress={() => router.replace('/(auth)/login' as any)}
+            >
               <Text style={styles.signInText}>Sign In</Text>
             </Pressable>
           </View>
