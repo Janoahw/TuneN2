@@ -13,6 +13,7 @@ export function Layout({ children }: LayoutProps) {
     { label: 'Dashboard', path: '/' },
     { label: 'Users', path: '/users' },
     { label: 'Moderation', path: '/moderation' },
+    { label: 'Content', path: '/content' },
     { label: 'Financials', path: '/financials' },
     { label: 'Settings', path: '/settings' },
   ];

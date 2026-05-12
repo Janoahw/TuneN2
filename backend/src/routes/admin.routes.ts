@@ -16,6 +16,9 @@ import {
   adminCreateGenreSchema,
   adminUpdateGenreSchema,
   adminGenreIdParamSchema,
+  adminReportIdParamSchema,
+  adminSongIdParamSchema,
+  adminWithdrawalIdParamSchema,
 } from '../schemas/admin.js';
 
 const router = Router();
@@ -262,6 +265,82 @@ router.delete(
   async (req, res, next) => {
     try {
       const result = await adminService.deleteGenre(req.params.genreId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * MODERATION - Report Detail
+ */
+
+// GET /api/v1/admin/reports/:reportId
+// Get single report detail
+router.get(
+  '/reports/:reportId',
+  validate({ params: adminReportIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getReportDetail(req.params.reportId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * CONTENT MANAGEMENT
+ */
+
+// GET /api/v1/admin/songs/:songId
+// Get song detail for review
+router.get(
+  '/songs/:songId',
+  validate({ params: adminSongIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getSongDetail(req.params.songId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/content/stats
+// Get content management stats
+router.get('/content/stats', async (req, res, next) => {
+  try {
+    const result = await adminService.getContentStats();
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/financials/withdrawals/:withdrawalId
+// Get withdrawal detail
+router.get(
+  '/financials/withdrawals/:withdrawalId',
+  validate({ params: adminWithdrawalIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getWithdrawalDetail(req.params.withdrawalId);
       res.json({
         success: true,
         data: result,

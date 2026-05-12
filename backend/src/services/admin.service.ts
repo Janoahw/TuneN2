@@ -654,4 +654,200 @@ export class AdminService {
 
     return { message: 'Genre deleted successfully' };
   }
+
+  /**
+   * MODERATION - Report Detail
+   */
+
+  async getReportDetail(reportId: string) {
+    const report = await prisma.report.findUnique({
+      where: { id: reportId },
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            displayName: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        song: {
+          select: {
+            id: true,
+            title: true,
+            artist: {
+              select: {
+                id: true,
+                user: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+            coverArtUrl: true,
+            audioUrl: true,
+            price: true,
+          },
+        },
+        reviewer: {
+          select: {
+            id: true,
+            displayName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!report) {
+      throw new NotFoundError('Report not found');
+    }
+
+    return report;
+  }
+
+  /**
+   * CONTENT MANAGEMENT - Song Review
+   */
+
+  async getSongDetail(songId: string) {
+    const song = await prisma.song.findUnique({
+      where: { id: songId },
+      include: {
+        artist: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                id: true,
+                displayName: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
+            bio: true,
+          },
+        },
+        genre: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        reports: {
+          include: {
+            reporter: {
+              select: {
+                id: true,
+                displayName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!song) {
+      throw new NotFoundError('Song not found');
+    }
+
+    // Get song stats
+    const [purchaseCount, reportCount] = await Promise.all([
+      prisma.purchase.count({
+        where: { songId },
+      }),
+      prisma.report.count({
+        where: { songId, status: 'pending' },
+      }),
+    ]);
+
+    return {
+      ...song,
+      stats: {
+        purchaseCount,
+        reportCount,
+      },
+    };
+  }
+
+  /**
+   * FINANCIAL MANAGEMENT - Withdrawal Detail
+   */
+
+  async getWithdrawalDetail(withdrawalId: string) {
+    const withdrawal = await prisma.withdrawal.findUnique({
+      where: { id: withdrawalId },
+      include: {
+        artist: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                displayName: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!withdrawal) {
+      throw new NotFoundError('Withdrawal not found');
+    }
+
+    return withdrawal;
+  }
+
+  /**
+   * CONTENT MANAGEMENT - Stats
+   */
+
+  async getContentStats() {
+    const [
+      totalSongs,
+      activeSongs,
+      totalArtists,
+      activeArtists,
+      totalGenres,
+      pendingReports,
+    ] = await Promise.all([
+      prisma.song.count(),
+      prisma.song.count({ where: { isActive: true } }),
+      prisma.artistProfile.count(),
+      prisma.artistProfile.count({
+        where: {
+          user: {
+            isBanned: false,
+          },
+        },
+      }),
+      prisma.genre.count(),
+      prisma.report.count({ where: { status: 'pending' } }),
+    ]);
+
+    return {
+      songs: {
+        total: totalSongs,
+        active: activeSongs,
+        inactive: totalSongs - activeSongs,
+      },
+      artists: {
+        total: totalArtists,
+        active: activeArtists,
+        inactive: totalArtists - activeArtists,
+      },
+      genres: {
+        total: totalGenres,
+      },
+      reports: {
+        pending: pendingReports,
+      },
+    };
+  }
 }

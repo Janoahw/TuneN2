@@ -84,14 +84,25 @@ export const adminApi = {
       page?: number;
       limit?: number;
       status?: 'pending' | 'resolved' | 'dismissed';
-    }) => api.get('/admin/reports', { params }),
+    }) => api.get('/reports/admin', { params }),
+    get: (reportId: string) => api.get(`/admin/reports/${reportId}`),
     update: (
       reportId: string,
       data: {
         status: 'pending' | 'resolved' | 'dismissed';
-        resolution?: string;
-        removeContent?: boolean;
+        action?: string;
       },
-    ) => api.patch(`/admin/reports/${reportId}`, data),
+    ) => api.patch(`/reports/admin/${reportId}`, data),
+  },
+
+  // Content management
+  content: {
+    stats: () => api.get('/admin/content/stats'),
+    songs: {
+      get: (songId: string) => api.get(`/admin/songs/${songId}`),
+    },
+    withdrawals: {
+      get: (withdrawalId: string) => api.get(`/admin/financials/withdrawals/${withdrawalId}`),
+    },
   },
 };

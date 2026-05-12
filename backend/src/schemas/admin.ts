@@ -82,6 +82,21 @@ export const adminGenreIdParamSchema = z.object({
   genreId: z.string().uuid(),
 });
 
+// Report detail schema
+export const adminReportIdParamSchema = z.object({
+  reportId: z.string().uuid(),
+});
+
+// Song detail schema
+export const adminSongIdParamSchema = z.object({
+  songId: z.string().uuid(),
+});
+
+// Withdrawal detail schema
+export const adminWithdrawalIdParamSchema = z.object({
+  withdrawalId: z.string().uuid(),
+});
+
 // Type exports
 export type AdminUsersQuery = z.infer<typeof adminUsersQuerySchema>;
 export type AdminUserIdParam = z.infer<typeof adminUserIdParamSchema>;
@@ -95,3 +110,6 @@ export type AdminUpdateSettings = z.infer<typeof adminUpdateSettingsSchema>;
 export type AdminCreateGenre = z.infer<typeof adminCreateGenreSchema>;
 export type AdminUpdateGenre = z.infer<typeof adminUpdateGenreSchema>;
 export type AdminGenreIdParam = z.infer<typeof adminGenreIdParamSchema>;
+export type AdminReportIdParam = z.infer<typeof adminReportIdParamSchema>;
+export type AdminSongIdParam = z.infer<typeof adminSongIdParamSchema>;
+export type AdminWithdrawalIdParam = z.infer<typeof adminWithdrawalIdParamSchema>;
