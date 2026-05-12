@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import Layout from '../components/Layout';
-import StatusBadge from '../components/StatusBadge';
+import { Layout } from '../components/Layout';
+import { StatusBadge } from '../components/StatusBadge';
 import { adminApi } from '../services/api';
 
 export default function SongReviewPage() {

@@ -105,19 +105,19 @@ export default function FinancialsPage() {
     <Layout>
       <div className="max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Financial Overview</h1>
-          <p className="text-gray-600 mt-2">Monitor platform revenue, payouts, and transactions</p>
+          <h1 className="text-3xl font-bold text-white">Financial Overview</h1>
+          <p className="text-[#8E8E93] mt-2">Monitor platform revenue, payouts, and transactions</p>
         </div>
 
         {/* View Tabs */}
-        <div className="mb-6 border-b border-gray-200">
+        <div className="mb-6 border-b border-[#1A1A1E]">
           <div className="flex gap-8">
             <button
               onClick={() => setView('overview')}
               className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
                 view === 'overview'
                   ? 'border-[#00CCCC] text-[#00CCCC]'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-[#8E8E93] hover:text-white'
               }`}
             >
               Overview
@@ -127,7 +127,7 @@ export default function FinancialsPage() {
               className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
                 view === 'transactions'
                   ? 'border-[#00CCCC] text-[#00CCCC]'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-[#8E8E93] hover:text-white'
               }`}
             >
               Transactions
@@ -137,7 +137,7 @@ export default function FinancialsPage() {
               className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
                 view === 'withdrawals'
                   ? 'border-[#00CCCC] text-[#00CCCC]'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-[#8E8E93] hover:text-white'
               }`}
             >
               Withdrawals

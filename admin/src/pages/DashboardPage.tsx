@@ -27,14 +27,14 @@ export default function DashboardPage() {
     <Layout>
       <div className="max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">Welcome to the TuneN2 Admin Panel</p>
+          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+          <p className="text-[#8E8E93] mt-2">Welcome to the TuneN2 Admin Panel</p>
         </div>
 
         {/* Key Metrics */}
         {overview && (
           <>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Platform Metrics</h2>
+            <h2 className="text-xl font-bold text-white mb-4">Platform Metrics</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <StatsCard
                 title="Total Revenue"
@@ -45,7 +45,7 @@ export default function DashboardPage() {
               <StatsCard title="Total Songs" value={overview.platform.totalSongs} />
             </div>
 
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Financial Overview</h2>
+            <h2 className="text-xl font-bold text-white mb-4">Financial Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <StatsCard
                 title="Platform Fees"
@@ -62,9 +62,9 @@ export default function DashboardPage() {
 
         {/* Pending Reports */}
         {pendingReports && pendingReports.reports.length > 0 && (
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-[#111114] rounded-lg shadow p-6 border border-[#1A1A1E]">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-white">
                 Pending Reports ({pendingReports.pagination.total})
               </h2>
               <a href="/moderation" className="text-[#00CCCC] hover:underline text-sm">
@@ -75,15 +75,15 @@ export default function DashboardPage() {
               {pendingReports.reports.map((report: any) => (
                 <div
                   key={report.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-[#0D0D0F] rounded-lg border border-[#1A1A1E]"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-white">
                       {report.reportType} - {report.targetType}
                     </p>
-                    <p className="text-sm text-gray-600 truncate max-w-md">{report.reason}</p>
+                    <p className="text-sm text-[#8E8E93] truncate max-w-md">{report.reason}</p>
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-[#8E8E93]">
                     {new Date(report.createdAt).toLocaleDateString()}
                   </span>
                 </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import Layout from '../components/Layout';
+import { Layout } from '../components/Layout';
 import { adminApi } from '../services/api';
 
 export default function ReportDetailPage() {
@@ -131,7 +131,7 @@ export default function ReportDetailPage() {
                     ? 'bg-yellow-500/10 text-yellow-500'
                     : data.status === 'resolved'
                       ? 'bg-green-500/10 text-green-500'
-                      : 'bg-gray-500/10 text-gray-400'
+                      : 'bg-[#0D0D0F]0/10 text-gray-400'
                 }`}
               >
                 {data.status}

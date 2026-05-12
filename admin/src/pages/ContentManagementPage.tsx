@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
-import StatsCard from '../components/StatsCard';
-import DataTable from '../components/DataTable';
-import StatusBadge from '../components/StatusBadge';
-import Pagination from '../components/Pagination';
+import { Layout } from '../components/Layout';
+import { StatsCard } from '../components/StatsCard';
+import { DataTable } from '../components/DataTable';
+import { StatusBadge } from '../components/StatusBadge';
+import { Pagination } from '../components/Pagination';
 import { adminApi } from '../services/api';
 
 type TabType = 'songs' | 'artists' | 'genres' | 'reports';

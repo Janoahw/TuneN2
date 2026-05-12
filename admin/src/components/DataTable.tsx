@@ -23,10 +23,10 @@ export function DataTable<T extends { id: string | number }>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-[#111114] rounded-lg shadow overflow-hidden border border-[#1A1A1E]">
         <div className="p-12 text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#00CCCC] border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-[#8E8E93]">Loading...</p>
         </div>
       </div>
     );
@@ -34,38 +34,38 @@ export function DataTable<T extends { id: string | number }>({
 
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-12 text-center text-gray-600">{emptyMessage}</div>
+      <div className="bg-[#111114] rounded-lg shadow overflow-hidden border border-[#1A1A1E]">
+        <div className="p-12 text-center text-[#8E8E93]">{emptyMessage}</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+    <div className="bg-[#111114] rounded-lg shadow overflow-hidden border border-[#1A1A1E]">
+      <table className="min-w-full divide-y divide-[#1A1A1E]">
+        <thead className="bg-[#0D0D0F]">
           <tr>
             {columns.map((column, idx) => (
               <th
                 key={idx}
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${column.className || ''}`}
+                className={`px-6 py-3 text-left text-xs font-medium text-[#8E8E93] uppercase tracking-wider ${column.className || ''}`}
               >
                 {column.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-[#111114] divide-y divide-[#1A1A1E]">
           {data.map((row) => (
             <tr
               key={row.id}
               onClick={() => onRowClick?.(row)}
-              className={onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}
+              className={onRowClick ? 'cursor-pointer hover:bg-[#1A1A1E]' : ''}
             >
               {columns.map((column, idx) => (
                 <td
                   key={idx}
-                  className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${column.className || ''}`}
+                  className={`px-6 py-4 whitespace-nowrap text-sm text-white ${column.className || ''}`}
                 >
                   {typeof column.accessor === 'function'
                     ? column.accessor(row)

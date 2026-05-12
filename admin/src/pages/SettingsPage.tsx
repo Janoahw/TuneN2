@@ -67,19 +67,19 @@ export default function SettingsPage() {
     <Layout>
       <div className="max-w-5xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-2">Manage platform configuration and genres</p>
+          <h1 className="text-3xl font-bold text-white">Settings</h1>
+          <p className="text-[#8E8E93] mt-2">Manage platform configuration and genres</p>
         </div>
 
         {/* View Tabs */}
-        <div className="mb-6 border-b border-gray-200">
+        <div className="mb-6 border-b border-[#1A1A1E]">
           <div className="flex gap-8">
             <button
               onClick={() => setView('platform')}
               className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
                 view === 'platform'
                   ? 'border-[#00CCCC] text-[#00CCCC]'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-[#8E8E93] hover:text-white'
               }`}
             >
               Platform Settings
@@ -89,7 +89,7 @@ export default function SettingsPage() {
               className={`pb-3 px-1 border-b-2 font-medium transition-colors ${
                 view === 'genres'
                   ? 'border-[#00CCCC] text-[#00CCCC]'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-[#8E8E93] hover:text-white'
               }`}
             >
               Genre Management
@@ -99,9 +99,9 @@ export default function SettingsPage() {
 
         {/* Platform Settings */}
         {view === 'platform' && settings && (
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-[#111114] rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Platform Configuration</h2>
+              <h2 className="text-xl font-bold text-white">Platform Configuration</h2>
               {!editingSettings && (
                 <button
                   onClick={handleEditSettings}
@@ -115,33 +115,33 @@ export default function SettingsPage() {
             {!editingSettings ? (
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm text-gray-600">Commission Rate</p>
+                  <p className="text-sm text-[#8E8E93]">Commission Rate</p>
                   <p className="text-lg font-medium">
                     {(settings.commissionRate * 100).toFixed(1)}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Min Song Price</p>
+                  <p className="text-sm text-[#8E8E93]">Min Song Price</p>
                   <p className="text-lg font-medium">${(settings.minSongPrice / 100).toFixed(2)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Max Song Price</p>
+                  <p className="text-sm text-[#8E8E93]">Max Song Price</p>
                   <p className="text-lg font-medium">${(settings.maxSongPrice / 100).toFixed(2)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Artist Subscription Price</p>
+                  <p className="text-sm text-[#8E8E93]">Artist Subscription Price</p>
                   <p className="text-lg font-medium">
                     ${(settings.artistSubscriptionPrice / 100).toFixed(2)}/month
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Withdrawal Fee Rate</p>
+                  <p className="text-sm text-[#8E8E93]">Withdrawal Fee Rate</p>
                   <p className="text-lg font-medium">
                     {(settings.withdrawalFeeRate * 100).toFixed(2)}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Min Withdrawal Amount</p>
+                  <p className="text-sm text-[#8E8E93]">Min Withdrawal Amount</p>
                   <p className="text-lg font-medium">
                     ${(settings.minWithdrawalAmount / 100).toFixed(2)}
                   </p>
@@ -151,7 +151,7 @@ export default function SettingsPage() {
               <>
                 <div className="grid grid-cols-2 gap-6 mb-6">
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">Commission Rate (%)</label>
+                    <label className="block text-sm text-[#8E8E93] mb-2">Commission Rate (%)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -162,11 +162,11 @@ export default function SettingsPage() {
                           commissionRate: parseFloat(e.target.value) / 100,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
+                      className="w-full px-4 py-2 border border-[#1A1A1E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">Min Song Price ($)</label>
+                    <label className="block text-sm text-[#8E8E93] mb-2">Min Song Price ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -177,11 +177,11 @@ export default function SettingsPage() {
                           minSongPrice: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
+                      className="w-full px-4 py-2 border border-[#1A1A1E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">Max Song Price ($)</label>
+                    <label className="block text-sm text-[#8E8E93] mb-2">Max Song Price ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -192,11 +192,11 @@ export default function SettingsPage() {
                           maxSongPrice: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
+                      className="w-full px-4 py-2 border border-[#1A1A1E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">
+                    <label className="block text-sm text-[#8E8E93] mb-2">
                       Artist Subscription ($)
                     </label>
                     <input
@@ -209,11 +209,11 @@ export default function SettingsPage() {
                           artistSubscriptionPrice: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
+                      className="w-full px-4 py-2 border border-[#1A1A1E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">Withdrawal Fee (%)</label>
+                    <label className="block text-sm text-[#8E8E93] mb-2">Withdrawal Fee (%)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -224,11 +224,11 @@ export default function SettingsPage() {
                           withdrawalFeeRate: parseFloat(e.target.value) / 100,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
+                      className="w-full px-4 py-2 border border-[#1A1A1E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-600 mb-2">Min Withdrawal ($)</label>
+                    <label className="block text-sm text-[#8E8E93] mb-2">Min Withdrawal ($)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                           minWithdrawalAmount: parseFloat(e.target.value),
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
+                      className="w-full px-4 py-2 border border-[#1A1A1E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                     />
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export default function SettingsPage() {
                 <div className="flex gap-3 justify-end">
                   <button
                     onClick={() => setEditingSettings(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className="px-4 py-2 border border-[#1A1A1E] rounded-lg hover:bg-[#0D0D0F]"
                   >
                     Cancel
                   </button>
@@ -266,28 +266,28 @@ export default function SettingsPage() {
 
         {/* Genre Management */}
         {view === 'genres' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Create New Genre</h2>
+          <div className="bg-[#111114] rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-white mb-6">Create New Genre</h2>
 
             <div className="grid grid-cols-2 gap-6 mb-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-2">Genre Name</label>
+                <label className="block text-sm text-[#8E8E93] mb-2">Genre Name</label>
                 <input
                   type="text"
                   value={newGenre.name}
                   onChange={(e) => setNewGenre({ ...newGenre, name: e.target.value })}
                   onBlur={handleGenreSlugGenerate}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
+                  className="w-full px-4 py-2 border border-[#1A1A1E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                   placeholder="e.g., Hip Hop"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-2">Slug (URL-friendly)</label>
+                <label className="block text-sm text-[#8E8E93] mb-2">Slug (URL-friendly)</label>
                 <input
                   type="text"
                   value={newGenre.slug}
                   onChange={(e) => setNewGenre({ ...newGenre, slug: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
+                  className="w-full px-4 py-2 border border-[#1A1A1E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00CCCC]"
                   placeholder="e.g., hip-hop"
                 />
               </div>

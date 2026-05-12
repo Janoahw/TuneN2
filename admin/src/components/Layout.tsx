@@ -24,10 +24,10 @@ export function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0D0D0F]">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
+      <aside className="fixed left-0 top-0 h-full w-64 bg-[#111114] border-r border-[#1A1A1E] flex flex-col">
+        <div className="p-6 border-b border-[#1A1A1E]">
           <h1 className="text-2xl font-bold text-[#00CCCC]">TuneN2 Admin</h1>
         </div>
 
@@ -40,7 +40,7 @@ export function Layout({ children }: LayoutProps) {
                   className={`block px-4 py-2 rounded-lg transition-colors ${
                     location.pathname === item.path
                       ? 'bg-[#00CCCC] text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      : 'text-[#8E8E93] hover:bg-[#1A1A1E]'
                   }`}
                 >
                   {item.label}
@@ -50,10 +50,10 @@ export function Layout({ children }: LayoutProps) {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-[#1A1A1E]">
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="w-full px-4 py-2 text-sm text-[#8E8E93] hover:bg-[#1A1A1E] rounded-lg transition-colors"
           >
             Logout
           </button>

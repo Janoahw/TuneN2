@@ -10,11 +10,11 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, change, icon }: StatsCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-[#111114] rounded-lg shadow p-6 border border-[#1A1A1E]">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-600 font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+          <p className="text-sm text-[#8E8E93] font-medium">{title}</p>
+          <p className="text-3xl font-bold text-white mt-2">{value}</p>
           {change && (
             <p className={`text-sm mt-2 ${change.isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {change.isPositive ? '↑' : '↓'} {Math.abs(change.value)}%
