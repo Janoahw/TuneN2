@@ -196,7 +196,7 @@ export default function LibraryScreen() {
               {recentItems.length > 0 && (
                 <>
                   <Text style={styles.sectionHeader}>Recently Played</Text>
-                  {recentItems.map((item) => (
+                  {recentItems.map((item: DownloadItem) => (
                     <SongCard
                       key={item.id}
                       song={item.song}
@@ -225,7 +225,7 @@ export default function LibraryScreen() {
                   <Text style={styles.emptySectionSub}>Songs you buy will show up here</Text>
                 </View>
               ) : (
-                libraryItems.map((item) => (
+                libraryItems.map((item: LibraryItem) => (
                   <SongCard
                     key={item.id}
                     song={{

@@ -60,7 +60,7 @@ export default function WithdrawalScreen() {
     }
 
     requestWithdrawal(amountNum, {
-      onSuccess: (data) => {
+      onSuccess: (data: { netAmountDollars: number }) => {
         router.replace({
           pathname: '/payout-success',
           params: {

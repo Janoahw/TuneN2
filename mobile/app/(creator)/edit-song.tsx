@@ -48,7 +48,9 @@ export default function EditSongScreen() {
     setCoverUri(song.coverArtUrl ?? null);
   }, [song]);
 
-  const genreName = genres?.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
+  const genreName =
+    genres?.find((g: { id: number; name: string }) => g.id === selectedGenre)?.name ??
+    'Select genre';
 
   const pickNewCover = useCallback(async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -196,7 +198,7 @@ export default function EditSongScreen() {
 
         {showGenrePicker && (
           <View style={styles.genreList}>
-            {genres?.map((genre) => (
+            {genres?.map((genre: { id: number; name: string }) => (
               <Pressable
                 key={genre.id}
                 style={[styles.genreItem, selectedGenre === genre.id && styles.genreItemActive]}

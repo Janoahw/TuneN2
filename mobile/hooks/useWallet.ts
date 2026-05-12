@@ -15,14 +15,24 @@ export function useWallet() {
 }
 
 export function useWalletTransactions(page = 1, type?: string) {
-  return useQuery({
+  return useQuery<{
+    transactions: WalletTransaction[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }>({
     queryKey: ['wallet-transactions', page, type],
     queryFn: () => walletService.getTransactions({ page, limit: 20, type }),
   });
 }
 
 export function useWithdrawals(page = 1) {
-  return useQuery({
+  return useQuery<{
+    withdrawals: Withdrawal[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }>({
     queryKey: ['withdrawals', page],
     queryFn: () => walletService.getWithdrawals({ page, limit: 20 }),
   });

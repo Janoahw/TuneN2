@@ -145,7 +145,7 @@ export default function SearchResultsScreen() {
           {filter !== 'songs' && data && data.artists.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Artists</Text>
-              {data.artists.map((a) => (
+              {data.artists.map((a: ArtistSummary) => (
                 <ArtistRow key={a.id} artist={a} />
               ))}
             </View>
@@ -155,7 +155,7 @@ export default function SearchResultsScreen() {
           {filter !== 'artists' && data && data.songs.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Songs</Text>
-              {data.songs.map((s) => (
+              {data.songs.map((s: SongDetail) => (
                 <SongRow key={s.id} song={s as SongDetail} />
               ))}
             </View>

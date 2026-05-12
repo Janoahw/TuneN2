@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/authStore';
 import {
   authService,
+  type AuthResponse,
   type LoginParams,
   type SignupParams,
   type SocialAuthParams,
@@ -13,7 +14,7 @@ export function useAuth() {
 
   const loginMutation = useMutation({
     mutationFn: (params: LoginParams) => authService.login(params),
-    onSuccess: async (data) => {
+    onSuccess: async (data: AuthResponse) => {
       await setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
       // Register push token in the background
       DeviceService.registerCurrentDevice().catch((err) => {
@@ -24,7 +25,7 @@ export function useAuth() {
 
   const signupMutation = useMutation({
     mutationFn: (params: SignupParams) => authService.signup(params),
-    onSuccess: async (data) => {
+    onSuccess: async (data: AuthResponse) => {
       await setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
       // Register push token in the background
       DeviceService.registerCurrentDevice().catch((err) => {
@@ -35,7 +36,7 @@ export function useAuth() {
 
   const socialAuthMutation = useMutation({
     mutationFn: (params: SocialAuthParams) => authService.socialAuth(params),
-    onSuccess: async (data) => {
+    onSuccess: async (data: AuthResponse) => {
       await setAuth(data.user, data.tokens.accessToken, data.tokens.refreshToken);
       // Register push token in the background
       DeviceService.registerCurrentDevice().catch((err) => {

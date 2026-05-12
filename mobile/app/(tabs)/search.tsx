@@ -93,7 +93,7 @@ export default function SearchScreen() {
           <ActivityIndicator color={colors.accentPrimary} />
         ) : (
           <View style={styles.genreGrid}>
-            {(genres ?? []).map((g, i) => (
+            {(genres ?? []).map((g: Genre, i: number) => (
               <GenreCard key={g.id} genre={g} index={i} />
             ))}
           </View>

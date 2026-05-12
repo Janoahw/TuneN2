@@ -98,7 +98,7 @@ export default function NotificationsScreen() {
       <FlatList
         data={data?.notifications || []}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <NotificationItem item={item} />}
+        renderItem={({ item }: { item: Notification }) => <NotificationItem item={item} />}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           !isLoading ? (
@@ -126,16 +126,16 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.bgPrimary,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[4],
     borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceElevated,
+    borderBottomColor: colors.bgElevated,
   },
   headerTitle: {
     fontFamily: fontFamilies.displayBold,
@@ -143,33 +143,33 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   markAllRead: {
-    fontFamily: fontFamilies.uiMedium,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 14,
     color: colors.accentPrimary,
   },
   unreadBanner: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.surfaceElevated,
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[3],
+    backgroundColor: colors.bgElevated,
   },
   unreadText: {
-    fontFamily: fontFamilies.uiMedium,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 13,
     color: colors.textSecondary,
   },
   list: {
-    padding: spacing.md,
+    padding: spacing[4],
   },
   notificationCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    padding: spacing.md,
-    backgroundColor: colors.card,
+    padding: spacing[4],
+    backgroundColor: colors.bgCard,
     borderRadius: 12,
-    marginBottom: spacing.sm,
+    marginBottom: spacing[3],
   },
   unread: {
-    backgroundColor: colors.surfaceElevated,
+    backgroundColor: colors.bgElevated,
   },
   pressed: {
     opacity: 0.7,
@@ -178,10 +178,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.surfaceElevated,
+    backgroundColor: colors.bgElevated,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
+    marginRight: spacing[4],
   },
   iconUnread: {
     backgroundColor: `${colors.accentPrimary}20`,
@@ -190,20 +190,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationTitle: {
-    fontFamily: fontFamilies.uiSemibold,
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 15,
     color: colors.textPrimary,
     marginBottom: 4,
   },
   notificationBody: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 20,
     marginBottom: 6,
   },
   notificationTime: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 12,
     color: colors.textTertiary,
   },
@@ -212,25 +212,25 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: colors.accentPrimary,
-    marginLeft: spacing.sm,
+    marginLeft: spacing[3],
     marginTop: 6,
   },
   empty: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
+    paddingVertical: spacing[8] * 2,
   },
   emptyTitle: {
-    fontFamily: fontFamilies.displaySemibold,
+    fontFamily: fontFamilies.displaySemiBold,
     fontSize: 18,
     color: colors.textPrimary,
-    marginTop: spacing.lg,
+    marginTop: spacing[6],
   },
   emptySubtitle: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textSecondary,
-    marginTop: spacing.xs,
+    marginTop: spacing[2],
     textAlign: 'center',
     maxWidth: '80%',
   },

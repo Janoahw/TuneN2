@@ -25,13 +25,13 @@ export interface Genre {
 
 export interface GenreDetail {
   genre: Genre & { songCount: number; artistCount: number };
-  popularSongs: (Song & { _count: { purchases: number } })[];
+  popularSongs: (SongDetail & { _count: { purchases: number } })[];
   topArtists: ArtistSummary[];
 }
 
 export interface DiscoverFeed {
   newArtists: ArtistSummary[];
-  topPerformingSongs: (Song & { _count: { purchases: number } })[];
+  topPerformingSongs: (SongDetail & { _count: { purchases: number } })[];
   fastestGrowingArtists: ArtistSummary[];
 }
 

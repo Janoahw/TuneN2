@@ -86,7 +86,7 @@ export default function MyReportsScreen() {
       <FlatList
         data={data?.reports || []}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ReportCard item={item} />}
+        renderItem={({ item }: { item: ContentReport }) => <ReportCard item={item} />}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           !isLoading ? (
@@ -114,16 +114,16 @@ export default function MyReportsScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.bgPrimary,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[4],
     borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceElevated,
+    borderBottomColor: colors.bgElevated,
   },
   headerTitle: {
     fontFamily: fontFamilies.displayBold,
@@ -131,88 +131,88 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   list: {
-    padding: spacing.md,
+    padding: spacing[4],
   },
   card: {
-    padding: spacing.md,
-    backgroundColor: colors.card,
+    padding: spacing[4],
+    backgroundColor: colors.bgCard,
     borderRadius: 12,
-    marginBottom: spacing.sm,
+    marginBottom: spacing[3],
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: spacing.sm,
+    marginBottom: spacing[3],
   },
   cardLeft: {
     flex: 1,
-    marginRight: spacing.sm,
+    marginRight: spacing[3],
   },
   songTitle: {
-    fontFamily: fontFamilies.uiSemibold,
+    fontFamily: fontFamilies.primarySemiBold,
     fontSize: 16,
     color: colors.textPrimary,
     marginBottom: 4,
   },
   artistName: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textSecondary,
   },
   badge: {
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing[3],
     paddingVertical: 4,
     borderRadius: 8,
   },
   badgeText: {
-    fontFamily: fontFamilies.uiMedium,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 12,
   },
   reasonRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.xs,
+    marginBottom: spacing[2],
   },
   reasonText: {
-    fontFamily: fontFamilies.uiMedium,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 13,
     color: colors.textSecondary,
-    marginLeft: spacing.xs,
+    marginLeft: spacing[2],
   },
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   timeText: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 12,
     color: colors.textTertiary,
-    marginLeft: spacing.xs,
+    marginLeft: spacing[2],
   },
   description: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 13,
     color: colors.textSecondary,
-    marginTop: spacing.sm,
+    marginTop: spacing[3],
     fontStyle: 'italic',
   },
   empty: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.xl * 2,
+    paddingVertical: spacing[8] * 2,
   },
   emptyTitle: {
-    fontFamily: fontFamilies.displaySemibold,
+    fontFamily: fontFamilies.displaySemiBold,
     fontSize: 18,
     color: colors.textPrimary,
-    marginTop: spacing.lg,
+    marginTop: spacing[6],
   },
   emptySubtitle: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textSecondary,
-    marginTop: spacing.xs,
+    marginTop: spacing[2],
     textAlign: 'center',
     maxWidth: '80%',
   },
