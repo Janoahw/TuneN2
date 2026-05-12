@@ -41,9 +41,9 @@ const toastStyles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
     borderRadius: 20,
-    backgroundColor: colors.bgPlayer,
+    backgroundColor: colors.bgCard,
     borderWidth: 1,
-    borderColor: withAlpha(colors.white, 0.035),
+    // borderColor: withAlpha(colors.white, 0.035),
     minHeight: 112,
     paddingVertical: spacing[4],
     paddingHorizontal: spacing[4],
@@ -80,6 +80,7 @@ const toastStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
+    borderWidth: 1,
   },
   textWrapper: {
     flex: 1,
@@ -132,6 +133,7 @@ const renderToast = (tone: ToastTone) => (props: any) => {
               toastStyles.iconContainer,
               {
                 backgroundColor: accent,
+                borderColor: withAlpha(accent, tone === 'warning' ? 0.48 : 0.58),
                 shadowColor: accent,
                 shadowOffset: { width: 0, height: 6 },
                 shadowOpacity: 0.24,
