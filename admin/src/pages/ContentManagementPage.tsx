@@ -63,9 +63,7 @@ export default function ContentManagementPage() {
     <Layout>
       <div className="flex flex-col gap-6">
         {/* Header */}
-        <h1 className="text-white text-2xl font-bold font-['Space_Grotesk']">
-          Content Management
-        </h1>
+        <h1 className="text-white text-2xl font-bold font-['Space_Grotesk']">Content Management</h1>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-4 gap-6">
@@ -111,9 +109,7 @@ export default function ContentManagementPage() {
                   setPage(1);
                 }}
                 className={`pb-3 px-1 text-sm font-medium transition-colors relative ${
-                  activeTab === tab.key
-                    ? 'text-white'
-                    : 'text-[#A0A0AB] hover:text-white'
+                  activeTab === tab.key ? 'text-white' : 'text-[#A0A0AB] hover:text-white'
                 }`}
               >
                 {tab.label}
@@ -165,9 +161,7 @@ export default function ContentManagementPage() {
             <div className="flex flex-col gap-4">
               <div className="text-center py-12">
                 <div className="text-[#6E6E78] mb-2">Genre Management</div>
-                <div className="text-xs text-[#8E8E93]">
-                  Manage genres from the Settings page
-                </div>
+                <div className="text-xs text-[#8E8E93]">Manage genres from the Settings page</div>
                 <button
                   onClick={() => navigate('/settings')}
                   className="mt-4 px-4 py-2 bg-[#00CCCC] text-white rounded-lg hover:bg-[#00BBBB]"

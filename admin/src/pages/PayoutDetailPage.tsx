@@ -72,9 +72,7 @@ export default function PayoutDetailPage() {
                     />
                   )}
                   <div>
-                    <div className="text-white font-medium">
-                      {data.artist?.user?.displayName}
-                    </div>
+                    <div className="text-white font-medium">{data.artist?.user?.displayName}</div>
                     <div className="text-[#6E6E78] text-sm">{data.artist?.user?.email}</div>
                   </div>
                 </div>
@@ -94,9 +92,7 @@ export default function PayoutDetailPage() {
 
               <div>
                 <div className="text-[#A0A0AB] text-sm font-semibold mb-1">Net Payout</div>
-                <div className="text-white text-xl font-bold">
-                  ${(netAmount / 100).toFixed(2)}
-                </div>
+                <div className="text-white text-xl font-bold">${(netAmount / 100).toFixed(2)}</div>
               </div>
             </div>
 

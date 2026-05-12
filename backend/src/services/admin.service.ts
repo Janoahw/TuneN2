@@ -809,27 +809,21 @@ export class AdminService {
    */
 
   async getContentStats() {
-    const [
-      totalSongs,
-      activeSongs,
-      totalArtists,
-      activeArtists,
-      totalGenres,
-      pendingReports,
-    ] = await Promise.all([
-      prisma.song.count(),
-      prisma.song.count({ where: { isActive: true } }),
-      prisma.artistProfile.count(),
-      prisma.artistProfile.count({
-        where: {
-          user: {
-            isBanned: false,
+    const [totalSongs, activeSongs, totalArtists, activeArtists, totalGenres, pendingReports] =
+      await Promise.all([
+        prisma.song.count(),
+        prisma.song.count({ where: { isActive: true } }),
+        prisma.artistProfile.count(),
+        prisma.artistProfile.count({
+          where: {
+            user: {
+              isBanned: false,
+            },
           },
-        },
-      }),
-      prisma.genre.count(),
-      prisma.report.count({ where: { status: 'pending' } }),
-    ]);
+        }),
+        prisma.genre.count(),
+        prisma.report.count({ where: { status: 'pending' } }),
+      ]);
 
     return {
       songs: {

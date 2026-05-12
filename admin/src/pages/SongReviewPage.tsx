@@ -161,9 +161,7 @@ export default function SongReviewPage() {
                   )}
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <div className="text-white font-medium">
-                        {report.reporter?.displayName}
-                      </div>
+                      <div className="text-white font-medium">{report.reporter?.displayName}</div>
                       <div className="text-[#6E6E78] text-xs">
                         {new Date(report.createdAt).toLocaleDateString()}
                       </div>

@@ -8,7 +8,7 @@ export default function ReportDetailPage() {
   const { reportId } = useParams<{ reportId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
+
   const [resolution, setResolution] = useState('');
   const [removeContent, setRemoveContent] = useState(false);
 
