@@ -1,0 +1,62 @@
+CREATE TABLE "platform_settings" (
+  "id" INTEGER NOT NULL DEFAULT 1,
+  "platform_name" VARCHAR(100) NOT NULL DEFAULT 'TuneN2',
+  "support_email" VARCHAR(255) NOT NULL DEFAULT 'support@tunen2.com',
+  "max_upload_size_mb" INTEGER NOT NULL DEFAULT 50,
+  "commission_rate" DECIMAL(5,4) NOT NULL DEFAULT 0.20,
+  "min_song_price" INTEGER NOT NULL DEFAULT 99,
+  "max_song_price" INTEGER NOT NULL DEFAULT 99999,
+  "artist_subscription_price" INTEGER NOT NULL DEFAULT 999,
+  "withdrawal_fee_rate" DECIMAL(6,4) NOT NULL DEFAULT 0.0023,
+  "min_withdrawal_amount" INTEGER NOT NULL DEFAULT 1000,
+  "auto_moderation" BOOLEAN NOT NULL DEFAULT true,
+  "allow_downloads" BOOLEAN NOT NULL DEFAULT true,
+  "analytics_sync" BOOLEAN NOT NULL DEFAULT true,
+  "maintenance_mode" BOOLEAN NOT NULL DEFAULT false,
+  "signups_per_hour" INTEGER NOT NULL DEFAULT 100,
+  "song_uploads_per_minute" INTEGER NOT NULL DEFAULT 5,
+  "webhook_timeout" INTEGER NOT NULL DEFAULT 30,
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT "platform_settings_pkey" PRIMARY KEY ("id")
+);
+
+INSERT INTO "platform_settings" (
+  "id",
+  "platform_name",
+  "support_email",
+  "max_upload_size_mb",
+  "commission_rate",
+  "min_song_price",
+  "max_song_price",
+  "artist_subscription_price",
+  "withdrawal_fee_rate",
+  "min_withdrawal_amount",
+  "auto_moderation",
+  "allow_downloads",
+  "analytics_sync",
+  "maintenance_mode",
+  "signups_per_hour",
+  "song_uploads_per_minute",
+  "webhook_timeout"
+) VALUES (
+  1,
+  'TuneN2',
+  'support@tunen2.com',
+  50,
+  0.20,
+  99,
+  99999,
+  999,
+  0.0023,
+  1000,
+  true,
+  true,
+  true,
+  false,
+  100,
+  5,
+  30
+)
+ON CONFLICT ("id") DO NOTHING;

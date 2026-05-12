@@ -17,7 +17,6 @@ export const getReportsSchema = z.object({
 });
 
 export const updateReportSchema = z.object({
-  id: z.string().uuid('Invalid report ID'),
   status: z.enum(['dismissed', 'resolved'], {
     errorMap: () => ({ message: 'Status must be dismissed or resolved' }),
   }),

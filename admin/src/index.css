@@ -1,11 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  /* Surfaces — use as bg-surface, bg-surface-alt, etc. */
+  /* Surfaces - aligned to the Pencil admin frames. */
   --color-surface: #0D0D0F;
-  --color-surface-alt: #1A1A1F;
-  --color-surface-raised: #252530;
-  --color-surface-elevated: #2E2E3A;
+  --color-surface-alt: #111114;
+  --color-surface-raised: #1A1A1E;
+  --color-surface-elevated: #2A2A2F;
   --color-surface-overlay: rgba(255, 255, 255, 0.05);
   --color-surface-highlight: rgba(255, 255, 255, 0.1);
 
@@ -15,10 +16,10 @@
   --color-content-subtle: #6B6B76;
 
   /* Accent — use as bg-accent, text-accent, border-accent, etc. */
-  --color-accent: #8B5CF6;
-  --color-accent-hover: #7C3AED;
-  --color-accent-warm: #F97316;
-  --color-accent-cool: #06B6D4;
+  --color-accent: #00CCCC;
+  --color-accent-hover: #00BBBB;
+  --color-accent-warm: #BF5AF2;
+  --color-accent-cool: #00CCCC;
 
   /* Semantic */
   --color-success: #22C55E;
@@ -26,8 +27,8 @@
   --color-error: #EF4444;
 
   /* Border — use as border-edge, border-edge-focus */
-  --color-edge: #2E2E3A;
-  --color-edge-focus: #8B5CF6;
+  --color-edge: #1A1A1E;
+  --color-edge-focus: #00CCCC;
 
   /* Typography */
   --font-primary: 'Inter', system-ui, sans-serif;
@@ -40,4 +41,31 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-2xl: 24px;
+}
+
+@layer base {
+  html {
+    background: #0D0D0F;
+  }
+
+  body {
+    margin: 0;
+    background: #0D0D0F;
+    color: #F5F5F7;
+    font-family: var(--font-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
 }

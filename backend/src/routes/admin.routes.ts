@@ -1,0 +1,434 @@
+import { Router } from 'express';
+import { AdminService } from '../services/admin.service.js';
+import { authenticate } from '../middleware/auth.js';
+import { requireAdmin } from '../middleware/requireAdmin.js';
+import { validate } from '../middleware/validate.js';
+import {
+  adminUsersQuerySchema,
+  adminUserIdParamSchema,
+  adminBanUserSchema,
+  adminUnbanUserSchema,
+  adminFinancialsQuerySchema,
+  adminTransactionsQuerySchema,
+  adminWithdrawalsQuerySchema,
+  adminFinancialChartQuerySchema,
+  adminContentListQuerySchema,
+  adminGenresQuerySchema,
+  adminArtistIdParamSchema,
+  adminUpdateSettingsSchema,
+  adminCreateGenreSchema,
+  adminUpdateGenreSchema,
+  adminGenreIdParamSchema,
+  adminReportIdParamSchema,
+  adminSongIdParamSchema,
+  adminWithdrawalIdParamSchema,
+} from '../schemas/admin.js';
+
+const router = Router();
+const adminService = new AdminService();
+
+// All admin routes require authentication and admin role
+router.use(authenticate, requireAdmin);
+
+/**
+ * USER MANAGEMENT
+ */
+
+// GET /api/v1/admin/users
+// List all users with search and filters
+router.get('/users', validate({ query: adminUsersQuerySchema }), async (req, res, next) => {
+  try {
+    const result = await adminService.getUsers((req as any).validatedQuery);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/users/:userId
+// Get user detail with stats
+router.get(
+  '/users/:userId',
+  validate({ params: adminUserIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const { userId } = (req as any).validatedParams;
+      const result = await adminService.getUserDetail(userId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// PATCH /api/v1/admin/users/:userId/ban
+// Ban a user
+router.patch(
+  '/users/:userId/ban',
+  validate({
+    params: adminUserIdParamSchema,
+    body: adminBanUserSchema,
+  }),
+  async (req, res, next) => {
+    try {
+      const { userId } = (req as any).validatedParams;
+      const result = await adminService.banUser(userId, req.body, req.user!.id);
+      res.json({
+        success: true,
+        data: result,
+        message: 'User banned successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// PATCH /api/v1/admin/users/:userId/unban
+// Unban a user
+router.patch(
+  '/users/:userId/unban',
+  validate({
+    params: adminUserIdParamSchema,
+    body: adminUnbanUserSchema,
+  }),
+  async (req, res, next) => {
+    try {
+      const { userId } = (req as any).validatedParams;
+      const result = await adminService.unbanUser(userId, req.body, req.user!.id);
+      res.json({
+        success: true,
+        data: result,
+        message: 'User unbanned successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * FINANCIAL MANAGEMENT
+ */
+
+// GET /api/v1/admin/financials/overview
+// Platform financial overview
+router.get(
+  '/financials/overview',
+  validate({ query: adminFinancialsQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getFinancialOverview((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/financials/transactions
+// All platform transactions
+router.get(
+  '/financials/transactions',
+  validate({ query: adminTransactionsQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getTransactions((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/financials/charts
+// Financial chart series and breakdown
+router.get(
+  '/financials/charts',
+  validate({ query: adminFinancialChartQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getFinancialChartData((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/financials/withdrawals
+// All withdrawal requests
+router.get(
+  '/financials/withdrawals',
+  validate({ query: adminWithdrawalsQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getWithdrawals((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/financials/artists/:artistId
+// Artist financial details
+router.get(
+  '/financials/artists/:artistId',
+  validate({ params: adminArtistIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const { artistId } = (req as any).validatedParams;
+      const result = await adminService.getArtistFinancials(artistId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * PLATFORM SETTINGS
+ */
+
+// GET /api/v1/admin/settings
+// Get platform settings
+router.get('/settings', async (req, res, next) => {
+  try {
+    const result = await adminService.getPlatformSettings();
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /api/v1/admin/settings
+// Update platform settings
+router.patch('/settings', validate({ body: adminUpdateSettingsSchema }), async (req, res, next) => {
+  try {
+    const result = await adminService.updatePlatformSettings(req.body);
+    res.json({
+      success: true,
+      data: result,
+      message: 'Settings updated successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GENRE MANAGEMENT
+ */
+
+// GET /api/v1/admin/genres
+// List genres
+router.get('/genres', validate({ query: adminGenresQuerySchema }), async (req, res, next) => {
+  try {
+    const result = await adminService.getGenres((req as any).validatedQuery);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/v1/admin/genres
+// Create new genre
+router.post('/genres', validate({ body: adminCreateGenreSchema }), async (req, res, next) => {
+  try {
+    const result = await adminService.createGenre(req.body);
+    res.status(201).json({
+      success: true,
+      data: result,
+      message: 'Genre created successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /api/v1/admin/genres/:genreId
+// Update genre
+router.patch(
+  '/genres/:genreId',
+  validate({
+    params: adminGenreIdParamSchema,
+    body: adminUpdateGenreSchema,
+  }),
+  async (req, res, next) => {
+    try {
+      const { genreId } = (req as any).validatedParams;
+      const result = await adminService.updateGenre(genreId, req.body);
+      res.json({
+        success: true,
+        data: result,
+        message: 'Genre updated successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// DELETE /api/v1/admin/genres/:genreId
+// Delete genre
+router.delete(
+  '/genres/:genreId',
+  validate({ params: adminGenreIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const { genreId } = (req as any).validatedParams;
+      const result = await adminService.deleteGenre(genreId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * MODERATION - Report Detail
+ */
+
+// GET /api/v1/admin/reports/:reportId
+// Get single report detail
+router.get(
+  '/reports/:reportId',
+  validate({ params: adminReportIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const { reportId } = (req as any).validatedParams;
+      const result = await adminService.getReportDetail(reportId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * CONTENT MANAGEMENT
+ */
+
+// GET /api/v1/admin/content/songs
+// Get content song catalog
+router.get(
+  '/content/songs',
+  validate({ query: adminContentListQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getContentSongs((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/content/artists
+// Get content artist catalog
+router.get(
+  '/content/artists',
+  validate({ query: adminContentListQuerySchema }),
+  async (req, res, next) => {
+    try {
+      const result = await adminService.getContentArtists((req as any).validatedQuery);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/songs/:songId
+// Get song detail for review
+router.get(
+  '/songs/:songId',
+  validate({ params: adminSongIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const { songId } = (req as any).validatedParams;
+      const result = await adminService.getSongDetail(songId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// GET /api/v1/admin/content/stats
+// Get content management stats
+router.get('/content/stats', async (req, res, next) => {
+  try {
+    const result = await adminService.getContentStats();
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/financials/withdrawals/:withdrawalId
+// Get withdrawal detail
+router.get(
+  '/financials/withdrawals/:withdrawalId',
+  validate({ params: adminWithdrawalIdParamSchema }),
+  async (req, res, next) => {
+    try {
+      const { withdrawalId } = (req as any).validatedParams;
+      const result = await adminService.getWithdrawalDetail(withdrawalId);
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+export const adminRouter = router;

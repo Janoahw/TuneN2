@@ -62,7 +62,7 @@ router.get(
   authenticate,
   validate({ query: getReportsSchema }),
   async (req: Request, res: Response) => {
-    const { page, limit } = req.query as { page: number; limit: number };
+    const { page, limit } = (req as any).validatedQuery as { page: number; limit: number };
     const userId = req.user!.id;
 
     const result = await ReportService.getUserReports(userId, { page, limit });
@@ -97,7 +97,7 @@ router.get(
       });
     }
 
-    const { status, page, limit } = req.query as {
+    const { status, page, limit } = (req as any).validatedQuery as {
       status?: 'pending' | 'reviewed' | 'resolved' | 'dismissed';
       page: number;
       limit: number;
@@ -135,7 +135,7 @@ router.patch(
       });
     }
 
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
     const { status, action } = req.body;
     const reviewerId = req.user!.id;
 

@@ -88,9 +88,12 @@ export class ReportService {
 
     return {
       reports,
-      total,
-      page: params.page,
-      totalPages: Math.ceil(total / params.limit),
+      pagination: {
+        page: params.page,
+        limit: params.limit,
+        total,
+        totalPages: Math.ceil(total / params.limit),
+      },
     };
   }
 
@@ -139,9 +142,12 @@ export class ReportService {
 
     return {
       reports,
-      total,
-      page: params.page,
-      totalPages: Math.ceil(total / params.limit),
+      pagination: {
+        page: params.page,
+        limit: params.limit,
+        total,
+        totalPages: Math.ceil(total / params.limit),
+      },
     };
   }
 

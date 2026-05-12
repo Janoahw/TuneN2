@@ -185,24 +185,21 @@ export class PurchaseService {
     const platformFee = amountDecimal * (PLATFORM_FEE_PERCENT / 100);
     const artistEarnings = amountDecimal - platformFee;
 
-    let purchaseData: {
+    const songForNotification = await prisma.song.findUnique({
+      where: { id: songId },
+      select: { title: true },
+    });
+
+    const purchaseData: {
       buyerId: string;
       songId: string;
       songTitle: string;
       amount: number;
-    } | null = null;
+    } | null = songForNotification
+      ? { buyerId, songId, songTitle: songForNotification.title, amount: amountDecimal }
+      : null;
 
     await prisma.$transaction(async (tx) => {
-      // Get song details for notification
-      const song = await tx.song.findUnique({
-        where: { id: songId },
-        select: { title: true },
-      });
-
-      if (song) {
-        purchaseData = { buyerId, songId, songTitle: song.title, amount: amountDecimal };
-      }
-
       // 1. Update/create purchase as completed
       await tx.purchase.upsert({
         where: { buyerId_songId: { buyerId, songId } },

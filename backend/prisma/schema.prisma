@@ -119,6 +119,30 @@ model Genre {
   @@map("genres")
 }
 
+model PlatformSetting {
+  id                    Int      @id @default(1)
+  platformName          String   @default("TuneN2") @map("platform_name") @db.VarChar(100)
+  supportEmail          String   @default("support@tunen2.com") @map("support_email") @db.VarChar(255)
+  maxUploadSizeMb       Int      @default(50) @map("max_upload_size_mb")
+  commissionRate        Decimal  @default(0.20) @map("commission_rate") @db.Decimal(5, 4)
+  minSongPrice          Int      @default(99) @map("min_song_price")
+  maxSongPrice          Int      @default(99999) @map("max_song_price")
+  artistSubscriptionPrice Int    @default(999) @map("artist_subscription_price")
+  withdrawalFeeRate     Decimal  @default(0.0023) @map("withdrawal_fee_rate") @db.Decimal(6, 4)
+  minWithdrawalAmount   Int      @default(1000) @map("min_withdrawal_amount")
+  autoModeration        Boolean  @default(true) @map("auto_moderation")
+  allowDownloads        Boolean  @default(true) @map("allow_downloads")
+  analyticsSync         Boolean  @default(true) @map("analytics_sync")
+  maintenanceMode       Boolean  @default(false) @map("maintenance_mode")
+  signupsPerHour        Int      @default(100) @map("signups_per_hour")
+  songUploadsPerMinute  Int      @default(5) @map("song_uploads_per_minute")
+  webhookTimeout        Int      @default(30) @map("webhook_timeout")
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("platform_settings")
+}
+
 // ─── RELEASES ────────────────────────────────────────────
 
 model Release {

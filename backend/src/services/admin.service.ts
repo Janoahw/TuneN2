@@ -1,0 +1,1194 @@
+import { prisma } from '../config/database.js';
+import type {
+  AdminUsersQuery,
+  AdminBanUser,
+  AdminUnbanUser,
+  AdminFinancialsQuery,
+  AdminFinancialChartQuery,
+  AdminTransactionsQuery,
+  AdminWithdrawalsQuery,
+  AdminContentListQuery,
+  AdminGenresQuery,
+  AdminUpdateSettings,
+  AdminCreateGenre,
+  AdminUpdateGenre,
+} from '../schemas/admin.js';
+import { NotFoundError, BadRequestError } from '../utils/errors.js';
+
+function decimalToCents(value: unknown): number {
+  return Math.round(Number(value ?? 0) * 100);
+}
+
+const DEFAULT_PLATFORM_SETTINGS = {
+  id: 1,
+  platformName: 'TuneN2',
+  supportEmail: 'support@tunen2.com',
+  maxUploadSizeMb: 50,
+  commissionRate: 0.2,
+  minSongPrice: 99,
+  maxSongPrice: 99999,
+  artistSubscriptionPrice: 999,
+  withdrawalFeeRate: 0.0023,
+  minWithdrawalAmount: 1000,
+  autoModeration: true,
+  allowDownloads: true,
+  analyticsSync: true,
+  maintenanceMode: false,
+  signupsPerHour: 100,
+  songUploadsPerMinute: 5,
+  webhookTimeout: 30,
+};
+
+export class AdminService {
+  private async ensurePlatformSettings() {
+    return prisma.platformSetting.upsert({
+      where: { id: DEFAULT_PLATFORM_SETTINGS.id },
+      update: {},
+      create: DEFAULT_PLATFORM_SETTINGS,
+    });
+  }
+
+  private mapPlatformSettings(
+    settings: Awaited<ReturnType<AdminService['ensurePlatformSettings']>>,
+  ) {
+    return {
+      platformName: settings.platformName,
+      supportEmail: settings.supportEmail,
+      maxUploadSizeMb: settings.maxUploadSizeMb,
+      commissionRate: Number(settings.commissionRate),
+      minSongPrice: settings.minSongPrice,
+      maxSongPrice: settings.maxSongPrice,
+      artistSubscriptionPrice: settings.artistSubscriptionPrice,
+      withdrawalFeeRate: Number(settings.withdrawalFeeRate),
+      minWithdrawalAmount: settings.minWithdrawalAmount,
+      autoModeration: settings.autoModeration,
+      allowDownloads: settings.allowDownloads,
+      analyticsSync: settings.analyticsSync,
+      maintenanceMode: settings.maintenanceMode,
+      signupsPerHour: settings.signupsPerHour,
+      songUploadsPerMinute: settings.songUploadsPerMinute,
+      webhookTimeout: settings.webhookTimeout,
+    };
+  }
+
+  /**
+   * USER MANAGEMENT
+   */
+
+  async getUsers(query: AdminUsersQuery) {
+    const { page, limit, search, role, status } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    // Search filter
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { displayName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Role filter
+    if (role === 'admin') {
+      where.isAdmin = true;
+    } else if (role === 'artist') {
+      where.isArtist = true;
+    } else if (role === 'fan') {
+      where.isArtist = false;
+      where.isAdmin = false;
+    }
+
+    // Status filter
+    if (status === 'banned') {
+      where.isBanned = true;
+    } else if (status === 'active') {
+      where.isBanned = false;
+    }
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          email: true,
+          displayName: true,
+          avatarUrl: true,
+          isArtist: true,
+          isAdmin: true,
+          isBanned: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.user.count({ where }),
+    ]);
+
+    return {
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getUserDetail(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        avatarUrl: true,
+        isArtist: true,
+        isAdmin: true,
+        isBanned: true,
+        createdAt: true,
+        updatedAt: true,
+        purchases: {
+          select: {
+            id: true,
+            amount: true,
+            createdAt: true,
+            song: {
+              select: {
+                id: true,
+                title: true,
+                artistId: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        },
+        artistProfile: {
+          select: {
+            id: true,
+            artistName: true,
+            bio: true,
+            profileImageUrl: true,
+            bannerImageUrl: true,
+            subscriptionStatus: true,
+            createdAt: true,
+            wallet: {
+              select: {
+                balance: true,
+                totalEarned: true,
+                totalWithdrawn: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    // Get purchase stats
+    const purchaseStats = await prisma.purchase.aggregate({
+      where: { buyerId: userId },
+      _sum: { amount: true },
+      _count: true,
+    });
+
+    const normalizedUser = {
+      ...user,
+      purchases: user.purchases.map((purchase) => ({
+        ...purchase,
+        amountCents: decimalToCents(purchase.amount),
+      })),
+      artistProfile: user.artistProfile
+        ? {
+            ...user.artistProfile,
+            wallet: user.artistProfile.wallet
+              ? {
+                  ...user.artistProfile.wallet,
+                  balanceCents: decimalToCents(user.artistProfile.wallet.balance),
+                  totalEarnedCents: decimalToCents(user.artistProfile.wallet.totalEarned),
+                  totalWithdrawn: decimalToCents(user.artistProfile.wallet.totalWithdrawn),
+                }
+              : null,
+          }
+        : null,
+    };
+
+    return {
+      user: normalizedUser,
+      stats: {
+        totalPurchases: purchaseStats._count || 0,
+        totalSpent: decimalToCents(purchaseStats._sum?.amount),
+      },
+    };
+  }
+
+  async banUser(userId: string, data: AdminBanUser, adminId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    if (user.isBanned) {
+      throw new BadRequestError('User is already banned');
+    }
+
+    if (user.isAdmin) {
+      throw new BadRequestError('Cannot ban admin users');
+    }
+
+    // Ban user and log the action
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isBanned: true,
+        updatedAt: new Date(),
+      },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        isBanned: true,
+      },
+    });
+
+    // TODO: Create audit log entry
+    // TODO: Revoke all active sessions (implement session table in future)
+
+    return updatedUser;
+  }
+
+  async unbanUser(userId: string, data: AdminUnbanUser, adminId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    if (!user.isBanned) {
+      throw new BadRequestError('User is not banned');
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        isBanned: false,
+        updatedAt: new Date(),
+      },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        isBanned: true,
+      },
+    });
+
+    // TODO: Create audit log entry
+
+    return updatedUser;
+  }
+
+  /**
+   * FINANCIAL MANAGEMENT
+   */
+
+  async getFinancialOverview(query: AdminFinancialsQuery) {
+    const { startDate, endDate } = query;
+
+    const where: any = {};
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = startDate;
+      if (endDate) where.createdAt.lte = endDate;
+    }
+
+    // Total revenue from purchases
+    const purchaseStats = await prisma.purchase.aggregate({
+      where,
+      _sum: {
+        amount: true,
+        platformFee: true,
+        artistEarnings: true,
+      },
+      _count: true,
+    });
+
+    // Total withdrawals
+    const withdrawalStats = await prisma.withdrawal.aggregate({
+      where: {
+        ...where,
+        status: 'completed',
+      },
+      _sum: {
+        amountCents: true,
+        feeCents: true,
+      },
+      _count: true,
+    });
+
+    // Pending withdrawals
+    const pendingWithdrawals = await prisma.withdrawal.aggregate({
+      where: {
+        status: 'pending',
+      },
+      _sum: { amountCents: true },
+      _count: true,
+    });
+
+    // Active artists and fans
+    const [activeArtists, totalFans] = await Promise.all([
+      prisma.artistProfile.count({
+        where: {
+          subscriptionStatus: {
+            in: ['active', 'trialing'],
+          },
+        },
+      }),
+      prisma.user.count({
+        where: {
+          isArtist: false,
+        },
+      }),
+    ]);
+
+    // Total songs
+    const totalSongs = await prisma.song.count({
+      where: { status: 'active' },
+    });
+
+    return {
+      revenue: {
+        total: decimalToCents(purchaseStats._sum?.amount),
+        platformFees: decimalToCents(purchaseStats._sum?.platformFee),
+        artistEarnings: decimalToCents(purchaseStats._sum?.artistEarnings),
+        transactionCount: purchaseStats._count || 0,
+      },
+      withdrawals: {
+        completed: withdrawalStats._sum.amountCents || 0,
+        fees: withdrawalStats._sum.feeCents || 0,
+        count: withdrawalStats._count || 0,
+      },
+      pending: {
+        amount: pendingWithdrawals._sum.amountCents || 0,
+        count: pendingWithdrawals._count || 0,
+      },
+      platform: {
+        activeArtists,
+        totalFans,
+        totalSongs,
+      },
+    };
+  }
+
+  async getTransactions(query: AdminTransactionsQuery) {
+    const { page, limit, type, startDate, endDate, userId } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (type) where.type = type;
+    if (userId) {
+      // Find wallet for user
+      const wallet = await prisma.wallet.findFirst({
+        where: {
+          artist: { userId },
+        },
+      });
+      if (wallet) {
+        where.walletId = wallet.id;
+      }
+    }
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = startDate;
+      if (endDate) where.createdAt.lte = endDate;
+    }
+
+    const [transactions, total] = await Promise.all([
+      prisma.walletTransaction.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          type: true,
+          amount: true,
+          netAmount: true,
+          referenceId: true,
+          createdAt: true,
+          wallet: {
+            select: {
+              artist: {
+                select: {
+                  artistName: true,
+                  userId: true,
+                  user: {
+                    select: {
+                      email: true,
+                      displayName: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.walletTransaction.count({ where }),
+    ]);
+
+    return {
+      transactions: transactions.map((transaction) => ({
+        ...transaction,
+        amountCents: decimalToCents(transaction.amount),
+        balanceAfterCents: decimalToCents(transaction.netAmount),
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getFinancialChartData(query: AdminFinancialChartQuery) {
+    const monthCount = query.months || 6;
+    const now = new Date();
+    const startOfWindow = new Date(now.getFullYear(), now.getMonth() - (monthCount - 1), 1);
+
+    const purchases = await prisma.purchase.findMany({
+      where: {
+        createdAt: {
+          gte: startOfWindow,
+        },
+        status: 'completed',
+      },
+      select: {
+        amount: true,
+        platformFee: true,
+        artistEarnings: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const completedWithdrawals = await prisma.withdrawal.aggregate({
+      where: {
+        status: 'completed',
+      },
+      _sum: {
+        amountCents: true,
+      },
+    });
+
+    const monthLabels = Array.from({ length: monthCount }, (_, index) => {
+      const date = new Date(now.getFullYear(), now.getMonth() - (monthCount - 1) + index, 1);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+      return {
+        key,
+        label: date.toLocaleDateString('en-US', { month: 'short' }),
+        grossRevenueCents: 0,
+        platformFeesCents: 0,
+        artistEarningsCents: 0,
+      };
+    });
+
+    const monthMap = new Map(monthLabels.map((month) => [month.key, month]));
+
+    purchases.forEach((purchase) => {
+      const date = new Date(purchase.createdAt);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const bucket = monthMap.get(monthKey);
+
+      if (!bucket) return;
+
+      bucket.grossRevenueCents += decimalToCents(purchase.amount);
+      bucket.platformFeesCents += decimalToCents(purchase.platformFee);
+      bucket.artistEarningsCents += decimalToCents(purchase.artistEarnings);
+    });
+
+    const grossRevenueCents = monthLabels.reduce((sum, month) => sum + month.grossRevenueCents, 0);
+    const platformFeesCents = monthLabels.reduce((sum, month) => sum + month.platformFeesCents, 0);
+    const artistEarningsCents = monthLabels.reduce(
+      (sum, month) => sum + month.artistEarningsCents,
+      0,
+    );
+
+    return {
+      trend: monthLabels,
+      breakdown: [
+        {
+          key: 'artist_earnings',
+          label: 'Artist Earnings',
+          valueCents: artistEarningsCents,
+        },
+        {
+          key: 'platform_fees',
+          label: 'Platform Fees',
+          valueCents: platformFeesCents,
+        },
+        {
+          key: 'completed_payouts',
+          label: 'Completed Payouts',
+          valueCents: Number(completedWithdrawals._sum.amountCents || 0),
+        },
+      ],
+      totals: {
+        grossRevenueCents,
+        platformFeesCents,
+        artistEarningsCents,
+      },
+    };
+  }
+
+  async getWithdrawals(query: AdminWithdrawalsQuery) {
+    const { page, limit, status } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (status) where.status = status;
+
+    const [withdrawals, total] = await Promise.all([
+      prisma.withdrawal.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          amountCents: true,
+          feeCents: true,
+          status: true,
+          requestedAt: true,
+          completedAt: true,
+          wallet: {
+            select: {
+              artist: {
+                select: {
+                  artistName: true,
+                  userId: true,
+                  stripeAccountId: true,
+                  user: {
+                    select: {
+                      email: true,
+                      displayName: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: { requestedAt: 'desc' },
+      }),
+      prisma.withdrawal.count({ where }),
+    ]);
+
+    return {
+      withdrawals,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getArtistFinancials(artistId: string) {
+    const artist = await prisma.artistProfile.findUnique({
+      where: { id: artistId },
+      include: {
+        wallet: true,
+        user: {
+          select: {
+            email: true,
+            displayName: true,
+          },
+        },
+      },
+    });
+
+    if (!artist) {
+      throw new NotFoundError('Artist not found');
+    }
+
+    // Get earnings breakdown
+    const earnings = await prisma.walletTransaction.groupBy({
+      by: ['type'],
+      where: {
+        walletId: artist.wallet?.id,
+        type: 'song_sale',
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    // Get payout history
+    const payouts = await prisma.withdrawal.findMany({
+      where: {
+        walletId: artist.wallet?.id,
+      },
+      select: {
+        id: true,
+        amountCents: true,
+        feeCents: true,
+        status: true,
+        requestedAt: true,
+        completedAt: true,
+      },
+      orderBy: { requestedAt: 'desc' },
+      take: 20,
+    });
+
+    // Get transaction breakdown
+    const transactions = await prisma.walletTransaction.findMany({
+      where: {
+        walletId: artist.wallet?.id,
+      },
+      select: {
+        id: true,
+        type: true,
+        amount: true,
+        netAmount: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+
+    return {
+      artist: {
+        id: artist.id,
+        artistName: artist.artistName,
+        email: artist.user.email,
+        displayName: artist.user.displayName,
+        subscriptionStatus: artist.subscriptionStatus,
+        stripeConnectId: artist.stripeAccountId,
+      },
+      wallet: {
+        balanceCents: decimalToCents(artist.wallet?.balance),
+        totalEarnedCents: decimalToCents(artist.wallet?.totalEarned),
+        totalWithdrawn: decimalToCents(artist.wallet?.totalWithdrawn),
+      },
+      earnings: earnings.map((e) => ({
+        type: e.type,
+        total: decimalToCents(e._sum?.amount),
+      })),
+      payouts,
+      transactions: transactions.map((transaction) => ({
+        ...transaction,
+        amountCents: decimalToCents(transaction.amount),
+        balanceAfterCents: decimalToCents(transaction.netAmount),
+      })),
+    };
+  }
+
+  /**
+   * PLATFORM SETTINGS
+   */
+
+  async getPlatformSettings() {
+    const settings = await this.ensurePlatformSettings();
+    return this.mapPlatformSettings(settings);
+  }
+
+  async updatePlatformSettings(data: AdminUpdateSettings) {
+    // For MVP, return the updated settings without persisting
+    // In production, this would update a settings table
+    const currentSettings = await this.getPlatformSettings();
+
+    const updatedSettings = {
+      ...currentSettings,
+      ...data,
+    };
+
+    // Validate that maxSongPrice > minSongPrice
+    if (
+      updatedSettings.maxSongPrice &&
+      updatedSettings.minSongPrice &&
+      updatedSettings.maxSongPrice < updatedSettings.minSongPrice
+    ) {
+      throw new BadRequestError('Max song price must be greater than min song price');
+    }
+
+    const persistedSettings = await prisma.platformSetting.update({
+      where: { id: DEFAULT_PLATFORM_SETTINGS.id },
+      data,
+    });
+
+    return this.mapPlatformSettings(persistedSettings);
+  }
+
+  /**
+   * GENRE MANAGEMENT
+   */
+
+  async getGenres(query: AdminGenresQuery) {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+    const where = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { slug: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
+
+    const [items, total] = await Promise.all([
+      prisma.genre.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          _count: {
+            select: {
+              songs: true,
+            },
+          },
+        },
+        orderBy: { name: 'asc' },
+      }),
+      prisma.genre.count({ where }),
+    ]);
+
+    return {
+      items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async createGenre(data: AdminCreateGenre) {
+    // Check if genre with same slug already exists
+    const existing = await prisma.genre.findFirst({
+      where: { slug: data.slug },
+    });
+
+    if (existing) {
+      throw new BadRequestError('Genre with this slug already exists');
+    }
+
+    const genre = await prisma.genre.create({
+      data: {
+        name: data.name,
+        slug: data.slug,
+      },
+    });
+
+    return genre;
+  }
+
+  async updateGenre(genreId: number, data: AdminUpdateGenre) {
+    const genre = await prisma.genre.findUnique({
+      where: { id: genreId },
+    });
+
+    if (!genre) {
+      throw new NotFoundError('Genre not found');
+    }
+
+    // If updating slug, check it's not taken
+    if (data.slug && data.slug !== genre.slug) {
+      const existing = await prisma.genre.findFirst({
+        where: { slug: data.slug },
+      });
+
+      if (existing) {
+        throw new BadRequestError('Genre with this slug already exists');
+      }
+    }
+
+    const updatedGenre = await prisma.genre.update({
+      where: { id: genreId },
+      data,
+    });
+
+    return updatedGenre;
+  }
+
+  async deleteGenre(genreId: number) {
+    const genre = await prisma.genre.findUnique({
+      where: { id: genreId },
+    });
+
+    if (!genre) {
+      throw new NotFoundError('Genre not found');
+    }
+
+    // Check if any songs use this genre
+    const songCount = await prisma.song.count({
+      where: {
+        genreId,
+      },
+    });
+
+    if (songCount > 0) {
+      throw new BadRequestError(`Cannot delete genre: ${songCount} songs are using it`);
+    }
+
+    // Check if any artist profiles use this genre
+    const artistCount = await prisma.artistProfile.count({
+      where: {
+        genreIds: {
+          has: genreId,
+        },
+      },
+    });
+
+    if (artistCount > 0) {
+      throw new BadRequestError(`Cannot delete genre: ${artistCount} artist profiles are using it`);
+    }
+
+    await prisma.genre.delete({
+      where: { id: genreId },
+    });
+
+    return { message: 'Genre deleted successfully' };
+  }
+
+  /**
+   * CONTENT MANAGEMENT - Catalog Lists
+   */
+
+  async getContentSongs(query: AdminContentListQuery) {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+    const where = search
+      ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' as const } },
+            { artist: { artistName: { contains: search, mode: 'insensitive' as const } } },
+            {
+              artist: { user: { displayName: { contains: search, mode: 'insensitive' as const } } },
+            },
+          ],
+        }
+      : {};
+
+    const [items, total] = await Promise.all([
+      prisma.song.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          price: true,
+          streamCount: true,
+          status: true,
+          genre: {
+            select: {
+              name: true,
+            },
+          },
+          artist: {
+            select: {
+              artistName: true,
+              user: {
+                select: {
+                  displayName: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.song.count({ where }),
+    ]);
+
+    return {
+      items: items.map((song) => ({
+        ...song,
+        price: Number(song.price),
+        streamCount: Number(song.streamCount || 0),
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getContentArtists(query: AdminContentListQuery) {
+    const { page, limit, search } = query;
+    const skip = (page - 1) * limit;
+    const where = search
+      ? {
+          OR: [
+            { artistName: { contains: search, mode: 'insensitive' as const } },
+            { user: { displayName: { contains: search, mode: 'insensitive' as const } } },
+            { user: { email: { contains: search, mode: 'insensitive' as const } } },
+          ],
+        }
+      : {};
+
+    const [items, total] = await Promise.all([
+      prisma.artistProfile.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          artistName: true,
+          genreIds: true,
+          isVerified: true,
+          user: {
+            select: {
+              displayName: true,
+              email: true,
+            },
+          },
+          _count: {
+            select: {
+              songs: true,
+              follows: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.artistProfile.count({ where }),
+    ]);
+
+    const uniqueGenreIds = [...new Set(items.flatMap((artist) => artist.genreIds))];
+    const genres = uniqueGenreIds.length
+      ? await prisma.genre.findMany({
+          where: { id: { in: uniqueGenreIds } },
+          select: { id: true, name: true },
+        })
+      : [];
+    const genreMap = new Map(genres.map((genre) => [genre.id, genre.name]));
+
+    return {
+      items: items.map((artist) => ({
+        ...artist,
+        genres: artist.genreIds.map((genreId) => genreMap.get(genreId)).filter(Boolean),
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * MODERATION - Report Detail
+   */
+
+  async getReportDetail(reportId: string) {
+    const report = await prisma.contentReport.findUnique({
+      where: { id: reportId },
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            displayName: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        song: {
+          select: {
+            id: true,
+            title: true,
+            artist: {
+              select: {
+                id: true,
+                user: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+            coverArtUrl: true,
+            audioUrl: true,
+            price: true,
+          },
+        },
+        reviewer: {
+          select: {
+            id: true,
+            displayName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!report) {
+      throw new NotFoundError('Report not found');
+    }
+
+    return report;
+  }
+
+  /**
+   * CONTENT MANAGEMENT - Song Review
+   */
+
+  async getSongDetail(songId: string) {
+    const song = await prisma.song.findUnique({
+      where: { id: songId },
+      include: {
+        artist: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                id: true,
+                displayName: true,
+                email: true,
+                avatarUrl: true,
+              },
+            },
+            bio: true,
+          },
+        },
+        genre: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        contentReports: {
+          include: {
+            reporter: {
+              select: {
+                id: true,
+                displayName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!song) {
+      throw new NotFoundError('Song not found');
+    }
+
+    // Get song stats
+    const [purchaseCount, reportCount] = await Promise.all([
+      prisma.purchase.count({
+        where: { songId },
+      }),
+      prisma.contentReport.count({
+        where: { songId, status: 'pending' },
+      }),
+    ]);
+
+    return {
+      ...song,
+      stats: {
+        purchaseCount,
+        reportCount,
+      },
+    };
+  }
+
+  /**
+   * FINANCIAL MANAGEMENT - Withdrawal Detail
+   */
+
+  async getWithdrawalDetail(withdrawalId: string) {
+    const withdrawal = await prisma.withdrawal.findUnique({
+      where: { id: withdrawalId },
+      include: {
+        wallet: {
+          include: {
+            artist: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    displayName: true,
+                    email: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!withdrawal) {
+      throw new NotFoundError('Withdrawal not found');
+    }
+
+    return withdrawal;
+  }
+
+  /**
+   * CONTENT MANAGEMENT - Stats
+   */
+
+  async getContentStats() {
+    const [totalSongs, activeSongs, totalArtists, activeArtists, totalGenres, pendingReports] =
+      await Promise.all([
+        prisma.song.count(),
+        prisma.song.count({ where: { status: 'active' } }),
+        prisma.artistProfile.count(),
+        prisma.artistProfile.count({
+          where: {
+            user: {
+              isBanned: false,
+            },
+          },
+        }),
+        prisma.genre.count(),
+        prisma.contentReport.count({ where: { status: 'pending' } }),
+      ]);
+
+    return {
+      songs: {
+        total: totalSongs,
+        active: activeSongs,
+        inactive: totalSongs - activeSongs,
+      },
+      artists: {
+        total: totalArtists,
+        active: activeArtists,
+        inactive: totalArtists - activeArtists,
+      },
+      genres: {
+        total: totalGenres,
+      },
+      reports: {
+        pending: pendingReports,
+      },
+    };
+  }
+}
