@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// Use the Vite environment variable when set.
+// For staging, set it to https://tunen2backend-staging.up.railway.app/api/v1
+// For local development, use "/api/v1" and rely on the Vite proxy in vite.config.ts.
 const BASE_URL =
   (import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_API_BASE_URL ||
   '/api/v1';

@@ -7,6 +7,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      // When VITE_API_BASE_URL is unset, local admin development uses the
+      // local backend via proxy at http://localhost:3001.
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
