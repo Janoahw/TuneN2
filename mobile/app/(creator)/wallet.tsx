@@ -91,7 +91,7 @@ export default function WalletScreen() {
           <Text style={styles.emptyText}>No transactions yet</Text>
         ) : (
           <View style={styles.txList}>
-            {recentTx.map((tx) => (
+            {recentTx.map((tx: WalletTransaction) => (
               <TransactionRow key={tx.id} item={tx} />
             ))}
           </View>

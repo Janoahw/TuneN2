@@ -112,7 +112,7 @@ export default function EditArtistProfileScreen() {
         {/* Genre Picker */}
         <Text style={styles.label}>Genres</Text>
         <View style={styles.chipGrid}>
-          {allGenres?.map((genre) => {
+          {allGenres?.map((genre: { id: number; name: string }) => {
             const active = selectedGenres.includes(genre.id);
             return (
               <Pressable

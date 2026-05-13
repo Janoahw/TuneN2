@@ -21,7 +21,9 @@ const REASONS = [
 ] as const;
 
 export function ReportModal({ songId, songTitle, visible, onClose }: ReportModalProps) {
-  const [selectedReason, setSelectedReason] = useState<typeof REASONS[number]['value'] | null>(null);
+  const [selectedReason, setSelectedReason] = useState<(typeof REASONS)[number]['value'] | null>(
+    null,
+  );
   const [description, setDescription] = useState('');
   const createReport = useCreateReport();
 
@@ -30,7 +32,7 @@ export function ReportModal({ songId, songTitle, visible, onClose }: ReportModal
       Toast.show({
         type: 'error',
         text1: 'Please select a reason',
-        text2: 'Choose why you're reporting this content',
+        text2: "Choose why you're reporting this content",
       });
       return;
     }
@@ -45,7 +47,7 @@ export function ReportModal({ songId, songTitle, visible, onClose }: ReportModal
       Toast.show({
         type: 'success',
         text1: 'Report submitted',
-        text2: 'We'll review your report shortly',
+        text2: "We'll review your report shortly",
       });
 
       // Reset and close
@@ -155,45 +157,45 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   content: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.bgPrimary,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xl,
-    paddingHorizontal: spacing.lg,
+    paddingTop: spacing[6],
+    paddingBottom: spacing[8],
+    paddingHorizontal: spacing[6],
     maxHeight: '90%',
   },
   header: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing[6],
   },
   title: {
     fontFamily: fontFamilies.displayBold,
     fontSize: 22,
     color: colors.textPrimary,
-    marginBottom: spacing.xs,
+    marginBottom: spacing[2],
   },
   subtitle: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 14,
     color: colors.textSecondary,
   },
   section: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing[6],
   },
   label: {
-    fontFamily: fontFamilies.uiMedium,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 14,
     color: colors.textPrimary,
-    marginBottom: spacing.sm,
+    marginBottom: spacing[3],
   },
   reasonButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: spacing.md,
-    backgroundColor: colors.surfaceElevated,
+    padding: spacing[4],
+    backgroundColor: colors.bgElevated,
     borderRadius: radius.md,
-    marginBottom: spacing.xs,
+    marginBottom: spacing[2],
   },
   reasonButtonSelected: {
     backgroundColor: `${colors.accentPrimary}20`,
@@ -201,32 +203,32 @@ const styles = StyleSheet.create({
     borderColor: colors.accentPrimary,
   },
   reasonText: {
-    fontFamily: fontFamilies.uiRegular,
+    fontFamily: fontFamilies.primary,
     fontSize: 15,
     color: colors.textPrimary,
   },
   reasonTextSelected: {
-    fontFamily: fontFamilies.uiMedium,
+    fontFamily: fontFamilies.primaryMedium,
     color: colors.accentPrimary,
   },
   textarea: {
-    backgroundColor: colors.surfaceElevated,
+    backgroundColor: colors.bgElevated,
     borderRadius: radius.md,
-    padding: spacing.md,
-    fontFamily: fontFamilies.uiRegular,
+    padding: spacing[4],
+    fontFamily: fontFamilies.primary,
     fontSize: 15,
     color: colors.textPrimary,
     height: 96,
   },
   actions: {
-    gap: spacing.sm,
+    gap: spacing[3],
   },
   cancelButton: {
-    padding: spacing.md,
+    padding: spacing[4],
     alignItems: 'center',
   },
   cancelText: {
-    fontFamily: fontFamilies.uiMedium,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 16,
     color: colors.textSecondary,
   },

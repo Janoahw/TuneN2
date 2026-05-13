@@ -57,7 +57,7 @@ export const authService = {
   async verifyOtp(code: string): Promise<{ user: AuthUser }> {
     const { data } = await api.post(ENDPOINTS.auth.verifyOtp, { code });
     const { user } = data.data;
-    
+
     // After OTP verification, mark user as verified in the store
     // The user is already authenticated (has accessToken/refreshToken from signup/login)
     const authStore = require('@/stores/authStore').useAuthStore.getState();
@@ -65,12 +65,20 @@ export const authService = {
       // Update user in store with verified status
       authStore.setAuth(user, authStore.accessToken, authStore.refreshToken);
     }
-    
+
     return { user };
+  },
+
+  async verifyEmail(token: string): Promise<{ user: AuthUser }> {
+    return this.verifyOtp(token);
   },
 
   async resendOtp(): Promise<void> {
     await api.post(ENDPOINTS.auth.resendOtp, {});
+  },
+
+  async resendVerification(_email?: string): Promise<void> {
+    await this.resendOtp();
   },
 
   async socialAuth(params: SocialAuthParams): Promise<AuthResponse> {

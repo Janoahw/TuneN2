@@ -78,7 +78,7 @@ export default function PurchaseHistoryScreen() {
         <FlatList<PurchaseItem>
           data={items}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TransactionRow item={item} />}
+          renderItem={({ item }: { item: PurchaseItem }) => <TransactionRow item={item} />}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
         />

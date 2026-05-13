@@ -51,7 +51,9 @@ export default function UploadSongScreen() {
   const { data: genres, isLoading: genresLoading } = useGenres();
 
   const earningsDisplay = price ? `$${(parseFloat(price || '0') * 0.8).toFixed(2)}` : '$0.00';
-  const genreName = genres?.find((g) => g.id === selectedGenre)?.name ?? 'Select genre';
+  const genreName =
+    genres?.find((g: { id: number; name: string }) => g.id === selectedGenre)?.name ??
+    'Select genre';
 
   const pickAudioFile = useCallback(async () => {
     try {
@@ -275,7 +277,7 @@ export default function UploadSongScreen() {
 
         {showGenrePicker && (
           <View style={styles.genreList}>
-            {genres?.map((genre) => (
+            {genres?.map((genre: { id: number; name: string }) => (
               <Pressable
                 key={genre.id}
                 style={[styles.genreItem, selectedGenre === genre.id && styles.genreItemActive]}

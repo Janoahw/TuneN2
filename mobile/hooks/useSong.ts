@@ -44,7 +44,7 @@ export function useUpdateSong() {
   return useMutation({
     mutationFn: ({ songId, ...params }: UpdateSongParams & { songId: string }) =>
       songService.updateSong(songId, params),
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data: Song, variables: UpdateSongParams & { songId: string }) => {
       queryClient.invalidateQueries({ queryKey: ['songs', 'me'] });
       queryClient.invalidateQueries({ queryKey: ['songs', variables.songId] });
     },

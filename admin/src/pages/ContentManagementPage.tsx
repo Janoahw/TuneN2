@@ -253,7 +253,7 @@ export default function ContentManagementPage() {
           <h1 className="font-['Space_Grotesk'] text-[20px] font-bold tracking-[-0.03em] text-white">
             Content Management
           </h1>
-          <div className="flex w-full max-w-[340px] items-center gap-2">
+          <div className="flex w-full max-w-85 items-center gap-2">
             <DataRefreshButton
               queryKeys={[
                 ['admin-content-stats'],
@@ -319,7 +319,7 @@ export default function ContentManagementPage() {
                   setActiveTab(tab.key);
                   setPage(1);
                 }}
-                className={`min-w-[92px] rounded-[4px] border px-4 py-2 text-[11px] font-medium transition-colors ${
+                className={`min-w-23 rounded-sm border px-4 py-2 text-[11px] font-medium transition-colors ${
                   activeTab === tab.key
                     ? 'border-[#3A3A40] bg-surface-alt text-white shadow-[inset_0_0_0_1px_rgba(0,204,204,0.12)]'
                     : 'border-transparent bg-transparent text-[#8E8E93] hover:border-[#2A2A2E] hover:text-white'

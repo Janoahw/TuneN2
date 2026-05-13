@@ -79,7 +79,7 @@ export default function ModerationPage() {
 
   return (
     <Layout>
-      <div className="max-w-[1120px]">
+      <div className="max-w-280">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h1 className="font-['Space_Grotesk'] text-[20px] font-bold tracking-[-0.03em] text-white">

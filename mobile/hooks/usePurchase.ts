@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   purchaseService,
+  type PurchaseIntentResult,
   type PurchaseItem,
   type DownloadItem,
   type PaginatedResult,
@@ -11,7 +12,7 @@ export function usePurchaseSong() {
 
   return useMutation({
     mutationFn: (songId: string) => purchaseService.purchaseSong(songId),
-    onSuccess: (_data, songId) => {
+    onSuccess: (_data: PurchaseIntentResult, songId: string) => {
       queryClient.invalidateQueries({ queryKey: ['ownership', songId] });
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
     },
@@ -29,7 +30,7 @@ export function useOwnership(songId: string) {
 export function useDownloadUrl() {
   return useMutation({
     mutationFn: (songId: string) => purchaseService.getDownloadUrl(songId),
-    onSuccess: (_data, songId) => {
+    onSuccess: (_data: { downloadUrl: string; songTitle: string }, songId: string) => {
       // Refetch downloads list after a new download
     },
   });

@@ -1,12 +1,11 @@
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { router, Redirect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { OnboardingCarousel } from '@/components/OnboardingCarousel';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/Button';
-import { colors, fontFamilies } from '@/theme';
-
-const { width } = Dimensions.get('window');
+import { colors, fontFamilies, spacing } from '@/theme';
 
 export default function SplashScreen() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -31,25 +30,7 @@ export default function SplashScreen() {
         <Text style={styles.tagline}>Giving art back to the Artist.</Text>
       </View>
 
-      {/* Feature Slide */}
-      <View style={styles.featureSection}>
-        <View style={styles.featureCard}>
-          <View style={styles.featureIconCircle}>
-            <Feather name="heart" size={24} color={colors.accentPrimary} />
-          </View>
-          <Text style={styles.featureTitle}>Support Artists Directly</Text>
-          <Text style={styles.featureDesc}>
-            Every stream, every purchase goes directly to the creators you love. No middlemen.
-          </Text>
-        </View>
-
-        {/* Dot Indicators */}
-        <View style={styles.dots}>
-          <View style={[styles.dot, styles.dotActive]} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-        </View>
-      </View>
+      <OnboardingCarousel />
 
       {/* CTA Buttons */}
       <View style={styles.ctaSection}>
@@ -96,58 +77,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 8,
   },
-  featureSection: {
-    alignItems: 'center',
-  },
-  featureCard: {
-    backgroundColor: colors.bgSecondary,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    padding: 24,
-    width: '100%',
-    alignItems: 'center',
-  },
-  featureIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(108,92,231,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  featureTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: 18,
-    color: colors.textPrimary,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  featureDesc: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  dots: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 20,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.bgTertiary,
-  },
-  dotActive: {
-    backgroundColor: colors.accentPrimary,
-    width: 24,
-    borderRadius: 4,
-  },
   ctaSection: {
-    gap: 12,
+    gap: spacing[3],
   },
 });

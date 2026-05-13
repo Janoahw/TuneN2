@@ -1,154 +1,170 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing, fontFamilies } from '@/theme';
 
-/**
- * Professional toast notification configuration
- * Implements modern design patterns with:
- * - Left accent bar for instant status recognition
- * - Sophisticated depth and shadow hierarchy
- * - Refined typography and spacing balance
- * - Color-coded status indicators
- * - Polished visual hierarchy matching TuneN2 brand
- */
+type ToastTone = 'success' | 'error' | 'warning' | 'info';
+
+const withAlpha = (hex: string, alpha: number) => {
+  const normalizedHex = hex.replace('#', '');
+  const value =
+    normalizedHex.length === 3
+      ? normalizedHex
+          .split('')
+          .map((char) => char + char)
+          .join('')
+      : normalizedHex;
+
+  const red = parseInt(value.slice(0, 2), 16);
+  const green = parseInt(value.slice(2, 4), 16);
+  const blue = parseInt(value.slice(4, 6), 16);
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
+
+const toneConfig: Record<ToastTone, { icon: keyof typeof Feather.glyphMap; accent: string }> = {
+  success: { icon: 'check', accent: colors.success },
+  warning: { icon: 'alert-circle', accent: colors.warning },
+  error: { icon: 'x', accent: colors.error },
+  info: { icon: 'info', accent: colors.accentPrimary },
+};
 
 const toastStyles = StyleSheet.create({
   container: {
-    width: '90%',
+    width: '87%',
     alignSelf: 'center',
     marginTop: spacing[4],
-    paddingHorizontal: spacing[3],
   },
   wrapper: {
+    position: 'relative',
     flexDirection: 'row',
+    alignItems: 'center',
     overflow: 'hidden',
-    borderRadius: 14,
-    // Sophisticated multi-layer shadow for premium feel
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 14,
-    elevation: 10,
-  },
-  accentBar: {
-    width: 4,
-    flexShrink: 0,
-  },
-  box: {
-    flex: 1,
+    borderRadius: 20,
+    backgroundColor: colors.bgCard,
+    borderWidth: 1,
+    // borderColor: withAlpha(colors.white, 0.035),
+    minHeight: 112,
     paddingVertical: spacing[4],
     paddingHorizontal: spacing[4],
-    paddingLeft: spacing[3],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.34,
+    shadowRadius: 24,
+    elevation: 16,
   },
-  successBox: {
-    backgroundColor: colors.success,
+  leftGlow: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 146,
   },
-  errorBox: {
-    backgroundColor: colors.error,
-  },
-  warningBox: {
-    backgroundColor: colors.warning,
-  },
-  infoBox: {
-    backgroundColor: colors.accentTertiary,
+  ambientGlow: {
+    position: 'absolute',
+    left: 14,
+    top: 14,
+    width: 74,
+    height: 74,
+    borderRadius: 37,
   },
   content: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing[3],
+    alignItems: 'center',
+    gap: spacing[4],
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 2,
     flexShrink: 0,
-    // Subtle backdrop effect
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 1,
   },
   textWrapper: {
     flex: 1,
-    justifyContent: 'center',
     paddingRight: spacing[2],
   },
   title: {
-    color: '#FFFFFF',
+    color: colors.textPrimary,
     fontFamily: fontFamilies.primarySemiBold,
     fontWeight: '700',
     fontSize: 15,
+    lineHeight: 19,
     marginBottom: spacing[1],
     flexShrink: 1,
-    letterSpacing: 0.3,
-    lineHeight: 18,
+    letterSpacing: -0.15,
   },
   message: {
-    color: 'rgba(255, 255, 255, 0.94)',
+    color: withAlpha(colors.white, 0.74),
     fontFamily: fontFamilies.primary,
     fontSize: 13,
-    lineHeight: 19,
+    lineHeight: 17,
     flexShrink: 1,
     fontWeight: '400',
-    letterSpacing: 0.2,
-  },
-  // Accent bar colors (vibrant for contrast against status colors)
-  successAccent: {
-    backgroundColor: '#2DD849',
-  },
-  errorAccent: {
-    backgroundColor: '#FF3B30',
-  },
-  warningAccent: {
-    backgroundColor: '#FFC600',
-  },
-  infoAccent: {
-    backgroundColor: '#00C7E0',
+    letterSpacing: -0.1,
   },
 });
 
-const renderToast =
-  (iconName: string, boxStyle: any, accentStyle: any, iconColor: string, accentColor: string) =>
-  (props: any) => (
+const renderToast = (tone: ToastTone) => (props: any) => {
+  const { icon, accent } = toneConfig[tone];
+
+  return (
     <View style={toastStyles.container}>
       <View style={toastStyles.wrapper}>
-        <View style={[toastStyles.accentBar, accentStyle]} />
-        <View style={[toastStyles.box, boxStyle]}>
-          <View style={toastStyles.content}>
-            <View style={toastStyles.iconContainer}>
-              <Feather name={iconName as any} size={22} color={iconColor} strokeWidth={2.8} />
-            </View>
-            <View style={toastStyles.textWrapper}>
-              {props.text1 && <Text style={toastStyles.title}>{props.text1}</Text>}
-              {props.text2 && <Text style={toastStyles.message}>{props.text2}</Text>}
-            </View>
+        <LinearGradient
+          colors={[withAlpha(accent, 0.2), withAlpha(accent, 0.08), colors.transparent]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={toastStyles.leftGlow}
+        />
+        <View
+          style={[
+            toastStyles.ambientGlow,
+            {
+              backgroundColor: withAlpha(accent, 0.12),
+            },
+          ]}
+        />
+        <View style={toastStyles.content}>
+          <View
+            style={[
+              toastStyles.iconContainer,
+              {
+                backgroundColor: accent,
+                borderColor: withAlpha(accent, tone === 'warning' ? 0.48 : 0.58),
+                shadowColor: accent,
+                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 0.24,
+                shadowRadius: 10,
+                elevation: 6,
+              },
+            ]}
+          >
+            <Feather name={icon} size={18} color={colors.bgPrimary} strokeWidth={3} />
+          </View>
+          <View style={toastStyles.textWrapper}>
+            {props.text1 ? (
+              <Text style={toastStyles.title} numberOfLines={2}>
+                {props.text1}
+              </Text>
+            ) : null}
+            {props.text2 ? (
+              <Text style={toastStyles.message} numberOfLines={3}>
+                {props.text2}
+              </Text>
+            ) : null}
           </View>
         </View>
       </View>
     </View>
   );
+};
 
 export const toastConfig = {
-  success: renderToast(
-    'check-circle',
-    toastStyles.successBox,
-    toastStyles.successAccent,
-    '#FFFFFF',
-    '#2DD849',
-  ),
-  error: renderToast(
-    'alert-circle',
-    toastStyles.errorBox,
-    toastStyles.errorAccent,
-    '#FFFFFF',
-    '#FF3B30',
-  ),
-  warning: renderToast(
-    'alert-triangle',
-    toastStyles.warningBox,
-    toastStyles.warningAccent,
-    '#FFFFFF',
-    '#FFC600',
-  ),
-  info: renderToast('info', toastStyles.infoBox, toastStyles.infoAccent, '#FFFFFF', '#00C7E0'),
+  success: renderToast('success'),
+  error: renderToast('error'),
+  warning: renderToast('warning'),
+  info: renderToast('info'),
 };

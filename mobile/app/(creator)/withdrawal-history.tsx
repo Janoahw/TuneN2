@@ -63,10 +63,10 @@ export default function WithdrawalHistoryScreen() {
           <Text style={styles.emptyText}>No withdrawals yet</Text>
         </View>
       ) : (
-        <FlatList
+        <FlatList<Withdrawal>
           data={withdrawals}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <WithdrawalRow item={item} />}
+          renderItem={({ item }: { item: Withdrawal }) => <WithdrawalRow item={item} />}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={styles.separator} />}

@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamilies, fontSizes, spacing, radius } from '@/theme';
 import { useDiscoverFeed } from '@/hooks/useDiscover';
 import type { ArtistSummary } from '@/services/discover.service';
-import type { Song } from '@/services/song.service';
+import type { SongDetail } from '@/services/song.service';
 import { useAuthStore } from '@/stores/authStore';
 
 function getGreeting(): string {
@@ -73,7 +73,7 @@ function ArtistCircle({ artist }: { artist: ArtistSummary }) {
   );
 }
 
-function SongRow({ song }: { song: Song & { _count?: { purchases: number } } }) {
+function SongRow({ song }: { song: SongDetail & { _count?: { purchases: number } } }) {
   return (
     <Pressable
       style={styles.songRow}
@@ -92,7 +92,7 @@ function SongRow({ song }: { song: Song & { _count?: { purchases: number } } }) 
           {song.title}
         </Text>
         <Text style={styles.songRowArtist} numberOfLines={1}>
-          {song.artist?.artistName}
+          {song.artist.artistName}
         </Text>
       </View>
       <View style={styles.songRowMeta}>
@@ -161,13 +161,13 @@ export default function HomeScreen() {
         {data?.newArtists && data.newArtists.length > 0 && (
           <View style={styles.section}>
             <SectionHeader title="New Artists" onSeeAll={() => router.push('/all-artists')} />
-            <FlatList
+            <FlatList<ArtistSummary>
               data={data.newArtists}
               keyExtractor={(a) => a.id}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.artistRow}
-              renderItem={({ item }) => <ArtistCircle artist={item} />}
+              renderItem={({ item }: { item: ArtistSummary }) => <ArtistCircle artist={item} />}
             />
           </View>
         )}
@@ -176,9 +176,11 @@ export default function HomeScreen() {
         {data?.topPerformingSongs && data.topPerformingSongs.length > 0 && (
           <View style={styles.section}>
             <SectionHeader title="Top Performing" />
-            {data.topPerformingSongs.slice(0, 5).map((song) => (
-              <SongRow key={song.id} song={song} />
-            ))}
+            {data.topPerformingSongs
+              .slice(0, 5)
+              .map((song: SongDetail & { _count?: { purchases: number } }) => (
+                <SongRow key={song.id} song={song} />
+              ))}
           </View>
         )}
 
@@ -186,13 +188,13 @@ export default function HomeScreen() {
         {data?.fastestGrowingArtists && data.fastestGrowingArtists.length > 0 && (
           <View style={styles.section}>
             <SectionHeader title="Fastest Growing" onSeeAll={() => router.push('/all-artists')} />
-            <FlatList
+            <FlatList<ArtistSummary>
               data={data.fastestGrowingArtists}
               keyExtractor={(a) => a.id}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.artistRow}
-              renderItem={({ item }) => <ArtistCircle artist={item} />}
+              renderItem={({ item }: { item: ArtistSummary }) => <ArtistCircle artist={item} />}
             />
           </View>
         )}

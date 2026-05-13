@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamilies, fontSizes, spacing, radius } from '@/theme';
 import { useGenreDetail } from '@/hooks/useDiscover';
 import type { ArtistSummary } from '@/services/discover.service';
-import type { Song } from '@/services/song.service';
+import type { SongDetail } from '@/services/song.service';
 
 function formatPrice(price: string, isFree: boolean): string {
   if (isFree) return 'Free';
@@ -54,7 +54,7 @@ function ArtistCircle({ artist }: { artist: ArtistSummary }) {
   );
 }
 
-function SongRow({ song }: { song: Song }) {
+function SongRow({ song }: { song: SongDetail }) {
   return (
     <Pressable
       style={styles.songRow}
@@ -73,7 +73,7 @@ function SongRow({ song }: { song: Song }) {
           {song.title}
         </Text>
         <Text style={styles.songArtist} numberOfLines={1}>
-          {song.artist?.artistName}
+          {song.artist.artistName}
         </Text>
       </View>
       <View style={styles.songMeta}>
@@ -127,13 +127,13 @@ export default function GenreBrowseScreen() {
         {data?.topArtists && data.topArtists.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Top Artists</Text>
-            <FlatList
+            <FlatList<ArtistSummary>
               data={data.topArtists}
               keyExtractor={(a) => a.id}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.artistRow}
-              renderItem={({ item }) => <ArtistCircle artist={item} />}
+              renderItem={({ item }: { item: ArtistSummary }) => <ArtistCircle artist={item} />}
             />
           </View>
         )}
@@ -142,8 +142,8 @@ export default function GenreBrowseScreen() {
         {data?.popularSongs && data.popularSongs.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Popular Songs</Text>
-            {data.popularSongs.map((s) => (
-              <SongRow key={s.id} song={s as unknown as Song} />
+            {data.popularSongs.map((s: SongDetail) => (
+              <SongRow key={s.id} song={s} />
             ))}
           </View>
         )}

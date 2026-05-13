@@ -21,6 +21,18 @@ import type { LibraryItem } from '@/services/library.service';
 import type { DownloadItem } from '@/services/purchase.service';
 
 const FILTER_CHIPS = ['All', 'Songs', 'Albums', 'Artists', 'Playlists'] as const;
+const SONG_FILTER_OPTIONS = ['All Songs', 'Downloaded', 'Free', 'Paid'] as const;
+
+type LibraryFilterChip = (typeof FILTER_CHIPS)[number];
+type SongFilterOption = (typeof SONG_FILTER_OPTIONS)[number];
+
+type ArtistListItem = {
+  id: string;
+  artistName: string;
+  profileImageUrl: string | null;
+  displayName: string;
+  songCount: number;
+};
 
 function formatDuration(seconds?: number | null): string {
   if (!seconds) return '--:--';
@@ -87,8 +99,36 @@ function SongCard({
   );
 }
 
+function ArtistCard({ artist }: { artist: ArtistListItem }) {
+  return (
+    <Pressable
+      style={styles.artistCard}
+      onPress={() => router.push({ pathname: '/artist-profile' as any, params: { id: artist.id } })}
+    >
+      {artist.profileImageUrl ? (
+        <Image source={{ uri: artist.profileImageUrl }} style={styles.artistAvatar} />
+      ) : (
+        <View style={[styles.artistAvatar, styles.artistAvatarPlaceholder]}>
+          <Text style={styles.artistInitial}>{artist.artistName.charAt(0).toUpperCase()}</Text>
+        </View>
+      )}
+      <View style={styles.artistInfoBlock}>
+        <Text style={styles.artistCardName} numberOfLines={1}>
+          {artist.artistName}
+        </Text>
+        <Text style={styles.artistCardMeta} numberOfLines={1}>
+          {artist.displayName} · {artist.songCount} song{artist.songCount === 1 ? '' : 's'}
+        </Text>
+      </View>
+      <Feather name="chevron-right" size={18} color={colors.textSecondary} />
+    </Pressable>
+  );
+}
+
 export default function LibraryScreen() {
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState<LibraryFilterChip>('All');
+  const [songFilter, setSongFilter] = useState<SongFilterOption>('All Songs');
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const libraryQuery = useLibrary();
   const downloadsQuery = useMyDownloads();
@@ -114,7 +154,10 @@ export default function LibraryScreen() {
           <View style={styles.emptyState}>
             <Feather name="lock" size={64} color={colors.textTertiary} />
             <Text style={styles.emptyTitle}>Sign in to see your library</Text>
-            <Pressable style={styles.signInBtn} onPress={() => router.push('/(auth)/login' as any)}>
+            <Pressable
+              style={styles.signInBtn}
+              onPress={() => router.replace('/(auth)/login' as any)}
+            >
               <Text style={styles.signInText}>Sign In</Text>
             </Pressable>
           </View>
@@ -124,26 +167,115 @@ export default function LibraryScreen() {
   }
 
   const isLoading = libraryQuery.isLoading;
-  const libraryItems = libraryQuery.data?.items ?? [];
-  const downloadItems = downloadsQuery.data?.items ?? [];
+  const libraryItems: LibraryItem[] = libraryQuery.data?.items ?? [];
+  const downloadItems: DownloadItem[] = downloadsQuery.data?.items ?? [];
+  const downloadedSongIds = new Set(downloadItems.map((item: DownloadItem) => item.songId));
 
-  // Recently played = downloads (most recently accessed songs)
-  const recentItems = downloadItems.slice(0, 5);
-  const hasNoContent = libraryItems.length === 0 && recentItems.length === 0;
+  const filteredLibraryItems = libraryItems.filter((item: LibraryItem) => {
+    if (songFilter === 'Downloaded') return downloadedSongIds.has(item.id);
+    if (songFilter === 'Free') return item.isFree;
+    if (songFilter === 'Paid') return !item.isFree;
+    return true;
+  });
+
+  const filteredRecentItems = downloadItems.filter((item: DownloadItem) => {
+    if (songFilter === 'Free' || songFilter === 'Paid') return false;
+    return true;
+  });
+
+  const recentItems = filteredRecentItems.slice(0, 5);
+
+  const artistMap = new Map<string, ArtistListItem>();
+  filteredLibraryItems.forEach((item: LibraryItem) => {
+    const existingArtist = artistMap.get(item.artist.id);
+    if (existingArtist) {
+      existingArtist.songCount += 1;
+      return;
+    }
+
+    artistMap.set(item.artist.id, {
+      id: item.artist.id,
+      artistName: item.artist.artistName,
+      profileImageUrl: item.artist.profileImageUrl,
+      displayName: item.artist.user.displayName,
+      songCount: 1,
+    });
+  });
+  const artistItems = Array.from(artistMap.values()).sort((left, right) =>
+    left.artistName.localeCompare(right.artistName),
+  );
+
+  const hasAllContent = filteredLibraryItems.length === 0 && recentItems.length === 0;
+  const hasSongsContent = filteredLibraryItems.length > 0;
+  const hasArtistsContent = artistItems.length > 0;
+  const supportsSongFiltering = activeFilter === 'All' || activeFilter === 'Songs';
 
   const handleRefresh = () => {
     libraryQuery.refetch();
     downloadsQuery.refetch();
   };
 
+  const handleChipPress = (chip: LibraryFilterChip) => {
+    setActiveFilter(chip);
+    setShowFilterMenu(false);
+  };
+
+  const renderUnsupportedState = (title: string, subtitle: string) => (
+    <View style={styles.emptyState}>
+      <Feather name="sliders" size={64} color={colors.textTertiary} />
+      <Text style={styles.emptyTitle}>{title}</Text>
+      <Text style={styles.emptySubtitle}>{subtitle}</Text>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.heading}>Library</Text>
-        <Pressable hitSlop={12}>
-          <Feather name="sliders" size={22} color={colors.textSecondary} />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            hitSlop={12}
+            style={[
+              styles.headerIconButton,
+              supportsSongFiltering && showFilterMenu && styles.headerIconButtonActive,
+            ]}
+            onPress={() =>
+              supportsSongFiltering && setShowFilterMenu((currentValue) => !currentValue)
+            }
+            disabled={!supportsSongFiltering}
+          >
+            <Feather
+              name="sliders"
+              size={22}
+              color={supportsSongFiltering ? colors.textSecondary : colors.textTertiary}
+            />
+          </Pressable>
+          {showFilterMenu && supportsSongFiltering ? (
+            <View style={styles.filterMenu}>
+              {SONG_FILTER_OPTIONS.map((option) => {
+                const active = songFilter === option;
+                return (
+                  <Pressable
+                    key={option}
+                    style={[styles.filterMenuItem, active && styles.filterMenuItemActive]}
+                    onPress={() => {
+                      setSongFilter(option);
+                      setShowFilterMenu(false);
+                    }}
+                  >
+                    <Text style={[styles.filterMenuText, active && styles.filterMenuTextActive]}>
+                      {option}
+                    </Text>
+                    {active ? (
+                      <Feather name="check" size={14} color={colors.accentPrimary} />
+                    ) : null}
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : null}
+        </View>
       </View>
 
       {/* Filter Chips */}
@@ -157,7 +289,7 @@ export default function LibraryScreen() {
           <Pressable
             key={chip}
             style={[styles.chip, activeFilter === chip && styles.chipActive]}
-            onPress={() => setActiveFilter(chip)}
+            onPress={() => handleChipPress(chip)}
           >
             <Text style={[styles.chipText, activeFilter === chip && styles.chipTextActive]}>
               {chip}
@@ -170,7 +302,47 @@ export default function LibraryScreen() {
         <View style={styles.emptyState}>
           <ActivityIndicator size="large" color={colors.accentPrimary} />
         </View>
-      ) : hasNoContent ? (
+      ) : activeFilter === 'Albums' ? (
+        renderUnsupportedState(
+          'No albums saved yet',
+          'Album grouping is not connected to library data yet.',
+        )
+      ) : activeFilter === 'Playlists' ? (
+        renderUnsupportedState(
+          'No playlists yet',
+          'Playlists are not connected in this library view yet.',
+        )
+      ) : activeFilter === 'Artists' ? (
+        hasArtistsContent ? (
+          <FlatList
+            data={artistItems}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }: { item: ArtistListItem }) => <ArtistCard artist={item} />}
+            contentContainerStyle={styles.artistList}
+            refreshControl={
+              <RefreshControl
+                refreshing={libraryQuery.isRefetching || downloadsQuery.isRefetching}
+                onRefresh={handleRefresh}
+                tintColor={colors.accentPrimary}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          renderUnsupportedState(
+            'No artists yet',
+            'Artists from your purchased songs will appear here.',
+          )
+        )
+      ) : activeFilter === 'Songs' && !hasSongsContent ? (
+        <View style={styles.emptyState}>
+          <Feather name="music" size={64} color={colors.textTertiary} />
+          <Text style={styles.emptyTitle}>No songs match this filter</Text>
+          <Text style={styles.emptySubtitle}>
+            Try a different slider filter or browse more music.
+          </Text>
+        </View>
+      ) : hasAllContent ? (
         <View style={styles.emptyState}>
           <Feather name="headphones" size={64} color={colors.textTertiary} />
           <Text style={styles.emptyTitle}>Your library is empty</Text>
@@ -193,10 +365,10 @@ export default function LibraryScreen() {
           ListHeaderComponent={
             <>
               {/* Recently Played Section */}
-              {recentItems.length > 0 && (
+              {activeFilter === 'All' && recentItems.length > 0 && (
                 <>
                   <Text style={styles.sectionHeader}>Recently Played</Text>
-                  {recentItems.map((item) => (
+                  {recentItems.map((item: DownloadItem) => (
                     <SongCard
                       key={item.id}
                       song={item.song}
@@ -214,18 +386,21 @@ export default function LibraryScreen() {
 
               {/* Purchased Section */}
               <Text
-                style={[styles.sectionHeader, recentItems.length > 0 && { paddingTop: spacing[4] }]}
+                style={[
+                  styles.sectionHeader,
+                  activeFilter === 'All' && recentItems.length > 0 && { paddingTop: spacing[4] },
+                ]}
               >
-                My Songs
+                {activeFilter === 'Songs' ? 'Songs' : 'My Songs'}
               </Text>
-              {libraryItems.length === 0 ? (
+              {filteredLibraryItems.length === 0 ? (
                 <View style={styles.emptySection}>
                   <Feather name="shopping-bag" size={40} color={colors.textTertiary} />
-                  <Text style={styles.emptySectionText}>No purchases yet</Text>
-                  <Text style={styles.emptySectionSub}>Songs you buy will show up here</Text>
+                  <Text style={styles.emptySectionText}>No songs match this filter</Text>
+                  <Text style={styles.emptySectionSub}>Try a different slider filter.</Text>
                 </View>
               ) : (
-                libraryItems.map((item) => (
+                filteredLibraryItems.map((item: LibraryItem) => (
                   <SongCard
                     key={item.id}
                     song={{
@@ -262,10 +437,60 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: spacing[2],
+    zIndex: 5,
   },
   heading: {
     fontFamily: fontFamilies.displayBold,
     fontSize: 28,
+    color: colors.textPrimary,
+  },
+  headerActions: {
+    position: 'relative',
+  },
+  headerIconButton: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.sm,
+  },
+  headerIconButtonActive: {
+    backgroundColor: colors.bgSecondary,
+  },
+  filterMenu: {
+    position: 'absolute',
+    right: 0,
+    top: 42,
+    minWidth: 160,
+    borderRadius: radius.md,
+    backgroundColor: colors.bgCard,
+    borderWidth: 1,
+    borderColor: colors.borderDefault,
+    paddingVertical: spacing[2],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.28,
+    shadowRadius: 18,
+    elevation: 10,
+  },
+  filterMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+    gap: spacing[3],
+  },
+  filterMenuItemActive: {
+    backgroundColor: colors.accentBgSubtle,
+  },
+  filterMenuText: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 13,
+    color: colors.textSecondary,
+  },
+  filterMenuTextActive: {
+    fontFamily: fontFamilies.primarySemiBold,
     color: colors.textPrimary,
   },
 
@@ -306,6 +531,49 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     paddingHorizontal: 20,
     paddingBottom: spacing[3],
+  },
+  artistList: {
+    paddingHorizontal: 20,
+    paddingBottom: spacing[16],
+    gap: spacing[2],
+  },
+  artistCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+    padding: spacing[3],
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.md,
+    marginBottom: spacing[2],
+  },
+  artistAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.full,
+  },
+  artistAvatarPlaceholder: {
+    backgroundColor: colors.accentBgSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  artistInitial: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 18,
+    color: colors.accentPrimary,
+  },
+  artistInfoBlock: {
+    flex: 1,
+    gap: 2,
+  },
+  artistCardName: {
+    fontFamily: fontFamilies.primarySemiBold,
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+  artistCardMeta: {
+    fontFamily: fontFamilies.primary,
+    fontSize: 13,
+    color: colors.textSecondary,
   },
 
   // Song Card (matches pen: gFfP1 component)
