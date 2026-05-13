@@ -23,7 +23,7 @@ export function DataTable<T extends { id: string | number }>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="overflow-hidden rounded-lg border border-[#1A1A1E] bg-[#111114] shadow">
+      <div className="overflow-hidden rounded-lg border border-[#1A1A1E] bg-surface-alt shadow">
         <div className="p-12 text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#00CCCC] border-r-transparent"></div>
           <p className="mt-4 text-[#8E8E93]">Loading...</p>
@@ -34,16 +34,16 @@ export function DataTable<T extends { id: string | number }>({
 
   if (data.length === 0) {
     return (
-      <div className="overflow-hidden rounded-lg border border-[#1A1A1E] bg-[#111114] shadow">
+      <div className="overflow-hidden rounded-lg border border-[#1A1A1E] bg-surface-alt shadow">
         <div className="p-12 text-center text-[#8E8E93]">{emptyMessage}</div>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-[#1A1A1E] bg-[#111114] shadow">
+    <div className="overflow-x-auto rounded-lg border border-[#1A1A1E] bg-surface-alt shadow">
       <table className="min-w-full divide-y divide-[#1A1A1E]">
-        <thead className="bg-[#0D0D0F]">
+        <thead className="bg-surface">
           <tr>
             {columns.map((column, idx) => (
               <th
@@ -55,7 +55,7 @@ export function DataTable<T extends { id: string | number }>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#1A1A1E] bg-[#111114]">
+        <tbody className="divide-y divide-[#1A1A1E] bg-surface-alt">
           {data.map((row) => (
             <tr
               key={row.id}

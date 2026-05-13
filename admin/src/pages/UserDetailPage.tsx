@@ -114,7 +114,7 @@ export default function UserDetailPage() {
 
   return (
     <Layout>
-      <div className="max-w-[1120px]">
+      <div className="max-w-280">
         <div className="mb-4 flex items-center justify-between gap-4">
           <button
             onClick={() => navigate('/users')}

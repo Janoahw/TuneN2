@@ -235,7 +235,7 @@ export default function FinancialsPage() {
 
   return (
     <Layout>
-      <div className="max-w-[1120px]">
+      <div className="max-w-280">
         <div className="mb-5 flex items-start justify-between gap-4">
           <h1 className="font-['Space_Grotesk'] text-[20px] font-bold tracking-[-0.03em] text-white">
             Financial Overview
@@ -316,7 +316,7 @@ export default function FinancialsPage() {
               <FinancialBreakdownChart data={chartData?.breakdown || previewChartData.breakdown} />
             </div>
 
-            <div className="rounded-lg border border-[#1A1A1E] bg-[#111114] p-4">
+            <div className="rounded-lg border border-[#1A1A1E] bg-surface-alt p-4">
               <div className="mb-3 text-[11px] text-white">Recent Transactions</div>
               <div className="space-y-3">
                 {recentTransactions.slice(0, 3).map((row: any) => (

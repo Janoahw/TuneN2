@@ -33,7 +33,7 @@ export function FinancialLineChart({ data }: FinancialLineChartProps) {
     <div className="rounded-lg border border-[#1A1A1E] bg-surface-alt p-4">
       <div className="mb-3 text-[11px] text-white">Revenue Over Time</div>
       <div className="rounded-lg bg-surface px-3 py-4">
-        <svg viewBox={`0 0 ${width} ${height}`} className="h-[180px] w-full">
+        <svg viewBox={`0 0 ${width} ${height}`} className="h-45 w-full">
           <defs>
             <linearGradient id="financial-trend-line" x1="0%" x2="100%" y1="0%" y2="0%">
               <stop offset="0%" stopColor="#7CF7FF" />

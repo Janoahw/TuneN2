@@ -11,11 +11,11 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, subtitle, change, icon }: StatsCardProps) {
   return (
-    <div className="rounded-lg border border-[#1A1A1E] bg-[#111114] p-4 shadow">
+    <div className="rounded-lg border border-[#1A1A1E] bg-surface-alt p-4 shadow">
       <div className="flex items-center justify-between">
         <div className="min-w-0">
           <p className="text-xs font-medium text-[#8E8E93]">{title}</p>
-          <p className="mt-2 break-words font-['Space_Grotesk'] text-2xl font-bold text-white">
+          <p className="mt-2 wrap-break-word font-['Space_Grotesk'] text-2xl font-bold text-white">
             {value}
           </p>
           {subtitle && <p className="mt-1 text-xs text-[#30D158]">{subtitle}</p>}
