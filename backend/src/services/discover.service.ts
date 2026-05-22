@@ -7,6 +7,7 @@ const SONG_SELECT = {
   price: true,
   isFree: true,
   coverArtUrl: true,
+  previewClipUrl: true,
   durationSeconds: true,
   streamCount: true,
   status: true,
@@ -345,5 +346,33 @@ export class DiscoverService {
       orderBy: { purchases: { _count: 'desc' } },
       take: limit,
     });
+  }
+
+  static async getPreviewFeed(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [songs, total] = await Promise.all([
+      prisma.song.findMany({
+        where: { status: 'active', previewClipUrl: { not: null } },
+        select: SONG_SELECT,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.song.count({
+        where: { status: 'active', previewClipUrl: { not: null } },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+    return {
+      items: songs,
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1,
+    };
   }
 }

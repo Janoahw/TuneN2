@@ -8,6 +8,7 @@ import {
   discoverQuerySchema,
   genreSlugParamSchema,
   artistsListQuerySchema,
+  previewFeedQuerySchema,
 } from '../schemas/discover.js';
 
 const router = Router();
@@ -81,5 +82,17 @@ router.get('/songs/recommended', optionalAuth, async (req: Request, res: Respons
   const songs = await DiscoverService.getRecommendedSongs(userId);
   res.json({ success: true, data: { songs } });
 });
+
+// ── Preview feed ─────────────────────────────
+
+router.get(
+  '/songs/preview-feed',
+  validate({ query: previewFeedQuerySchema }),
+  async (req: Request, res: Response) => {
+    const { page, limit } = (req as any).validatedQuery as { page: number; limit: number };
+    const data = await DiscoverService.getPreviewFeed(page, limit);
+    res.json({ success: true, data });
+  },
+);
 
 export { router as discoverRouter };

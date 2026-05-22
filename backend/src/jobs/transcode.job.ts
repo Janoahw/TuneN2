@@ -145,6 +145,54 @@ function transcodeToAAC(inputPath: string, outputPath: string): Promise<void> {
   });
 }
 
+function generatePreviewClip(
+  inputPath: string,
+  outputPath: string,
+  durationSeconds: number,
+): Promise<void> {
+  const { execFile } = require('node:child_process') as typeof import('node:child_process');
+  const clipLength = Math.min(30, durationSeconds > 0 ? durationSeconds : 30);
+
+  return new Promise((resolve, reject) => {
+    execFile(
+      'ffmpeg',
+      [
+        '-i',
+        inputPath,
+        '-t',
+        String(clipLength), // take first N seconds
+        '-vn',
+        '-acodec',
+        'aac',
+        '-b:a',
+        '128k',
+        '-ar',
+        '44100',
+        '-ac',
+        '2',
+        '-movflags',
+        '+faststart',
+        '-y',
+        outputPath,
+      ],
+      { timeout: 2 * 60 * 1000 }, // 2-minute timeout
+      (error) => {
+        if (error) {
+          if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+            logger.warn('ffmpeg not available — dev mode: simulating preview clip');
+            fs.copyFileSync(inputPath, outputPath);
+            resolve();
+            return;
+          }
+          reject(new Error(`ffmpeg preview clip failed: ${error.message}`));
+          return;
+        }
+        resolve();
+      },
+    );
+  });
+}
+
 const transcodeWorker = new Worker<TranscodeJobData>(
   QUEUES.TRANSCODE,
   async (job: Job<TranscodeJobData>) => {
@@ -152,6 +200,7 @@ const transcodeWorker = new Worker<TranscodeJobData>(
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tunen2-transcode-'));
     const inputPath = path.join(tmpDir, 'input');
     const outputPath = path.join(tmpDir, 'output.m4a');
+    const previewPath = path.join(tmpDir, 'preview.m4a');
 
     try {
       logger.info({ songId, inputKey }, 'Starting audio transcode');
@@ -168,23 +217,33 @@ const transcodeWorker = new Worker<TranscodeJobData>(
       await job.updateProgress(30);
       await transcodeToAAC(inputPath, outputPath);
 
-      // 4. Upload transcoded file to S3
+      // 4. Generate 30s preview clip
+      await job.updateProgress(50);
+      const previewKey = `previews/${outputKey.split('/').slice(1).join('/')}`;
+      await generatePreviewClip(inputPath, previewPath, durationSeconds);
+
+      // 5. Upload transcoded file to S3
       await job.updateProgress(70);
       await uploadToS3(outputPath, outputKey);
 
-      // 5. Update song record: status → 'active', stream_url → outputKey
+      // 6. Upload preview clip to S3
+      await job.updateProgress(80);
+      await uploadToS3(previewPath, previewKey);
+
+      // 7. Update song record: status → 'active', stream_url + preview_clip_url
       await job.updateProgress(90);
       const song = await prisma.song.update({
         where: { id: songId },
         data: {
           status: 'active',
           streamUrl: outputKey,
+          previewClipUrl: previewKey,
           durationSeconds: durationSeconds || null,
         },
       });
 
       await job.updateProgress(100);
-      logger.info({ songId, durationSeconds }, 'Transcode complete');
+      logger.info({ songId, durationSeconds, previewKey }, 'Transcode complete');
 
       // Notify followers of new song
       const { NotificationService } = await import('../services/notification.service.js');

@@ -175,6 +175,7 @@ model Song {
   isFree          Boolean  @default(false) @map("is_free")
   audioUrl        String   @map("audio_url") @db.VarChar(500) // S3 key (original)
   streamUrl       String?  @map("stream_url") @db.VarChar(500) // S3 key (transcoded AAC)
+  previewClipUrl  String?  @map("preview_clip_url") @db.VarChar(500) // S3 key (30s preview clip)
   coverArtUrl     String?  @map("cover_art_url") @db.VarChar(500)
   lyrics          String?  @db.Text
   trackNumber     Int      @default(1) @map("track_number")
