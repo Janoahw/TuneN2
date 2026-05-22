@@ -8,6 +8,7 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import Toast from 'react-native-toast-message';
+import TrackPlayer, { Capability } from 'react-native-track-player';
 import {
   SpaceGrotesk_400Regular,
   SpaceGrotesk_500Medium,
@@ -26,6 +27,7 @@ import {
   JetBrainsMono_700Bold,
 } from '@expo-google-fonts/jetbrains-mono';
 import { useAuthStore } from '@/stores/authStore';
+import { usePlayerStore } from '@/stores/playerStore';
 import { colors } from '@/theme';
 import { toastConfig } from '@/utils/toastConfig';
 
@@ -40,9 +42,32 @@ const queryClient = new QueryClient({
   },
 });
 
+async function setupTrackPlayer() {
+  try {
+    await TrackPlayer.setupPlayer({
+      autoHandleInterruptions: true,
+    });
+    await TrackPlayer.updateOptions({
+      capabilities: [
+        Capability.Play,
+        Capability.Pause,
+        Capability.SkipToNext,
+        Capability.SkipToPrevious,
+        Capability.Stop,
+        Capability.SeekTo,
+      ],
+      compactCapabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext],
+      progressUpdateEventInterval: 1000,
+    });
+  } catch {
+    // Player may already be set up (e.g. hot reload in dev)
+  }
+}
+
 function RootLayoutInner() {
   const isInitialized = useAuthStore((s) => s.isInitialized);
   const initialize = useAuthStore((s) => s.initialize);
+  const setPlayerReady = usePlayerStore((s) => s.setReady);
 
   const [fontsLoaded] = useFonts({
     'SpaceGrotesk-Regular': SpaceGrotesk_400Regular,
@@ -61,6 +86,10 @@ function RootLayoutInner() {
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    setupTrackPlayer().then(() => setPlayerReady(true));
+  }, [setPlayerReady]);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded && isInitialized) {

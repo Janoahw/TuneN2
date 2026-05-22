@@ -27,6 +27,7 @@ export const ENDPOINTS = {
     genreDetail: (slug: string) => `/genres/${slug}`,
     artists: '/artists',
     recommended: '/songs/recommended',
+    previewFeed: '/songs/preview-feed',
   },
   wallet: {
     balance: '/wallet',

@@ -12,6 +12,7 @@ export interface Song {
   isFree: boolean;
   audioUrl: string;
   streamUrl: string | null;
+  previewClipUrl: string | null;
   coverArtUrl: string | null;
   streamCount: string; // BigInt comes as string
   status: 'processing' | 'active' | 'rejected' | 'deleted';
@@ -81,7 +82,11 @@ export const songService = {
     return data.data.song;
   },
 
-  async getMySongs(params?: { status?: string; page?: number; limit?: number }): Promise<SongListResult> {
+  async getMySongs(params?: {
+    status?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<SongListResult> {
     const { data } = await api.get('/songs/me/catalog', { params });
     return data.data;
   },

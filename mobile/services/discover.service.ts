@@ -51,6 +51,37 @@ export interface ArtistsPage {
   hasPrev: boolean;
 }
 
+export interface PreviewSong {
+  id: string;
+  title: string;
+  price: string;
+  isFree: boolean;
+  coverArtUrl: string | null;
+  previewClipUrl: string | null;
+  durationSeconds: number | null;
+  streamCount: string;
+  status: string;
+  createdAt: string;
+  genre: { id: number; name: string; slug: string } | null;
+  artist: {
+    id: string;
+    artistName: string;
+    profileImageUrl: string | null;
+    isVerified: boolean;
+    user: { displayName: string; avatarUrl: string | null };
+  };
+}
+
+export interface PreviewFeedPage {
+  items: PreviewSong[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 export const discoverService = {
   async getFeed(limit = 10): Promise<DiscoverFeed> {
     const { data } = await api.get(ENDPOINTS.discover.feed, { params: { limit } });
@@ -89,5 +120,12 @@ export const discoverService = {
   async getRecommended(): Promise<SongDetail[]> {
     const { data } = await api.get(ENDPOINTS.discover.recommended);
     return data.data.songs;
+  },
+
+  async getPreviewFeed(page = 1, limit = 10): Promise<PreviewFeedPage> {
+    const { data } = await api.get(ENDPOINTS.discover.previewFeed, {
+      params: { page, limit },
+    });
+    return data.data;
   },
 };

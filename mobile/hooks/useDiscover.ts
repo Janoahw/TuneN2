@@ -5,6 +5,7 @@ import {
   type GenreDetail,
   type ArtistsPage,
   type DiscoverFeed,
+  type PreviewFeedPage,
 } from '@/services/discover.service';
 
 export function useDiscoverFeed(limit = 10) {
@@ -43,5 +44,13 @@ export function useRecommended() {
     queryKey: ['songs', 'recommended'],
     queryFn: () => discoverService.getRecommended(),
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function usePreviewFeed(page = 1, limit = 10) {
+  return useQuery<PreviewFeedPage>({
+    queryKey: ['songs', 'preview-feed', page, limit],
+    queryFn: () => discoverService.getPreviewFeed(page, limit),
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 }

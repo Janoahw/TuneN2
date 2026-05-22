@@ -157,6 +157,31 @@ export default function HomeScreen() {
           <Text style={styles.searchPlaceholder}>Artists, songs, genres…</Text>
         </Pressable>
 
+        {/* Discover hero card */}
+        <Pressable
+          style={styles.discoverCard}
+          onPress={() => router.push('/(discovery)/preview-feed')}
+          android_ripple={{ color: 'rgba(0,204,204,0.15)' }}
+        >
+          <LinearGradient
+            colors={['#0A3A3A', colors.accentPrimary, colors.accentSecondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.discoverGradient}
+          >
+            <View style={styles.discoverContent}>
+              <View>
+                <Text style={styles.discoverLabel}>DISCOVER</Text>
+                <Text style={styles.discoverTitle}>Preview New Music</Text>
+                <Text style={styles.discoverSubtitle}>30-second clips · Swipe to explore</Text>
+              </View>
+              <View style={styles.discoverIconWrap}>
+                <Feather name="play-circle" size={40} color="rgba(255,255,255,0.9)" />
+              </View>
+            </View>
+          </LinearGradient>
+        </Pressable>
+
         {/* New Artists */}
         {data?.newArtists && data.newArtists.length > 0 && (
           <View style={styles.section}>
@@ -236,12 +261,49 @@ const styles = StyleSheet.create({
     gap: spacing[3],
     borderWidth: 1,
     borderColor: colors.borderDefault,
-    marginBottom: spacing[6],
+    marginBottom: spacing[4],
   },
   searchPlaceholder: {
     fontFamily: fontFamilies.primary,
     fontSize: fontSizes.base,
     color: colors.textTertiary,
+  },
+  discoverCard: {
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    marginBottom: spacing[6],
+  },
+  discoverGradient: {
+    borderRadius: radius.xl,
+    padding: spacing[5],
+  },
+  discoverContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  discoverLabel: {
+    fontFamily: fontFamilies.primary,
+    fontSize: fontSizes.xs,
+    color: 'rgba(255,255,255,0.7)',
+    letterSpacing: 1.5,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  discoverTitle: {
+    fontFamily: fontFamilies.displayBold,
+    fontSize: fontSizes['2xl'],
+    color: '#FFFFFF',
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  discoverSubtitle: {
+    fontFamily: fontFamilies.primary,
+    fontSize: fontSizes.sm,
+    color: 'rgba(255,255,255,0.75)',
+  },
+  discoverIconWrap: {
+    opacity: 0.9,
   },
 
   section: { marginBottom: spacing[8] },
