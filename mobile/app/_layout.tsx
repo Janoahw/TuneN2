@@ -8,7 +8,12 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import Toast from 'react-native-toast-message';
-import TrackPlayer, { Capability } from 'react-native-track-player';
+import TrackPlayer, {
+  Capability,
+  useTrackPlayerEvents,
+  Event,
+  State,
+} from 'react-native-track-player';
 import {
   SpaceGrotesk_400Regular,
   SpaceGrotesk_500Medium,
@@ -90,6 +95,18 @@ function RootLayoutInner() {
   useEffect(() => {
     setupTrackPlayer().then(() => setPlayerReady(true));
   }, [setPlayerReady]);
+
+  // Register TrackPlayer event listeners so native events have consumers.
+  // Also keeps isPlaying in sync if the OS pauses playback (interruptions, etc.).
+  useTrackPlayerEvents(
+    [Event.PlaybackState, Event.PlaybackActiveTrackChanged, Event.PlaybackTrackChanged],
+    (event) => {
+      if (event.type === Event.PlaybackState) {
+        const playing = event.state === State.Playing || event.state === State.Buffering;
+        usePlayerStore.setState({ isPlaying: playing });
+      }
+    },
+  );
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded && isInitialized) {

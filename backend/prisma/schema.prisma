@@ -35,6 +35,8 @@ model User {
   reviewedReports ContentReport[] @relation("reviewer")
   emailOtps       EmailOTP[]
   passwordResets  PasswordReset[]
+  songLikes       SongLike[]
+  songComments    SongComment[]
 
   @@index([email])
   @@map("users")
@@ -190,6 +192,8 @@ model Song {
   purchases      Purchase[]
   downloads      Download[]
   contentReports ContentReport[]
+  likes          SongLike[]
+  comments       SongComment[]
 
   @@index([artistId])
   @@index([genreId])
@@ -382,4 +386,38 @@ model ContentReport {
   artist   ArtistProfile? @relation(fields: [artistId], references: [id])
 
   @@map("content_reports")
+}
+
+// ─── SONG LIKES ──────────────────────────────────────────
+
+model SongLike {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  songId    String   @map("song_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, songId])
+  @@index([songId])
+  @@map("song_likes")
+}
+
+// ─── SONG COMMENTS ───────────────────────────────────────
+
+model SongComment {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  songId    String   @map("song_id") @db.Uuid
+  body      String   @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([songId])
+  @@index([userId])
+  @@map("song_comments")
 }

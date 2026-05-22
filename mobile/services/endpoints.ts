@@ -50,4 +50,9 @@ export const ENDPOINTS = {
     admin: '/admin/reports',
     update: (id: string) => `/admin/reports/${id}`,
   },
+  songs: {
+    like: (id: string) => `/songs/${id}/like`,
+    comments: (id: string) => `/songs/${id}/comments`,
+    comment: (songId: string, commentId: string) => `/songs/${songId}/comments/${commentId}`,
+  },
 } as const;
