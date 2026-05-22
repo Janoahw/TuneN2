@@ -219,9 +219,16 @@ async function main() {
       where: { artistId: artistProfileId, title: template.title },
     });
 
+    const slug = template.title.toLowerCase().replace(/\s+/g, '-');
+    const previewClipUrl = `seeds/preview/${slug}.m4a`;
+
     let song;
     if (existing) {
-      song = existing;
+      // Patch previewClipUrl on existing seeds so the preview feed has data
+      song = await prisma.song.update({
+        where: { id: existing.id },
+        data: { previewClipUrl },
+      });
     } else {
       song = await prisma.song.create({
         data: {
@@ -231,8 +238,9 @@ async function main() {
           isFree: template.isFree,
           durationSeconds: template.durationSeconds,
           genreId,
-          audioUrl: `seeds/audio/${template.title.toLowerCase().replace(/\s+/g, '-')}.mp3`,
-          streamUrl: `seeds/stream/${template.title.toLowerCase().replace(/\s+/g, '-')}.aac`,
+          audioUrl: `seeds/audio/${slug}.mp3`,
+          streamUrl: `seeds/stream/${slug}.aac`,
+          previewClipUrl,
           coverArtUrl: null,
           status: 'active',
           streamCount: BigInt(Math.floor(Math.random() * 5000)),

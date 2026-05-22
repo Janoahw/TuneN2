@@ -9,6 +9,8 @@ import {
   ImageBackground,
   ActivityIndicator,
   StatusBar as RNStatusBar,
+  Share,
+  Platform,
 } from 'react-native';
 // ViewToken is not re-exported in this RN build — define locally
 type ViewToken = { index: number | null; isViewable: boolean; item: PreviewSong; key: string };
@@ -17,9 +19,11 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePreviewFeed } from '@/hooks/useDiscover';
+import { useLike, useCommentCount } from '@/hooks/useSongInteraction';
 import { usePlayerStore } from '@/stores/playerStore';
 import { colors, fontFamilies, fontSizes, spacing, radius } from '@/theme';
 import type { PreviewSong } from '@/services/discover.service';
+import { CommentSheet } from '@/components/CommentSheet';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -53,6 +57,14 @@ function CountdownRing({ isActive }: { isActive: boolean }) {
   );
 }
 
+// ── Helpers ───────────────────────────────────────────────
+
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
+}
+
 // ── Individual preview card ───────────────────────────────────────────────────
 
 interface PreviewCardProps {
@@ -60,9 +72,26 @@ interface PreviewCardProps {
   isActive: boolean;
   onBuy: (song: PreviewSong) => void;
   onFollow: (artistId: string) => void;
+  isLiked: boolean;
+  likeCount: number;
+  commentCount: number;
+  onLike: () => void;
+  onComment: () => void;
+  onShare: () => void;
 }
 
-function PreviewCard({ item, isActive, onBuy, onFollow }: PreviewCardProps) {
+function PreviewCard({
+  item,
+  isActive,
+  onBuy,
+  onFollow,
+  isLiked,
+  likeCount,
+  commentCount,
+  onLike,
+  onComment,
+  onShare,
+}: PreviewCardProps) {
   const insets = useSafeAreaInsets();
   const price = parseFloat(item.price);
   const displayPrice = item.isFree ? 'Free' : `Buy $${price.toFixed(2)}`;
@@ -98,11 +127,28 @@ function PreviewCard({ item, isActive, onBuy, onFollow }: PreviewCardProps) {
 
         {/* Right rail — actions */}
         <View style={styles.actionRail}>
-          <TouchableOpacity style={styles.actionBtn}>
-            <Ionicons name="heart-outline" size={28} color={colors.textPrimary} />
-          </TouchableOpacity>
+          {/* Like */}
+          <View style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionBtn} onPress={onLike} activeOpacity={0.8}>
+              <Ionicons
+                name={isLiked ? 'heart' : 'heart-outline'}
+                size={28}
+                color={isLiked ? '#FF375F' : colors.textPrimary}
+              />
+            </TouchableOpacity>
+            <Text style={styles.actionCount}>{formatCount(likeCount)}</Text>
+          </View>
 
-          <TouchableOpacity style={styles.actionBtn}>
+          {/* Comment */}
+          <View style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionBtn} onPress={onComment} activeOpacity={0.8}>
+              <Ionicons name="chatbubble-outline" size={26} color={colors.textPrimary} />
+            </TouchableOpacity>
+            <Text style={styles.actionCount}>{formatCount(commentCount)}</Text>
+          </View>
+
+          {/* Share */}
+          <TouchableOpacity style={styles.actionBtn} onPress={onShare} activeOpacity={0.8}>
             <Ionicons name="share-social-outline" size={26} color={colors.textPrimary} />
           </TouchableOpacity>
 
@@ -190,11 +236,17 @@ function PreviewCard({ item, isActive, onBuy, onFollow }: PreviewCardProps) {
 export default function PreviewFeedScreen() {
   const [page, setPage] = useState(1);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showComments, setShowComments] = useState(false);
   const { data, isLoading, isFetching } = usePreviewFeed(page, 10);
   const loadPreview = usePlayerStore((s) => s.loadPreview);
   const stopPreview = usePlayerStore((s) => s.stopPreview);
-  const currentTrack = usePlayerStore((s) => s.currentTrack);
   const items = data?.items ?? [];
+
+  const activeSong = items[activeIndex] ?? null;
+
+  // Like state for the active song
+  const { isLiked, likeCount, toggleLike } = useLike(activeSong?.id ?? null);
+  const commentCount = useCommentCount(activeSong?.id ?? null);
 
   // Load preview audio when active card changes
   useEffect(() => {
@@ -242,16 +294,49 @@ export default function PreviewFeedScreen() {
     // TODO: call artist follow API
   }, []);
 
+  const handleShare = useCallback(async () => {
+    if (!activeSong) return;
+    try {
+      await Share.share(
+        {
+          message: `🎵 Check out "${activeSong.title}" by ${activeSong.artist.artistName} on TuneN2`,
+          ...(Platform.OS === 'ios' ? { url: `https://tunen2.app/songs/${activeSong.id}` } : {}),
+        },
+        { dialogTitle: 'Share song' },
+      );
+    } catch {
+      // User cancelled or share failed — silent
+    }
+  }, [activeSong]);
+
   const renderItem = useCallback(
-    ({ item, index }: { item: PreviewSong; index: number }) => (
-      <PreviewCard
-        item={item}
-        isActive={index === activeIndex}
-        onBuy={handleBuy}
-        onFollow={handleFollow}
-      />
-    ),
-    [activeIndex, handleBuy, handleFollow],
+    ({ item, index }: { item: PreviewSong; index: number }) => {
+      const isActive = index === activeIndex;
+      return (
+        <PreviewCard
+          item={item}
+          isActive={isActive}
+          onBuy={handleBuy}
+          onFollow={handleFollow}
+          isLiked={isActive ? isLiked : false}
+          likeCount={isActive ? likeCount : 0}
+          commentCount={isActive ? commentCount : 0}
+          onLike={toggleLike}
+          onComment={() => setShowComments(true)}
+          onShare={handleShare}
+        />
+      );
+    },
+    [
+      activeIndex,
+      handleBuy,
+      handleFollow,
+      isLiked,
+      likeCount,
+      commentCount,
+      toggleLike,
+      handleShare,
+    ],
   );
 
   const keyExtractor = useCallback((item: PreviewSong) => item.id, []);
@@ -298,6 +383,13 @@ export default function PreviewFeedScreen() {
           maxToRenderPerBatch: 3,
           windowSize: 5,
         } as any)}
+      />
+
+      {/* Comment sheet overlay */}
+      <CommentSheet
+        visible={showComments}
+        songId={activeSong?.id ?? null}
+        onClose={() => setShowComments(false)}
       />
     </View>
   );
@@ -363,6 +455,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing[6],
   },
+  actionItem: {
+    alignItems: 'center',
+    gap: spacing[1],
+  },
   actionBtn: {
     width: 48,
     height: 48,
@@ -370,6 +466,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  actionCount: {
+    fontFamily: fontFamilies.primarySemiBold,
+    fontSize: fontSizes.xs,
+    color: colors.textPrimary,
+    minWidth: 40,
+    textAlign: 'center',
   },
   ringContainer: {
     width: 48,

@@ -24,6 +24,7 @@ import { deviceRouter } from './routes/device.routes.js';
 import { notificationRouter } from './routes/notification.routes.js';
 import { reportRouter } from './routes/report.routes.js';
 import { adminRouter } from './routes/admin.routes.js';
+import { songInteractionRouter } from './routes/song-interaction.routes.js';
 
 const app = express();
 
@@ -78,10 +79,11 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/auth', passwordResetRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/artists', artistRouter);
+app.use('/api/v1', discoverRouter);
+app.use('/api/v1/songs', songInteractionRouter);
 app.use('/api/v1/songs', songRouter);
 app.use('/api/v1/songs', purchaseRouter);
 app.use('/api/v1/library', libraryRouter);
-app.use('/api/v1', discoverRouter);
 app.use('/api/v1/wallet', walletRouter);
 app.use('/api/v1/devices', deviceRouter);
 app.use('/api/v1/notifications', notificationRouter);
