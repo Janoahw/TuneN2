@@ -7,19 +7,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Feather, FontAwesome } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { ControlledInput } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { colors, fontFamilies } from '@/theme';
+
+const { width } = Dimensions.get('window');
+const PHOTO_HEIGHT = 420;
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -28,8 +30,19 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>;
 
+const INPUT_STYLE = {
+  inputContainerStyle: {
+    backgroundColor: '#191920',
+    borderRadius: 16,
+    borderColor: '#313142',
+    height: 52,
+    paddingVertical: 0,
+  } as const,
+  containerStyle: { marginBottom: 16 } as const,
+};
+
 export default function LoginScreen() {
-  const { loginMutation, socialAuthMutation } = useAuth();
+  const { loginMutation } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const { control, handleSubmit } = useForm<LoginForm>({
@@ -40,72 +53,58 @@ export default function LoginScreen() {
   const onSubmit = async (values: LoginForm) => {
     try {
       await loginMutation.mutateAsync(values);
-      Toast.show({
-        type: 'success',
-        text1: 'Welcome back!',
-        text2: 'Logging you in...',
-      });
+      Toast.show({ type: 'success', text1: 'Welcome back!', text2: 'Logging you in...' });
       router.replace('/(tabs)/home');
     } catch (err: any) {
       const message =
         err?.response?.data?.error?.message ||
         err?.response?.data?.message ||
         'Invalid email or password';
-      Toast.show({
-        type: 'error',
-        text1: 'Login failed',
-        text2: message,
-      });
+      Toast.show({ type: 'error', text1: 'Login failed', text2: message });
     }
   };
 
-  const handleSocialAuth = async (provider: 'google' | 'apple') => {
-    // TODO: Replace with real OAuth flow once client IDs are configured
-    // Apple: use expo-apple-authentication
-    // Google: use @react-native-google-signin/google-signin or expo-auth-session
-    Toast.show({
-      type: 'info',
-      text1: `${provider === 'apple' ? 'Apple' : 'Google'} Sign In`,
-      text2: 'Social sign-in will be available once OAuth credentials are configured.',
-    });
-  };
-
   return (
-    <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.flex}
-      >
+    <View style={styles.container}>
+      {/* Studio photo */}
+      <Image
+        source={{ uri: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=900&q=80' }}
+        style={styles.photo}
+        resizeMode="cover"
+      />
+      {/* Top scrim */}
+      <LinearGradient colors={['#0D0D0FE6', '#0D0D0F00']} style={styles.topScrim} pointerEvents="none" />
+      {/* Bottom scrim */}
+      <LinearGradient colors={['#0D0D0F00', '#0D0D0FFF']} style={styles.bottomScrim} pointerEvents="none" />
+
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Logo */}
-          <View style={styles.header}>
-            <LinearGradient
-              colors={[colors.accentPrimary, colors.accentSecondary]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.logoBox}
-            >
-              <Feather name="music" size={28} color={colors.white} />
-            </LinearGradient>
-            <Text style={styles.brand}>TuneN2</Text>
-            <Text style={styles.tagline}>Music. Direct. Fair.</Text>
+          {/* Centered logo mark */}
+          <View style={styles.logoWrap}>
+            <Image source={require('../../assets/logo-mark.jpg')} style={styles.logoMark} />
           </View>
+
+          {/* Title + copy */}
+          <Text style={styles.title}>Welcome back</Text>
+          <Text style={styles.copy}>Sign in to keep listening, buying, and supporting independent artists.</Text>
 
           {/* Form */}
           <View style={styles.form}>
             <ControlledInput
               control={control}
               name="email"
-              placeholder="Email address"
+              placeholder="Email"
               icon="mail"
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
               textContentType="emailAddress"
+              containerStyle={INPUT_STYLE.containerStyle}
+              inputContainerStyle={INPUT_STYLE.inputContainerStyle}
             />
 
             <ControlledInput
@@ -115,163 +114,141 @@ export default function LoginScreen() {
               icon="lock"
               secureTextEntry={!showPassword}
               rightIcon={showPassword ? 'eye' : 'eye-off'}
-              onRightIconPress={() => setShowPassword((prev) => !prev)}
+              onRightIconPress={() => setShowPassword((p) => !p)}
               autoComplete="password"
               textContentType="password"
+              containerStyle={INPUT_STYLE.containerStyle}
+              inputContainerStyle={INPUT_STYLE.inputContainerStyle}
             />
 
-            <Pressable
-              onPress={() => router.push('/(auth)/forgot-password')}
-              style={styles.forgotRow}
-            >
-              <Text style={styles.forgotText}>Forgot Password?</Text>
+            {/* Forgot password */}
+            <Pressable onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotRow}>
+              <Text style={styles.forgotText}>Forgot password?</Text>
             </Pressable>
 
-            <Button
-              title="Log In"
+            {/* Primary button */}
+            <Pressable
+              style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed, loginMutation.isPending && styles.btnDisabled]}
               onPress={handleSubmit(onSubmit)}
-              loading={loginMutation.isPending}
-            />
-          </View>
-
-          {/* Divider */}
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or continue with</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* Social */}
-          <View style={styles.socialRow}>
-            <Pressable
-              style={styles.socialButton}
-              onPress={() => handleSocialAuth('apple')}
-              disabled={socialAuthMutation.isPending}
+              disabled={loginMutation.isPending}
             >
-              <FontAwesome name="apple" size={20} color={colors.textPrimary} />
-              <Text style={styles.socialLabel}>Apple</Text>
-            </Pressable>
-            <Pressable
-              style={styles.socialButton}
-              onPress={() => handleSocialAuth('google')}
-              disabled={socialAuthMutation.isPending}
-            >
-              <FontAwesome name="google" size={20} color={colors.textPrimary} />
-              <Text style={styles.socialLabel}>Google</Text>
+              <Text style={styles.primaryBtnLabel}>
+                {loginMutation.isPending ? 'Signing in...' : 'Sign In'}
+              </Text>
             </Pressable>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
             <Pressable onPress={() => router.push('/(auth)/signup')}>
-              <Text style={styles.footerLink}>Sign Up</Text>
+              <Text style={styles.footerText}>New to TuneN2?{' '}
+                <Text style={styles.footerLink}>Create account</Text>
+              </Text>
             </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
+  container: { flex: 1, backgroundColor: '#0D0D0F' },
   flex: { flex: 1 },
+  photo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width,
+    height: PHOTO_HEIGHT,
+  },
+  topScrim: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width,
+    height: 160,
+  },
+  bottomScrim: {
+    position: 'absolute',
+    top: 230,
+    left: 0,
+    width,
+    height: 260,
+  },
   scroll: {
     flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 32,
-    paddingBottom: 24,
-    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingBottom: 32,
   },
-  header: {
+  logoWrap: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginTop: 82,
+    marginBottom: 0,
   },
-  logoBox: {
-    width: 72,
-    height: 72,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
+  logoMark: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.125)',
   },
-  brand: {
+  title: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 28,
-    color: colors.textPrimary,
-    letterSpacing: -0.5,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginTop: 72,
+    marginBottom: 16,
   },
-  tagline: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: 4,
+  copy: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 15,
+    color: '#9B9BA7',
+    lineHeight: 20,
+    marginBottom: 30,
+    width: 320,
   },
-  form: {
-    marginBottom: 24,
-  },
+  form: {},
   forgotRow: {
-    alignItems: 'flex-end',
+    alignSelf: 'flex-end',
     marginBottom: 20,
     marginTop: -8,
   },
   forgotText: {
-    fontFamily: fontFamilies.primaryMedium,
-    color: colors.accentPrimary,
-    fontSize: 14,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-    gap: 12,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.borderDefault,
-  },
-  dividerText: {
-    fontFamily: fontFamilies.primary,
-    color: colors.textSecondary,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 13,
+    fontWeight: '700',
+    color: colors.accentPrimary,
   },
-  socialRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 32,
-  },
-  socialButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+  primaryBtn: {
+    backgroundColor: colors.accentPrimary,
+    borderRadius: 24,
     height: 48,
-    borderRadius: 12,
-    backgroundColor: colors.bgSecondary,
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-  },
-  socialLabel: {
-    fontFamily: fontFamilies.primaryMedium,
-    fontSize: 15,
-    color: colors.textPrimary,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  primaryBtnLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#050506',
+  },
+  btnDisabled: { opacity: 0.5 },
+  pressed: { opacity: 0.82 },
+  footer: {
+    alignItems: 'center',
+    marginTop: 'auto',
+    paddingTop: 40,
   },
   footerText: {
-    fontFamily: fontFamilies.primary,
-    color: colors.textSecondary,
-    fontSize: 14,
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#9B9BA7',
   },
   footerLink: {
-    fontFamily: fontFamilies.primarySemiBold,
-    color: colors.accentPrimary,
-    fontSize: 14,
+    color: '#F5F5F7',
   },
 });

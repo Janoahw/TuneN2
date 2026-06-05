@@ -1,13 +1,9 @@
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
-import { colors, fontFamilies, spacing, radius } from '@/theme';
+import { Feather } from '@expo/vector-icons';
+import { colors, fontFamilies } from '@/theme';
 
-/**
- * Post-purchase success screen.
- * Shown after a successful payment/free download to confirm the purchase
- * and let the user play the song or go to their library.
- */
 export default function PurchaseConfirmScreen() {
   const { songId, songTitle, coverArtUrl } = useLocalSearchParams<{
     songId: string;
@@ -18,56 +14,39 @@ export default function PurchaseConfirmScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.content}>
-        {/* Success Icon */}
-        <View style={styles.successCircle}>
-          <Text style={styles.checkmark}>✓</Text>
+        {/* Success icon plate */}
+        <View style={styles.iconPlate}>
+          <Feather name="check" size={36} color={colors.success} />
         </View>
 
-        <View style={{ height: spacing[6] }} />
-
-        {/* Title */}
         <Text style={styles.title}>Purchase Complete!</Text>
-
-        <View style={{ height: spacing[3] }} />
-
-        {/* Subtitle */}
         <Text style={styles.subtitle}>
-          {songTitle
-            ? `"${songTitle}" has been added to your library`
-            : 'Song has been added to your library'}
+          {songTitle ? `"${songTitle}" has been added to your library` : 'Song added to your library'}
         </Text>
 
-        <View style={{ height: spacing[6] }} />
-
-        {/* Song Cover Preview */}
+        {/* Cover preview */}
         {coverArtUrl ? (
-          <Image source={{ uri: coverArtUrl }} style={styles.coverPreview} />
+          <Image source={{ uri: coverArtUrl }} style={styles.cover} />
         ) : (
-          <View style={[styles.coverPreview, styles.coverPlaceholder]}>
-            <Text style={styles.coverIcon}>🎵</Text>
+          <View style={[styles.cover, styles.coverPlaceholder]}>
+            <Feather name="music" size={48} color="#4A4A5A" />
           </View>
         )}
 
-        <View style={{ height: spacing[8] }} />
-
-        {/* Play Now Button */}
+        {/* Actions */}
         <Pressable
-          style={styles.playBtn}
-          onPress={() =>
-            router.replace({ pathname: '/song-detail' as any, params: { id: songId } })
-          }
+          style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+          onPress={() => router.replace({ pathname: '/song-detail' as any, params: { id: songId } })}
         >
-          <Text style={styles.playBtnText}>Play Now</Text>
+          <Feather name="play" size={18} color="#050506" />
+          <Text style={styles.primaryBtnLabel}>Play Now</Text>
         </Pressable>
 
-        <View style={{ height: spacing[3] }} />
-
-        {/* Go to Library Button */}
         <Pressable
-          style={styles.libraryBtn}
+          style={({ pressed }) => [styles.ghostBtn, pressed && styles.pressed]}
           onPress={() => router.replace('/(tabs)/library' as any)}
         >
-          <Text style={styles.libraryBtnText}>Go to Library</Text>
+          <Text style={styles.ghostBtnLabel}>Go to Library</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -75,86 +54,84 @@ export default function PurchaseConfirmScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
+  safe: { flex: 1, backgroundColor: '#0D0D0F' },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 32,
+    gap: 0,
   },
-
-  // Success Icon
-  successCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.success,
+  iconPlate: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: `${colors.success}20`,
+    borderWidth: 1,
+    borderColor: colors.success,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 24,
   },
-  checkmark: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-
-  // Text
   title: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 24,
-    color: colors.textPrimary,
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#F5F5F7',
     textAlign: 'center',
+    marginBottom: 10,
   },
   subtitle: {
-    fontFamily: fontFamilies.primary,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 15,
-    color: colors.textSecondary,
+    color: '#9B9BA7',
     textAlign: 'center',
     lineHeight: 22,
+    marginBottom: 28,
   },
-
-  // Cover Preview
-  coverPreview: {
+  cover: {
     width: 200,
     height: 200,
-    borderRadius: 16,
+    borderRadius: 20,
+    marginBottom: 36,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.094)',
   },
   coverPlaceholder: {
-    backgroundColor: colors.bgSecondary,
+    backgroundColor: '#15151B',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  coverIcon: {
-    fontSize: 48,
-  },
-
-  // Buttons
-  playBtn: {
+  primaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
     width: 280,
     height: 52,
     borderRadius: 26,
     backgroundColor: colors.accentPrimary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 12,
   },
-  playBtnText: {
-    fontFamily: fontFamilies.primarySemiBold,
+  primaryBtnLabel: {
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 16,
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#050506',
   },
-  libraryBtn: {
+  ghostBtn: {
     width: 280,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.bgTertiary,
+    borderColor: '#2C2C3A',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  libraryBtnText: {
+  ghostBtnLabel: {
     fontFamily: fontFamilies.primaryMedium,
     fontSize: 16,
-    color: colors.textSecondary,
+    color: '#9B9BA7',
   },
+  pressed: { opacity: 0.82 },
 });

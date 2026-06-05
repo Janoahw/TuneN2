@@ -81,6 +81,7 @@ export function ReportModal({ songId, songTitle, visible, onClose }: ReportModal
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={handleClose} />
         <View style={styles.content}>
+          <View style={styles.dragHandle} />
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>Report Song</Text>
@@ -99,6 +100,9 @@ export function ReportModal({ songId, songTitle, visible, onClose }: ReportModal
                 ]}
                 onPress={() => setSelectedReason(reason.value)}
               >
+                <View style={[styles.radioCircle, selectedReason === reason.value && styles.radioCircleActive]}>
+                  {selectedReason === reason.value && <View style={styles.radioDot} />}
+                </View>
                 <Text
                   style={[
                     styles.reasonText,
@@ -148,88 +152,110 @@ export function ReportModal({ songId, songTitle, visible, onClose }: ReportModal
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
+  overlay: { flex: 1, justifyContent: 'flex-end' },
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
   content: {
-    backgroundColor: colors.bgPrimary,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: spacing[6],
-    paddingBottom: spacing[8],
-    paddingHorizontal: spacing[6],
+    backgroundColor: '#15151B',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: '#2C2C3A',
+    paddingTop: 24,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
     maxHeight: '90%',
   },
-  header: {
-    marginBottom: spacing[6],
-  },
+  header: { marginBottom: 20 },
   title: {
     fontFamily: fontFamilies.displayBold,
     fontSize: 22,
-    color: colors.textPrimary,
-    marginBottom: spacing[2],
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginBottom: 6,
   },
   subtitle: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  section: {
-    marginBottom: spacing[6],
-  },
-  label: {
     fontFamily: fontFamilies.primaryMedium,
     fontSize: 14,
-    color: colors.textPrimary,
-    marginBottom: spacing[3],
+    color: '#9B9BA7',
+  },
+  section: { marginBottom: 20 },
+  label: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#9B9BA7',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#2C2C3A',
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   reasonButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: spacing[4],
-    backgroundColor: colors.bgElevated,
-    borderRadius: radius.md,
-    marginBottom: spacing[2],
+    gap: 14,
+    minHeight: 64,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: '#191920',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    marginBottom: 8,
+  },
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#4A4A5A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  radioCircleActive: { borderColor: colors.accentPrimary },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.accentPrimary,
   },
   reasonButtonSelected: {
-    backgroundColor: `${colors.accentPrimary}20`,
-    borderWidth: 1,
+    backgroundColor: 'rgba(0,204,204,0.094)',
     borderColor: colors.accentPrimary,
   },
   reasonText: {
-    fontFamily: fontFamilies.primary,
+    flex: 1,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 15,
-    color: colors.textPrimary,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
-  reasonTextSelected: {
-    fontFamily: fontFamilies.primaryMedium,
-    color: colors.accentPrimary,
-  },
+  reasonTextSelected: { color: colors.accentPrimary },
   textarea: {
-    backgroundColor: colors.bgElevated,
-    borderRadius: radius.md,
-    padding: spacing[4],
-    fontFamily: fontFamilies.primary,
-    fontSize: 15,
-    color: colors.textPrimary,
-    height: 96,
-  },
-  actions: {
-    gap: spacing[3],
-  },
-  cancelButton: {
-    padding: spacing[4],
-    alignItems: 'center',
-  },
-  cancelText: {
+    backgroundColor: '#191920',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#313142',
+    padding: 16,
     fontFamily: fontFamilies.primaryMedium,
+    fontSize: 15,
+    color: '#F5F5F7',
+    height: 100,
+  },
+  actions: { gap: 12 },
+  cancelButton: { padding: 16, alignItems: 'center' },
+  cancelText: {
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 16,
-    color: colors.textSecondary,
+    fontWeight: '700',
+    color: '#9B9BA7',
   },
 });

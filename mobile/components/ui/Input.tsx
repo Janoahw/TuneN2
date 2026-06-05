@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, type TextInputProps } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, type TextInputProps, type ViewStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { colors, fontFamilies } from '@/theme';
 import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form';
@@ -10,11 +10,15 @@ interface InputProps extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   icon?: React.ComponentProps<typeof Feather>['name'];
   rightIcon?: React.ComponentProps<typeof Feather>['name'];
   onRightIconPress?: () => void;
+  containerStyle?: ViewStyle;
+  inputContainerStyle?: ViewStyle;
 }
 
 interface ControlledInputProps<T extends FieldValues> extends InputProps {
   control: Control<T>;
   name: Path<T>;
+  containerStyle?: ViewStyle;
+  inputContainerStyle?: ViewStyle;
 }
 
 export function Input({
@@ -25,18 +29,21 @@ export function Input({
   onRightIconPress,
   secureTextEntry,
   style,
+  containerStyle,
+  inputContainerStyle,
   ...props
 }: InputProps & { value?: string; onChangeText?: (text: string) => void }) {
   const [focused, setFocused] = useState(false);
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
       <View
         style={[
           styles.inputContainer,
           focused && styles.inputFocused,
           error ? styles.inputError : null,
+          inputContainerStyle,
         ]}
       >
         {icon && <Feather name={icon} size={18} color={colors.textTertiary} style={styles.icon} />}

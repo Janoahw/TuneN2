@@ -12,7 +12,7 @@ import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { colors, fontFamilies, fontSizes, spacing, radius } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 import { useArtists } from '@/hooks/useDiscover';
 import type { ArtistSummary } from '@/services/discover.service';
 
@@ -26,7 +26,7 @@ function ArtistListRow({ artist }: { artist: ArtistSummary }) {
 
   return (
     <Pressable
-      style={styles.artistRow}
+      style={styles.artistCard}
       onPress={() => router.push({ pathname: '/artist-profile', params: { id: artist.id } })}
     >
       {artist.profileImageUrl ? (
@@ -40,20 +40,21 @@ function ArtistListRow({ artist }: { artist: ArtistSummary }) {
         </LinearGradient>
       )}
       <View style={styles.artistInfo}>
-        <Text style={styles.artistName}>{artist.artistName}</Text>
-        <Text style={styles.artistMeta}>
+        <View style={styles.nameRow}>
+          <Text style={styles.artistName} numberOfLines={1}>{artist.artistName}</Text>
+          {artist.isVerified && <Feather name="check-circle" size={14} color={colors.accentPrimary} />}
+        </View>
+        <Text style={styles.artistMeta} numberOfLines={1}>
           {formatFollowers(artist._count.follows)} followers
-          {artist.genres.length > 0 ? ` • ${artist.genres[0]}` : ''}
+          {artist.genres.length > 0 ? ` · ${artist.genres[0]}` : ''}
         </Text>
       </View>
       <Pressable
-        style={[styles.followButton, following && styles.followingButton]}
-        onPress={(e) => {
-          e.stopPropagation();
-          setFollowing((v) => !v);
-        }}
+        style={[styles.followBtn, following && styles.followBtnActive]}
+        onPress={(e) => { e.stopPropagation(); setFollowing((v) => !v); }}
+        hitSlop={8}
       >
-        <Text style={[styles.followButtonText, following && styles.followingButtonText]}>
+        <Text style={[styles.followBtnLabel, following && styles.followBtnLabelActive]}>
           {following ? 'Following' : 'Follow'}
         </Text>
       </Pressable>
@@ -63,15 +64,13 @@ function ArtistListRow({ artist }: { artist: ArtistSummary }) {
 
 export default function AllArtistsScreen() {
   const { data, isLoading } = useArtists();
-
   const artists: ArtistSummary[] = data?.items ?? [];
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Feather name="arrow-left" size={22} color={colors.textPrimary} />
+          <Feather name="arrow-left" size={22} color="#F5F5F7" />
         </Pressable>
         <Text style={styles.headerTitle}>Top Artists</Text>
         <View style={{ width: 22 }} />
@@ -83,12 +82,12 @@ export default function AllArtistsScreen() {
         <FlatList
           data={artists}
           keyExtractor={(a) => a.id}
-          contentContainerStyle={styles.list as any}
-          renderItem={({ item }: { item: ArtistSummary }) => <ArtistListRow artist={item} />}
-          ListFooterComponent={null}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => <ArtistListRow artist={item} />}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Feather name="users" size={40} color={colors.textTertiary} />
+              <Feather name="users" size={40} color="#4A4A5A" />
               <Text style={styles.emptyText}>No artists yet</Text>
             </View>
           }
@@ -99,85 +98,97 @@ export default function AllArtistsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgPrimary },
+  container: { flex: 1, backgroundColor: '#0D0D0F' },
   loader: { flex: 1 },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing[5],
-    paddingVertical: spacing[4],
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderDefault,
+    borderBottomColor: '#1E1E28',
   },
   headerTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: fontSizes.md,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
 
-  list: { paddingHorizontal: spacing[5], paddingBottom: spacing[8] },
+  list: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 100 },
 
-  artistRow: {
+  artistCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing[4],
-    gap: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderDefault,
+    gap: 12,
+    backgroundColor: '#15151B',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    height: 72,
+    paddingHorizontal: 14,
+    marginBottom: 8,
   },
   artistAvatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.094)',
   },
   artistInitial: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: fontSizes.lg,
-    color: colors.onPrimary,
+    fontSize: 18,
+    color: '#050506',
   },
   artistInfo: { flex: 1 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   artistName: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.base,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
   artistMeta: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: 2,
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 12,
+    color: '#9B9BA7',
+    marginTop: 3,
   },
 
-  followButton: {
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: radius.full,
+  followBtn: {
+    paddingHorizontal: 14,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: colors.accentPrimary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  followingButton: {
+  followBtnActive: {
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: colors.accentPrimary,
   },
-  followButtonText: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.sm,
-    color: colors.onPrimary,
+  followBtnLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#050506',
   },
-  followingButtonText: { color: colors.accentPrimary },
+  followBtnLabelActive: { color: colors.accentPrimary },
 
   emptyState: {
     alignItems: 'center',
-    paddingTop: spacing[16],
-    gap: spacing[3],
+    paddingTop: 80,
+    gap: 12,
   },
   emptyText: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.base,
-    color: colors.textSecondary,
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 15,
+    color: '#9B9BA7',
   },
 });

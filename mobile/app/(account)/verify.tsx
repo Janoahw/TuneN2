@@ -75,39 +75,29 @@ export default function VerifyScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.bgPrimary,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
+  safe: { flex: 1, backgroundColor: '#0D0D0F' },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
   iconCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
   },
   title: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 24,
-    color: colors.textPrimary,
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#F5F5F7',
     marginBottom: 8,
   },
   message: {
-    fontFamily: fontFamilies.primary,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 15,
-    color: colors.textSecondary,
+    color: '#9B9BA7',
     textAlign: 'center',
     marginTop: 12,
   },
-  button: {
-    marginTop: 32,
-    width: '100%',
-  },
+  button: { marginTop: 32, width: '100%' },
 });

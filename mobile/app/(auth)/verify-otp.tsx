@@ -8,12 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
-import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/services/auth.service';
 import { colors, fontFamilies } from '@/theme';
@@ -33,28 +33,24 @@ export default function VerifyOtpScreen() {
   const [timeRemaining, setTimeRemaining] = useState(OTP_EXPIRY_MINUTES * 60);
   const inputRef = useRef<TextInput>(null);
 
-  // Countdown timer for OTP expiry
   useEffect(() => {
     if (timeRemaining <= 0) return;
     const timer = setInterval(() => setTimeRemaining((t) => t - 1), 1000);
     return () => clearInterval(timer);
   }, [timeRemaining]);
 
-  // Cooldown timer for resend button
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const timer = setInterval(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  // Format seconds to mm:ss
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Handle OTP input - only allow 6 digits
   const handleOtpChange = (value: string) => {
     const numericOnly = value.replace(/[^0-9]/g, '');
     if (numericOnly.length <= 6) {
@@ -68,38 +64,23 @@ export default function VerifyOtpScreen() {
       setError('Please enter a 6-digit code');
       return;
     }
-
     setLoading(true);
     try {
       await authService.verifyOtp(otp);
-
-      // Show success feedback
       Toast.show({
         type: 'success',
         text1: 'Email Verified',
         text2: 'Your email has been verified successfully.',
         visibilityTime: 2000,
-        onPress: () => {
-          Toast.hide();
-          router.replace('/(tabs)/home');
-        },
+        onPress: () => { Toast.hide(); router.replace('/(tabs)/home'); },
       });
-
-      // Auto-navigate after toast is shown
-      setTimeout(() => {
-        router.replace('/(tabs)/home');
-      }, 2500);
+      setTimeout(() => router.replace('/(tabs)/home'), 2500);
     } catch (err: any) {
       const message = err?.response?.data?.error?.message || 'Invalid OTP. Try again.';
       setError(message);
       setOtp('');
       inputRef.current?.focus();
-      Toast.show({
-        type: 'error',
-        text1: 'Verification Failed',
-        text2: message,
-        visibilityTime: 3000,
-      });
+      Toast.show({ type: 'error', text1: 'Verification Failed', text2: message, visibilityTime: 3000 });
       setLoading(false);
     }
   }, [otp]);
@@ -123,78 +104,91 @@ export default function VerifyOtpScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.flex}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.container}>
-            <View style={styles.content}>
-              {/* Icon */}
-              <View style={styles.iconCircle}>
-                <Feather name="lock" size={40} color={colors.accentPrimary} />
-              </View>
+          {/* Logo mark */}
+          <View style={styles.logoWrap}>
+            <Image source={require('../../assets/logo-mark.jpg')} style={styles.logoMark} />
+          </View>
 
-              {/* Heading */}
-              <Text style={styles.title}>Verify Your Email</Text>
-              <Text style={styles.subtitle}>
-                We sent a 6-digit code to{'\n'}
-                <Text style={styles.emailHighlight}>{email}</Text>
-              </Text>
+          {/* State icon plate */}
+          <View style={styles.iconPlate}>
+            <Feather name="lock" size={42} color={colors.accentPrimary} />
+          </View>
 
-              {/* OTP Input */}
-              <View style={styles.inputSection}>
-                <Text style={styles.label}>Enter Code</Text>
-                <TextInput
-                  ref={inputRef}
-                  style={[styles.otpInput, error && styles.otpInputError]}
-                  placeholder="000000"
-                  placeholderTextColor={colors.textSecondary}
-                  maxLength={6}
-                  keyboardType="numeric"
-                  value={otp}
-                  onChangeText={handleOtpChange}
-                  editable={!loading && timeRemaining > 0}
-                  selectTextOnFocus
-                />
-              </View>
+          {/* Title + copy */}
+          <Text style={styles.title}>Verify your email</Text>
+          <Text style={styles.copy}>
+            Enter the 6-digit code we sent to your email address.
+          </Text>
 
-              {/* Error Message */}
-              {error && (
-                <View style={styles.errorBox}>
-                  <Feather name="alert-circle" size={16} color={colors.error} />
-                  <Text style={styles.errorText}>{error}</Text>
-                </View>
-              )}
-
-              {/* Timer */}
-              <Text style={styles.timer}>Code expires in {formatTime(timeRemaining)}</Text>
-
-              {/* Submit Button */}
-              <View style={styles.buttonSection}>
-                <Button
-                  title={loading ? 'Verifying...' : 'Verify'}
-                  onPress={handleSubmit}
-                  disabled={loading || otp.length !== 6 || timeRemaining <= 0}
-                />
-              </View>
-
-              {/* Resend Section */}
-              <View style={styles.resendSection}>
-                <Text style={styles.resendText}>Didn't receive the code? </Text>
-                {resendCooldown > 0 ? (
-                  <Text style={styles.resendCooldown}>Resend in {resendCooldown}s</Text>
-                ) : (
-                  <Pressable onPress={handleResend} disabled={resending}>
-                    <Text style={styles.resendLink}>{resending ? 'Sending...' : 'Resend'}</Text>
-                  </Pressable>
-                )}
-              </View>
+          {/* Hidden real TextInput + 6 visual boxes */}
+          <View style={styles.otpWrap}>
+            <TextInput
+              ref={inputRef}
+              style={styles.hiddenInput}
+              value={otp}
+              onChangeText={handleOtpChange}
+              maxLength={6}
+              keyboardType="numeric"
+              editable={!loading && timeRemaining > 0}
+              caretHidden
+              autoFocus
+            />
+            <View style={styles.otpRow}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Pressable key={i} onPress={() => inputRef.current?.focus()}>
+                  <View style={[
+                    styles.otpBox,
+                    i === otp.length - 1 && styles.otpBoxActive,
+                    i === otp.length && styles.otpBoxCursor,
+                    error && styles.otpBoxError,
+                  ]}>
+                    <Text style={styles.otpDigit}>{otp[i] ?? ''}</Text>
+                  </View>
+                </Pressable>
+              ))}
             </View>
+          </View>
+
+          {/* Timer */}
+          <Text style={styles.timer}>Code expires in {formatTime(timeRemaining)}</Text>
+
+          {/* Error */}
+          {error && (
+            <View style={styles.errorBox}>
+              <Feather name="alert-circle" size={16} color={colors.error} />
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
+
+          {/* Verify button */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && styles.pressed,
+              (loading || otp.length !== 6 || timeRemaining <= 0) && styles.btnDisabled,
+            ]}
+            onPress={handleSubmit}
+            disabled={loading || otp.length !== 6 || timeRemaining <= 0}
+          >
+            <Text style={styles.primaryBtnLabel}>{loading ? 'Verifying...' : 'Verify'}</Text>
+          </Pressable>
+
+          {/* Resend */}
+          <View style={styles.resendRow}>
+            <Text style={styles.resendLead}>Didn't receive it?</Text>
+            {resendCooldown > 0 ? (
+              <Text style={styles.resendCooldown}> Resend in {resendCooldown}s</Text>
+            ) : (
+              <Pressable onPress={handleResend} disabled={resending}>
+                <Text style={styles.resendLink}> Resend code</Text>
+              </Pressable>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -203,131 +197,154 @@ export default function VerifyOtpScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.bgPrimary,
-  },
-  flex: {
-    flex: 1,
-  },
+  safe: { flex: 1, backgroundColor: '#0D0D0F' },
+  flex: { flex: 1 },
   scroll: {
     flexGrow: 1,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingBottom: 40,
     alignItems: 'center',
   },
-  iconCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: colors.bgSecondary,
+  logoWrap: {
+    alignItems: 'center',
+    marginTop: 96,
+    marginBottom: 32,
+  },
+  logoMark: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.125)',
+  },
+  iconPlate: {
+    width: 128,
+    height: 128,
+    borderRadius: 36,
+    backgroundColor: 'rgba(0,204,204,0.149)',
+    borderWidth: 1,
+    borderColor: colors.accentPrimary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: 8,
-    textAlign: 'center',
     fontFamily: fontFamilies.displayBold,
-  } as any,
-  subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#F5F5F7',
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 32,
-    fontFamily: fontFamilies.primary,
-  } as any,
-  emailHighlight: {
-    color: colors.accentPrimary,
-    fontWeight: '600',
-    fontFamily: fontFamilies.primarySemiBold,
-  } as any,
-  inputSection: {
-    width: '100%',
-    marginBottom: 24,
+    marginBottom: 12,
   },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: 10,
-    fontFamily: fontFamilies.primarySemiBold,
-  } as any,
-  otpInput: {
-    width: '100%',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    fontSize: 24,
-    fontWeight: '600',
-    letterSpacing: 8,
-    borderWidth: 2,
-    borderColor: colors.borderDefault,
-    borderRadius: 12,
-    color: colors.textPrimary,
-    backgroundColor: colors.bgSecondary,
-    fontFamily: fontFamilies.monoSemiBold,
+  copy: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 15,
+    color: '#9B9BA7',
     textAlign: 'center',
-  } as any,
-  otpInputError: {
+    lineHeight: 22,
+    marginBottom: 32,
+    paddingHorizontal: 8,
+  },
+  otpWrap: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  hiddenInput: {
+    position: 'absolute',
+    opacity: 0,
+    width: 1,
+    height: 1,
+  },
+  otpRow: {
+    flexDirection: 'row',
+    gap: 9,
+  },
+  otpBox: {
+    width: 48,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#191920',
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  otpBoxActive: {
+    borderColor: colors.accentPrimary,
+  },
+  otpBoxCursor: {
+    borderColor: colors.accentPrimary,
+  },
+  otpBoxError: {
     borderColor: colors.error,
+  },
+  otpDigit: {
+    fontFamily: fontFamilies.mono,
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#F5F5F7',
+  },
+  timer: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 14,
+    color: '#9B9BA7',
+    textAlign: 'center',
+    marginBottom: 24,
   },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.error + '15',
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 8,
     marginBottom: 16,
     gap: 10,
+    alignSelf: 'stretch',
   },
   errorText: {
     flex: 1,
+    fontFamily: fontFamilies.primary,
     fontSize: 13,
     color: colors.error,
-    fontFamily: fontFamilies.primary,
-  } as any,
-  timer: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 24,
-    fontFamily: fontFamilies.primary,
-  } as any,
-  buttonSection: {
-    width: '100%',
-    marginBottom: 32,
   },
-  resendSection: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  primaryBtn: {
+    backgroundColor: colors.accentPrimary,
+    borderRadius: 24,
+    height: 48,
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+    marginBottom: 24,
   },
-  resendText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontFamily: fontFamilies.primary,
-  } as any,
+  primaryBtnLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#050506',
+  },
+  btnDisabled: { opacity: 0.5 },
+  pressed: { opacity: 0.82 },
+  resendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resendLead: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 14,
+    color: '#9B9BA7',
+  },
   resendLink: {
-    fontSize: 13,
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 14,
+    fontWeight: '700',
     color: colors.accentPrimary,
-    fontWeight: '600',
-    fontFamily: fontFamilies.primarySemiBold,
-  } as any,
+  },
   resendCooldown: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontFamily: fontFamilies.primary,
-  } as any,
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 14,
+    color: '#9B9BA7',
+  },
 });

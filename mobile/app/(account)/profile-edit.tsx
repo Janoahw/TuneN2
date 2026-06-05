@@ -180,33 +180,29 @@ export default function ProfileEditScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
+  safe: { flex: 1, backgroundColor: '#0D0D0F' },
   flex: { flex: 1 },
-  scroll: {
-    flexGrow: 1,
-    padding: 24,
-  },
+  scroll: { flexGrow: 1, paddingHorizontal: 20, paddingBottom: 60 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingTop: 14,
     marginBottom: 32,
   },
   backButton: { width: 40, height: 40, justifyContent: 'center' },
   headerTitle: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 24,
-    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
-  avatarSection: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
+  avatarSection: { alignItems: 'center', marginBottom: 32 },
   avatarImage: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: colors.accentPrimary,
   },
   avatarPlaceholder: {
@@ -219,29 +215,28 @@ const styles = StyleSheet.create({
   avatarInitials: {
     fontFamily: fontFamilies.displayBold,
     fontSize: 40,
-    color: colors.onPrimary,
+    color: '#050506',
   },
   changePhotoOverlay: {
     position: 'absolute',
-    top: 80,
+    top: 82,
     right: '50%',
-    marginRight: -56,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    marginRight: -58,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: colors.accentPrimary,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: colors.bgPrimary,
+    borderWidth: 2,
+    borderColor: '#0D0D0F',
   },
   changePhotoLabel: {
     marginTop: 12,
-    fontFamily: fontFamilies.primarySemiBold,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 14,
+    fontWeight: '700',
     color: colors.accentPrimary,
   },
-  form: {
-    marginBottom: 24,
-  },
+  form: { marginBottom: 24 },
 });

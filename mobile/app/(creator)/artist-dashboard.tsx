@@ -88,11 +88,11 @@ export default function ArtistDashboardScreen() {
             <Text style={styles.actionText}>Upload Song</Text>
           </Pressable>
           <Pressable
-            style={[styles.actionButton, { backgroundColor: colors.bgSecondary }]}
+            style={[styles.actionButton, { backgroundColor: '#191920' }]}
             onPress={() => router.push('/(creator)/song-management')}
           >
-            <Feather name="music" size={20} color={colors.textPrimary} />
-            <Text style={[styles.actionText, { color: colors.textPrimary }]}>My Songs</Text>
+            <Feather name="music" size={20} color="#F5F5F7" />
+            <Text style={[styles.actionText, { color: '#F5F5F7' }]}>My Songs</Text>
           </Pressable>
         </View>
 
@@ -145,35 +145,39 @@ function formatK(n: number): string {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
-  scroll: { padding: 24, paddingBottom: 48 },
+  safe: { flex: 1, backgroundColor: '#0D0D0F' },
+  scroll: { paddingHorizontal: 20, paddingBottom: 100 },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    paddingTop: 16,
+    marginBottom: 20,
   },
   heading: {
     fontFamily: fontFamilies.displayBold,
     fontSize: 28,
-    color: colors.textPrimary,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
   headerAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerAvatarText: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 14,
-    color: colors.onPrimary,
+    fontSize: 15,
+    color: '#050506',
   },
   balanceCard: {
-    borderRadius: 16,
+    borderRadius: 24,
     padding: 24,
-    marginBottom: 24,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.094)',
   },
   balanceHeader: {
     flexDirection: 'row',
@@ -182,14 +186,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   balanceLabel: {
-    fontFamily: fontFamilies.primary,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.75)',
   },
   balanceAmount: {
     fontFamily: fontFamilies.mono,
-    fontSize: 36,
-    color: colors.onPrimary,
+    fontSize: 40,
+    fontWeight: '700',
+    color: '#F5F5F7',
     marginBottom: 16,
   },
   withdrawButton: {
@@ -203,94 +208,93 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   withdrawText: {
-    fontFamily: fontFamilies.primarySemiBold,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 13,
-    color: colors.onPrimary,
+    color: '#F5F5F7',
   },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 32,
-  },
+  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 28 },
   statCard: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 16,
-    backgroundColor: colors.bgSecondary,
-    borderRadius: 12,
+    paddingVertical: 18,
+    backgroundColor: '#15151B',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.borderDefault,
+    borderColor: '#2C2C3A',
   },
   statValue: {
     fontFamily: fontFamilies.displayBold,
     fontSize: 22,
-    color: colors.textPrimary,
+    fontWeight: '700',
+    color: '#F5F5F7',
     marginBottom: 4,
   },
   statLabel: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 13,
-    color: colors.textSecondary,
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 12,
+    color: '#9B9BA7',
   },
   sectionTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: 18,
-    color: colors.textPrimary,
-    marginBottom: 16,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginBottom: 14,
   },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 32,
-  },
+  actionsRow: { flexDirection: 'row', gap: 12, marginBottom: 28 },
   actionButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 16,
-    borderRadius: 12,
+    height: 52,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
   },
   actionText: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 15,
-    color: colors.onPrimary,
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#050506',
   },
-  salesList: { gap: 12, marginBottom: 24 },
+  salesList: { gap: 8, marginBottom: 24 },
   saleItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bgSecondary,
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: '#15151B',
+    padding: 14,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.borderDefault,
+    borderColor: '#2C2C3A',
   },
   saleIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.bgTertiary,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(0,204,204,0.149)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   saleInfo: { flex: 1 },
   saleTitle: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 15,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
   saleSubtitle: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 13,
-    color: colors.textSecondary,
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 12,
+    color: '#9B9BA7',
     marginTop: 2,
   },
   saleAmount: {
     fontFamily: fontFamilies.mono,
-    fontSize: 15,
+    fontSize: 14,
+    fontWeight: '700',
     color: colors.success,
   },
 });

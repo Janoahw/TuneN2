@@ -5,12 +5,12 @@
     "owner": "tunen2",
     "version": "0.0.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon.jpg",
     "scheme": "tunen2",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/icon.png",
+      "image": "./assets/icon.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#0A0A0F"
     },

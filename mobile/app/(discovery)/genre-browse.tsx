@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fontFamilies, fontSizes, spacing, radius } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 import { useGenreDetail } from '@/hooks/useDiscover';
 import type { ArtistSummary } from '@/services/discover.service';
 import type { SongDetail } from '@/services/song.service';
@@ -29,57 +29,44 @@ function formatDuration(seconds?: number | null): string {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function ArtistCircle({ artist }: { artist: ArtistSummary }) {
+function ArtistBubble({ artist }: { artist: ArtistSummary }) {
   return (
     <Pressable
-      style={styles.artistCircleItem}
+      style={styles.bubbleItem}
       onPress={() => router.push({ pathname: '/artist-profile', params: { id: artist.id } })}
     >
       {artist.profileImageUrl ? (
-        <Image source={{ uri: artist.profileImageUrl }} style={styles.artistCircleImage} />
+        <Image source={{ uri: artist.profileImageUrl }} style={styles.bubbleImage} />
       ) : (
-        <LinearGradient
-          colors={[colors.accentPrimary, colors.accentSecondary]}
-          style={styles.artistCircleImage}
-        >
-          <Text style={styles.artistCircleInitial}>
-            {artist.artistName.charAt(0).toUpperCase()}
-          </Text>
+        <LinearGradient colors={[colors.accentPrimary, colors.accentSecondary]} style={styles.bubbleImage}>
+          <Text style={styles.bubbleInitial}>{artist.artistName.charAt(0).toUpperCase()}</Text>
         </LinearGradient>
       )}
-      <Text style={styles.artistCircleName} numberOfLines={1}>
-        {artist.artistName}
-      </Text>
+      <Text style={styles.bubbleName} numberOfLines={1}>{artist.artistName}</Text>
     </Pressable>
   );
 }
 
-function SongRow({ song }: { song: SongDetail }) {
+function SongCard({ song }: { song: SongDetail }) {
   return (
     <Pressable
-      style={styles.songRow}
+      style={styles.songCard}
       onPress={() => router.push({ pathname: '/song-detail', params: { id: song.id } })}
     >
       {song.coverArtUrl ? (
-        <Image source={{ uri: song.coverArtUrl }} style={styles.songCover} />
+        <Image source={{ uri: song.coverArtUrl }} style={styles.songArt} />
       ) : (
-        <LinearGradient
-          colors={[colors.accentPrimary, colors.accentSecondary]}
-          style={styles.songCover}
-        />
+        <LinearGradient colors={[colors.accentPrimary, colors.accentSecondary]} style={styles.songArt} />
       )}
-      <View style={styles.songRowInfo}>
-        <Text style={styles.songTitle} numberOfLines={1}>
-          {song.title}
-        </Text>
-        <Text style={styles.songArtist} numberOfLines={1}>
-          {song.artist.artistName}
-        </Text>
+      <View style={styles.songInfo}>
+        <Text style={styles.songTitle} numberOfLines={1}>{song.title}</Text>
+        <Text style={styles.songArtist} numberOfLines={1}>{song.artist.artistName}</Text>
       </View>
       <View style={styles.songMeta}>
         <Text style={styles.songPrice}>{formatPrice(song.price, song.isFree)}</Text>
         <Text style={styles.songDuration}>{formatDuration(song.durationSeconds)}</Text>
       </View>
+      <Feather name="play-circle" size={22} color={colors.accentPrimary} />
     </Pressable>
   );
 }
@@ -101,24 +88,25 @@ export default function GenreBrowseScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Feather name="arrow-left" size={22} color={colors.textPrimary} />
+          <Feather name="arrow-left" size={22} color="#F5F5F7" />
         </Pressable>
         <Text style={styles.headerTitle}>{name ?? data?.name}</Text>
         <View style={{ width: 22 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Hero card */}
         <LinearGradient
-          colors={[colors.accentPrimary, '#008080']}
+          colors={[colors.accentPrimary, '#004D66']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.heroCard}
         >
-          <Text style={styles.heroGenreName}>{name ?? data?.name}</Text>
+          <Text style={styles.heroLabel}>GENRE</Text>
+          <Text style={styles.heroName}>{name ?? data?.name}</Text>
           {data && (
             <Text style={styles.heroStats}>
-              {data.genre._count.songs} songs • {data.genre._count.artists ?? 0} artists
+              {data.genre._count.songs} songs · {data.genre._count.artists ?? 0} artists
             </Text>
           )}
         </LinearGradient>
@@ -132,8 +120,8 @@ export default function GenreBrowseScreen() {
               keyExtractor={(a) => a.id}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.artistRow}
-              renderItem={({ item }: { item: ArtistSummary }) => <ArtistCircle artist={item} />}
+              contentContainerStyle={styles.bubbleRow}
+              renderItem={({ item }) => <ArtistBubble artist={item} />}
             />
           </View>
         )}
@@ -143,7 +131,7 @@ export default function GenreBrowseScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Popular Songs</Text>
             {data.popularSongs.map((s: SongDetail) => (
-              <SongRow key={s.id} song={s} />
+              <SongCard key={s.id} song={s} />
             ))}
           </View>
         )}
@@ -153,102 +141,124 @@ export default function GenreBrowseScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgPrimary },
+  container: { flex: 1, backgroundColor: '#0D0D0F' },
   loader: { flex: 1 },
-  scroll: { paddingHorizontal: spacing[5], paddingBottom: spacing[8] },
+  scroll: { paddingHorizontal: 20, paddingBottom: 100 },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing[5],
-    paddingVertical: spacing[4],
+    paddingHorizontal: 20,
+    paddingVertical: 14,
   },
   headerTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: fontSizes.md,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
 
   heroCard: {
-    borderRadius: radius.xl,
-    padding: spacing[8],
-    marginBottom: spacing[8],
-    justifyContent: 'flex-end',
+    borderRadius: 28,
+    padding: 28,
+    marginBottom: 28,
     minHeight: 140,
+    justifyContent: 'flex-end',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.094)',
   },
-  heroGenreName: {
+  heroLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 11,
+    fontWeight: '800',
+    color: 'rgba(255,255,255,0.7)',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  heroName: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: fontSizes['3xl'] ?? 30,
-    color: colors.onPrimary,
-    marginBottom: spacing[2],
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#F5F5F7',
+    marginBottom: 8,
+    lineHeight: 36,
   },
   heroStats: {
     fontFamily: fontFamilies.primaryMedium,
-    fontSize: fontSizes.sm,
-    color: 'rgba(255,255,255,0.85)',
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.8)',
   },
 
-  section: { marginBottom: spacing[8] },
+  section: { marginBottom: 28 },
   sectionTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: fontSizes.md,
-    color: colors.textPrimary,
-    marginBottom: spacing[4],
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginBottom: 14,
   },
 
-  artistRow: { gap: spacing[4], paddingRight: spacing[4] },
-  artistCircleItem: { width: 80, alignItems: 'center', gap: spacing[2] },
-  artistCircleImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
+  bubbleRow: { gap: 16, paddingRight: 8 },
+  bubbleItem: { width: 82, alignItems: 'center', gap: 8 },
+  bubbleImage: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.094)',
   },
-  artistCircleInitial: {
+  bubbleInitial: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: fontSizes.xl,
-    color: colors.onPrimary,
+    fontSize: 28,
+    color: '#050506',
   },
-  artistCircleName: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.xs,
-    color: colors.textPrimary,
+  bubbleName: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#F5F5F7',
     textAlign: 'center',
   },
 
-  songRow: {
+  songCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderDefault,
+    gap: 12,
+    backgroundColor: '#15151B',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    height: 68,
+    paddingHorizontal: 12,
+    marginBottom: 8,
   },
-  songCover: { width: 48, height: 48, borderRadius: radius.sm },
-  songRowInfo: { flex: 1 },
+  songArt: { width: 46, height: 46, borderRadius: 12 },
+  songInfo: { flex: 1 },
   songTitle: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.base,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginBottom: 3,
   },
   songArtist: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: 2,
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 12,
+    color: '#9B9BA7',
   },
-  songMeta: { alignItems: 'flex-end' },
+  songMeta: { alignItems: 'flex-end', gap: 3, marginRight: 4 },
   songPrice: {
-    fontFamily: fontFamilies.monoSemiBold,
-    fontSize: fontSizes.sm,
-    color: colors.accentPrimary,
+    fontFamily: fontFamilies.mono,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FF9F0A',
   },
   songDuration: {
     fontFamily: fontFamilies.mono,
-    fontSize: fontSizes.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
+    fontSize: 11,
+    color: '#9B9BA7',
   },
 });

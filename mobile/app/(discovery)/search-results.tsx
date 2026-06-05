@@ -5,7 +5,6 @@ import {
   Pressable,
   ScrollView,
   Image,
-  FlatList,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,7 +12,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { colors, fontFamilies, fontSizes, spacing, radius } from '@/theme';
+import { colors, fontFamilies } from '@/theme';
 import { useSearch } from '@/hooks/useSearch';
 import type { ArtistSummary } from '@/services/discover.service';
 import type { SongDetail } from '@/services/song.service';
@@ -40,23 +39,20 @@ function formatDuration(seconds?: number | null): string {
 function ArtistRow({ artist }: { artist: ArtistSummary }) {
   return (
     <Pressable
-      style={styles.artistRow}
+      style={styles.resultCard}
       onPress={() => router.push({ pathname: '/artist-profile', params: { id: artist.id } })}
     >
       {artist.profileImageUrl ? (
         <Image source={{ uri: artist.profileImageUrl }} style={styles.artistAvatar} />
       ) : (
-        <LinearGradient
-          colors={[colors.accentPrimary, colors.accentSecondary]}
-          style={styles.artistAvatar}
-        >
+        <LinearGradient colors={[colors.accentPrimary, colors.accentSecondary]} style={styles.artistAvatar}>
           <Text style={styles.artistInitial}>{artist.artistName.charAt(0).toUpperCase()}</Text>
         </LinearGradient>
       )}
-      <View style={styles.artistRowInfo}>
-        <Text style={styles.artistName}>{artist.artistName}</Text>
-        <Text style={styles.artistMeta}>
-          {artist._count.songs} songs • {formatFollowers(artist._count.follows)} followers
+      <View style={styles.cardInfo}>
+        <Text style={styles.cardTitle} numberOfLines={1}>{artist.artistName}</Text>
+        <Text style={styles.cardSub} numberOfLines={1}>
+          {artist._count.songs} songs · {formatFollowers(artist._count.follows)} followers
         </Text>
       </View>
       {artist.isVerified && <Feather name="check-circle" size={16} color={colors.accentPrimary} />}
@@ -67,24 +63,17 @@ function ArtistRow({ artist }: { artist: ArtistSummary }) {
 function SongRow({ song }: { song: SongDetail }) {
   return (
     <Pressable
-      style={styles.songRow}
+      style={styles.resultCard}
       onPress={() => router.push({ pathname: '/song-detail', params: { id: song.id } })}
     >
       {song.coverArtUrl ? (
         <Image source={{ uri: song.coverArtUrl }} style={styles.songCover} />
       ) : (
-        <LinearGradient
-          colors={[colors.accentPrimary, colors.accentSecondary]}
-          style={styles.songCover}
-        />
+        <LinearGradient colors={[colors.accentPrimary, colors.accentSecondary]} style={styles.songCover} />
       )}
-      <View style={styles.songRowInfo}>
-        <Text style={styles.songTitle} numberOfLines={1}>
-          {song.title}
-        </Text>
-        <Text style={styles.songArtist} numberOfLines={1}>
-          {song.artist?.artistName}
-        </Text>
+      <View style={styles.cardInfo}>
+        <Text style={styles.cardTitle} numberOfLines={1}>{song.title}</Text>
+        <Text style={styles.cardSub} numberOfLines={1}>{song.artist?.artistName}</Text>
       </View>
       <View style={styles.songMeta}>
         <Text style={styles.songPrice}>{formatPrice(song.price, song.isFree)}</Text>
@@ -97,7 +86,6 @@ function SongRow({ song }: { song: SongDetail }) {
 export default function SearchResultsScreen() {
   const { q } = useLocalSearchParams<{ q: string }>();
   const [filter, setFilter] = useState<FilterType>('all');
-
   const { data, isLoading } = useSearch(q ?? '', filter);
 
   const filters: { key: FilterType; label: string }[] = [
@@ -110,23 +98,21 @@ export default function SearchResultsScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backButton}>
-          <Feather name="arrow-left" size={22} color={colors.textPrimary} />
+        <Pressable onPress={() => router.back()} hitSlop={12}>
+          <Feather name="arrow-left" size={22} color="#F5F5F7" />
         </Pressable>
-        <Text style={styles.queryText} numberOfLines={1}>
-          "{q}"
-        </Text>
+        <Text style={styles.queryText} numberOfLines={1}>"{q}"</Text>
       </View>
 
-      {/* Filter tabs */}
+      {/* Filter chips */}
       <View style={styles.filterRow}>
         {filters.map((f) => (
           <Pressable
             key={f.key}
-            style={[styles.filterTab, filter === f.key && styles.filterTabActive]}
+            style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
             onPress={() => setFilter(f.key)}
           >
-            <Text style={[styles.filterLabel, filter === f.key && styles.filterLabelActive]}>
+            <Text style={[styles.filterChipLabel, filter === f.key && styles.filterChipLabelActive]}>
               {f.label}
             </Text>
           </Pressable>
@@ -134,14 +120,10 @@ export default function SearchResultsScreen() {
       </View>
 
       {isLoading ? (
-        <ActivityIndicator
-          size="large"
-          color={colors.accentPrimary}
-          style={{ marginTop: spacing[10] }}
-        />
+        <ActivityIndicator size="large" color={colors.accentPrimary} style={styles.loader} />
       ) : (
-        <ScrollView contentContainerStyle={styles.scroll}>
-          {/* Artists section */}
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {/* Artists */}
           {filter !== 'songs' && data && data.artists.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Artists</Text>
@@ -151,22 +133,22 @@ export default function SearchResultsScreen() {
             </View>
           )}
 
-          {/* Songs section */}
+          {/* Songs */}
           {filter !== 'artists' && data && data.songs.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Songs</Text>
               {data.songs.map((s: SongDetail) => (
-                <SongRow key={s.id} song={s as SongDetail} />
+                <SongRow key={s.id} song={s} />
               ))}
             </View>
           )}
 
-          {/* Empty state */}
-          {!isLoading && data && data.artists.length === 0 && data.songs.length === 0 && (
+          {/* Empty */}
+          {data && data.artists.length === 0 && data.songs.length === 0 && (
             <View style={styles.emptyState}>
-              <Feather name="search" size={40} color={colors.textTertiary} />
+              <Feather name="search" size={40} color="#4A4A5A" />
               <Text style={styles.emptyText}>No results for "{q}"</Text>
-              <Text style={styles.emptySubtext}>Try a different search term</Text>
+              <Text style={styles.emptySub}>Try a different search term</Text>
             </View>
           )}
         </ScrollView>
@@ -176,136 +158,133 @@ export default function SearchResultsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgPrimary },
-  scroll: { paddingHorizontal: spacing[5], paddingBottom: spacing[8] },
+  container: { flex: 1, backgroundColor: '#0D0D0F' },
+  loader: { flex: 1 },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing[5],
-    paddingVertical: spacing[4],
-    gap: spacing[3],
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    gap: 12,
   },
-  backButton: {},
   queryText: {
     flex: 1,
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: fontSizes.md,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
 
   filterRow: {
     flexDirection: 'row',
-    paddingHorizontal: spacing[5],
-    gap: spacing[2],
-    marginBottom: spacing[4],
+    paddingHorizontal: 20,
+    gap: 8,
+    marginBottom: 16,
   },
-  filterTab: {
-    paddingVertical: spacing[2],
-    paddingHorizontal: spacing[4],
-    borderRadius: radius.full,
+  filterChip: {
+    paddingHorizontal: 16,
+    height: 34,
+    borderRadius: 17,
     borderWidth: 1,
-    borderColor: colors.borderDefault,
+    borderColor: '#2C2C3A',
+    backgroundColor: '#191920',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  filterTabActive: {
-    backgroundColor: colors.accentPrimary,
+  filterChipActive: {
+    backgroundColor: 'rgba(0,204,204,0.149)',
     borderColor: colors.accentPrimary,
   },
-  filterLabel: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
+  filterChipLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#9B9BA7',
   },
-  filterLabelActive: { color: colors.onPrimary },
+  filterChipLabelActive: {
+    color: colors.accentPrimary,
+  },
 
-  section: { marginBottom: spacing[6] },
+  scroll: { paddingHorizontal: 20, paddingBottom: 100 },
+
+  section: { marginBottom: 24 },
   sectionTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: fontSizes.base,
-    color: colors.textPrimary,
-    marginBottom: spacing[3],
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginBottom: 12,
   },
 
-  artistRow: {
+  resultCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderDefault,
+    gap: 12,
+    backgroundColor: '#15151B',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    height: 68,
+    paddingHorizontal: 12,
+    marginBottom: 8,
   },
   artistAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   artistInitial: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: fontSizes.md,
-    color: colors.onPrimary,
+    fontSize: 18,
+    color: '#050506',
   },
-  artistRowInfo: { flex: 1 },
-  artistName: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.base,
-    color: colors.textPrimary,
+  songCover: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
   },
-  artistMeta: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: 2,
+  cardInfo: { flex: 1 },
+  cardTitle: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginBottom: 3,
   },
-
-  songRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderDefault,
+  cardSub: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 12,
+    color: '#9B9BA7',
   },
-  songCover: { width: 48, height: 48, borderRadius: radius.sm },
-  songRowInfo: { flex: 1 },
-  songTitle: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.base,
-    color: colors.textPrimary,
-  },
-  songArtist: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  songMeta: { alignItems: 'flex-end' },
+  songMeta: { alignItems: 'flex-end', gap: 3 },
   songPrice: {
-    fontFamily: fontFamilies.monoSemiBold,
-    fontSize: fontSizes.sm,
-    color: colors.accentPrimary,
+    fontFamily: fontFamilies.mono,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FF9F0A',
   },
   songDuration: {
     fontFamily: fontFamilies.mono,
-    fontSize: fontSizes.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
+    fontSize: 11,
+    color: '#9B9BA7',
   },
 
   emptyState: {
     alignItems: 'center',
-    paddingTop: spacing[16],
-    gap: spacing[3],
+    paddingTop: 80,
+    gap: 12,
   },
   emptyText: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: fontSizes.md,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 18,
+    color: '#F5F5F7',
   },
-  emptySubtext: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.base,
-    color: colors.textSecondary,
+  emptySub: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 14,
+    color: '#9B9BA7',
   },
 });
