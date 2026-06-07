@@ -70,10 +70,15 @@ export default function SignupScreen() {
         email: values.email,
         password: values.password,
       });
-      Toast.show({ type: 'success', text1: 'Account Created', text2: 'Verify your email to complete signup' });
+      Toast.show({
+        type: 'success',
+        text1: 'Account Created',
+        text2: 'Verify your email to complete signup',
+      });
       router.push({ pathname: '/(auth)/verify-otp' });
     } catch (err: any) {
-      const message = err?.response?.data?.error?.message || 'Something went wrong. Try again.';
+      const message =
+        err?.response?.data?.error?.message || err?.message || 'Something went wrong. Try again.';
       Toast.show({ type: 'error', text1: 'Signup Failed', text2: message });
     }
   };
@@ -82,14 +87,27 @@ export default function SignupScreen() {
     <View style={styles.container}>
       {/* Studio photo */}
       <Image
-        source={{ uri: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80' }}
+        source={{
+          uri: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80',
+        }}
         style={styles.photo}
         resizeMode="cover"
       />
-      <LinearGradient colors={['#0D0D0FE6', '#0D0D0F00']} style={styles.topScrim} pointerEvents="none" />
-      <LinearGradient colors={['#0D0D0F00', '#0D0D0FFF']} style={styles.bottomScrim} pointerEvents="none" />
+      <LinearGradient
+        colors={['#0D0D0FE6', '#0D0D0F00']}
+        style={styles.topScrim}
+        pointerEvents="none"
+      />
+      <LinearGradient
+        colors={['#0D0D0F00', '#0D0D0FFF']}
+        style={styles.bottomScrim}
+        pointerEvents="none"
+      />
 
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.flex}
+      >
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
@@ -102,7 +120,8 @@ export default function SignupScreen() {
 
           <Text style={styles.title}>Create your account</Text>
           <Text style={styles.copy}>
-            Choose fan or artist mode at signup and start with the same trusted wallet-ready identity.
+            Choose fan or artist mode at signup and start with the same trusted wallet-ready
+            identity.
           </Text>
 
           {/* Form */}
@@ -115,6 +134,18 @@ export default function SignupScreen() {
             autoCapitalize="none"
             autoComplete="email"
             textContentType="emailAddress"
+            containerStyle={INPUT_STYLE.containerStyle}
+            inputContainerStyle={INPUT_STYLE.inputContainerStyle}
+          />
+
+          <ControlledInput
+            control={control}
+            name="displayName"
+            placeholder="Display name"
+            icon="user"
+            autoCapitalize="words"
+            autoComplete="name"
+            textContentType="name"
             containerStyle={INPUT_STYLE.containerStyle}
             inputContainerStyle={INPUT_STYLE.inputContainerStyle}
           />
@@ -135,12 +166,14 @@ export default function SignupScreen() {
 
           <ControlledInput
             control={control}
-            name="displayName"
-            placeholder="Display name"
-            icon="user"
-            autoCapitalize="words"
-            autoComplete="name"
-            textContentType="name"
+            name="confirmPassword"
+            placeholder="Confirm password"
+            icon="lock"
+            secureTextEntry={!showConfirm}
+            rightIcon={showConfirm ? 'eye' : 'eye-off'}
+            onRightIconPress={() => setShowConfirm((p) => !p)}
+            autoComplete="new-password"
+            textContentType="newPassword"
             containerStyle={INPUT_STYLE.containerStyle}
             inputContainerStyle={INPUT_STYLE.inputContainerStyle}
           />
@@ -157,13 +190,19 @@ export default function SignupScreen() {
               style={[styles.roleBtn, role === 'artist' && styles.roleBtnActive]}
               onPress={() => setRole('artist')}
             >
-              <Text style={[styles.roleLabel, role === 'artist' && styles.roleLabelActive]}>Artist</Text>
+              <Text style={[styles.roleLabel, role === 'artist' && styles.roleLabelActive]}>
+                Artist
+              </Text>
             </Pressable>
           </View>
 
           {/* Primary button */}
           <Pressable
-            style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed, signupMutation.isPending && styles.btnDisabled]}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && styles.pressed,
+              signupMutation.isPending && styles.btnDisabled,
+            ]}
             onPress={handleSubmit(onSubmit)}
             disabled={signupMutation.isPending}
           >
@@ -176,8 +215,7 @@ export default function SignupScreen() {
           <View style={styles.footer}>
             <Pressable onPress={() => router.replace('/(auth)/login')}>
               <Text style={styles.footerText}>
-                Already selling music here?{' '}
-                <Text style={styles.footerLink}>Sign in</Text>
+                Already selling music here? <Text style={styles.footerLink}>Sign in</Text>
               </Text>
             </Pressable>
           </View>

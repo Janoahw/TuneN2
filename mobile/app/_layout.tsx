@@ -14,6 +14,7 @@ import TrackPlayer, {
   Event,
   State,
 } from 'react-native-track-player';
+import { PlaybackService } from '@/services/playerService';
 import {
   SpaceGrotesk_400Regular,
   SpaceGrotesk_500Medium,
@@ -37,6 +38,7 @@ import { colors } from '@/theme';
 import { toastConfig } from '@/utils/toastConfig';
 
 SplashScreen.preventAutoHideAsync();
+TrackPlayer.registerPlaybackService(() => PlaybackService);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -99,7 +101,7 @@ function RootLayoutInner() {
   // Register TrackPlayer event listeners so native events have consumers.
   // Also keeps isPlaying in sync if the OS pauses playback (interruptions, etc.).
   useTrackPlayerEvents(
-    [Event.PlaybackState, Event.PlaybackActiveTrackChanged, Event.PlaybackTrackChanged],
+    [Event.PlaybackState, Event.PlaybackActiveTrackChanged],
     (event) => {
       if (event.type === Event.PlaybackState) {
         const playing = event.state === State.Playing || event.state === State.Buffering;
