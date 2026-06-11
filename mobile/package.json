@@ -25,6 +25,7 @@
     "axios": "^1.9.0",
     "expo": "~53.0.0",
     "expo-auth-session": "~6.2.1",
+    "expo-build-properties": "^56.0.17",
     "expo-constants": "~17.1.8",
     "expo-crypto": "~14.1.5",
     "expo-dev-client": "~5.2.4",
@@ -48,7 +49,7 @@
     "react-native-safe-area-context": "~5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-toast-message": "^2.3.3",
-    "react-native-track-player": "^4.1.0",
+    "react-native-track-player": "5.0.0-alpha0",
     "react-native-web": "~0.20.0",
     "zod": "^3.24.0",
     "zustand": "^5.0.0"

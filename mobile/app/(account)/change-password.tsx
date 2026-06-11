@@ -179,32 +179,24 @@ export default function ChangePasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
+  safe: { flex: 1, backgroundColor: '#0D0D0F' },
   flex: { flex: 1 },
-  scroll: {
-    flexGrow: 1,
-    padding: 24,
-  },
+  scroll: { flexGrow: 1, padding: 24 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 28,
   },
   backButton: { width: 40, height: 40, justifyContent: 'center' },
   headerTitle: {
     fontFamily: fontFamilies.displayBold,
     fontSize: 24,
-    color: colors.textPrimary,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
-  form: {
-    marginBottom: 24,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.bgTertiary,
-    marginVertical: 8,
-  },
+  form: { marginBottom: 24 },
+  divider: { height: 1, backgroundColor: '#1E1E28', marginVertical: 8 },
   strengthWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,17 +207,15 @@ const styles = StyleSheet.create({
   strengthTrack: {
     flex: 1,
     height: 4,
-    backgroundColor: colors.bgTertiary,
+    backgroundColor: '#191920',
     borderRadius: 2,
     overflow: 'hidden',
   },
-  strengthFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
+  strengthFill: { height: '100%', borderRadius: 2 },
   strengthLabel: {
-    fontFamily: fontFamilies.primarySemiBold,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 12,
+    fontWeight: '700',
     width: 52,
   },
 });

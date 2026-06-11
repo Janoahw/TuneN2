@@ -7,23 +7,37 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ControlledInput } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import { authService } from '@/services/auth.service';
 import { colors, fontFamilies } from '@/theme';
+
+const { width } = Dimensions.get('window');
+const PHOTO_HEIGHT = 420;
 
 const forgotSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Enter a valid email'),
 });
 
 type ForgotForm = z.infer<typeof forgotSchema>;
+
+const INPUT_STYLE = {
+  inputContainerStyle: {
+    backgroundColor: '#191920',
+    borderRadius: 16,
+    borderColor: '#313142',
+    height: 52,
+    paddingVertical: 0,
+  } as const,
+  containerStyle: { marginBottom: 16 } as const,
+};
 
 export default function ForgotPasswordScreen() {
   const [sent, setSent] = useState(false);
@@ -51,165 +65,186 @@ export default function ForgotPasswordScreen() {
 
   if (sent) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.successContainer}>
-          <View style={styles.successContent}>
-            <View style={styles.iconCircle}>
-              <Feather name="mail" size={40} color={colors.textSecondary} />
-            </View>
-            <Text style={styles.title}>Check Your Email</Text>
-            <Text style={styles.subtitle}>
-              We sent a password reset link to{'\n'}
-              <Text style={styles.emailHighlight}>{sentEmail}</Text>
-            </Text>
+      <View style={styles.container}>
+        <Image
+          source={{ uri: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=900&q=80' }}
+          style={styles.photo}
+          resizeMode="cover"
+        />
+        <LinearGradient colors={['#0D0D0FE6', '#0D0D0F00']} style={styles.topScrim} pointerEvents="none" />
+        <LinearGradient colors={['#0D0D0F00', '#0D0D0FFF']} style={styles.bottomScrim} pointerEvents="none" />
+
+        <View style={styles.sentContent}>
+          <View style={styles.logoWrap}>
+            <Image source={require('../../assets/logo-mark.jpg')} style={styles.logoMark} />
           </View>
-          <Button title="Back to Login" onPress={() => router.replace('/(auth)/login')} />
+          <Text style={styles.title}>Check your email</Text>
+          <Text style={styles.copy}>
+            We sent a password reset link to{'\n'}
+            <Text style={styles.emailHighlight}>{sentEmail}</Text>
+          </Text>
+          <Pressable
+            style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed]}
+            onPress={() => router.replace('/(auth)/login')}
+          >
+            <Text style={styles.primaryBtnLabel}>Back to Login</Text>
+          </Pressable>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.flex}
-      >
+    <View style={styles.container}>
+      <Image
+        source={{ uri: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=900&q=80' }}
+        style={styles.photo}
+        resizeMode="cover"
+      />
+      <LinearGradient colors={['#0D0D0FE6', '#0D0D0F00']} style={styles.topScrim} pointerEvents="none" />
+      <LinearGradient colors={['#0D0D0F00', '#0D0D0FFF']} style={styles.bottomScrim} pointerEvents="none" />
+
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Top bar */}
-          <View style={styles.topBar}>
-            <Pressable onPress={() => router.back()} hitSlop={12}>
-              <Feather name="arrow-left" size={24} color={colors.textPrimary} />
-            </Pressable>
-            <Text style={styles.topBarTitle}>Reset Password</Text>
-            <View style={{ width: 24 }} />
+          <View style={styles.logoWrap}>
+            <Image source={require('../../assets/logo-mark.jpg')} style={styles.logoMark} />
           </View>
 
-          {/* Icon */}
-          <View style={styles.centerContent}>
-            <View style={styles.iconCircle}>
-              <Feather name="lock" size={40} color={colors.textSecondary} />
-            </View>
+          <Text style={styles.title}>Reset access</Text>
+          <Text style={styles.copy}>Enter your email and we will send a secure reset link.</Text>
 
-            {/* Header */}
-            <Text style={styles.title}>Forgot Password?</Text>
-            <Text style={styles.subtitle}>
-              Enter your email address and we'll send you a link to reset your password.
-            </Text>
-          </View>
+          <ControlledInput
+            control={control}
+            name="email"
+            placeholder="Email"
+            icon="mail"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            textContentType="emailAddress"
+            containerStyle={INPUT_STYLE.containerStyle}
+            inputContainerStyle={INPUT_STYLE.inputContainerStyle}
+          />
 
-          {/* Form */}
-          <View style={styles.form}>
-            <ControlledInput
-              control={control}
-              name="email"
-              placeholder="Email Address"
-              icon="mail"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              textContentType="emailAddress"
-            />
+          <Pressable
+            style={({ pressed }) => [styles.primaryBtn, pressed && styles.pressed, loading && styles.btnDisabled]}
+            onPress={handleSubmit(onSubmit)}
+            disabled={loading}
+          >
+            <Text style={styles.primaryBtnLabel}>{loading ? 'Sending...' : 'Send Reset Link'}</Text>
+          </Pressable>
 
-            <Button title="Send Reset Link" onPress={handleSubmit(onSubmit)} loading={loading} />
-          </View>
-
-          {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Remember your password? </Text>
-            <Pressable onPress={() => router.replace('/(auth)/login')}>
-              <Text style={styles.footerLink}>Log In</Text>
+            <Pressable onPress={() => router.push('/(auth)/signup')}>
+              <Text style={styles.footerText}>New to TuneN2?{' '}
+                <Text style={styles.footerLink}>Create account</Text>
+              </Text>
             </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
+  container: { flex: 1, backgroundColor: '#0D0D0F' },
   flex: { flex: 1 },
+  photo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width,
+    height: PHOTO_HEIGHT,
+  },
+  topScrim: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width,
+    height: 160,
+  },
+  bottomScrim: {
+    position: 'absolute',
+    top: 230,
+    left: 0,
+    width,
+    height: 260,
+  },
   scroll: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 28,
     paddingBottom: 32,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    marginBottom: 8,
+  sentContent: {
+    flex: 1,
+    paddingHorizontal: 28,
+    paddingBottom: 32,
   },
-  topBarTitle: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 16,
-    color: colors.textPrimary,
-  },
-  centerContent: {
+  logoWrap: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginTop: 82,
+    marginBottom: 0,
   },
-  iconCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: colors.bgSecondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
+  logoMark: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.125)',
   },
   title: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 28,
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: 10,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginTop: 72,
+    marginBottom: 16,
   },
-  subtitle: {
-    fontFamily: fontFamilies.primary,
+  copy: {
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 15,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  form: {
-    marginBottom: 24,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  footerText: {
-    fontFamily: fontFamilies.primary,
-    color: colors.textSecondary,
-    fontSize: 14,
-  },
-  footerLink: {
-    fontFamily: fontFamilies.primarySemiBold,
-    color: colors.accentPrimary,
-    fontSize: 14,
-  },
-  // Success state
-  successContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 32,
-    justifyContent: 'space-between',
-  },
-  successContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    color: '#9B9BA7',
+    lineHeight: 20,
+    marginBottom: 30,
+    width: 320,
   },
   emailHighlight: {
     fontFamily: fontFamilies.primarySemiBold,
-    color: colors.textPrimary,
+    color: colors.accentPrimary,
+  },
+  primaryBtn: {
+    backgroundColor: colors.accentPrimary,
+    borderRadius: 24,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  primaryBtnLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#050506',
+  },
+  btnDisabled: { opacity: 0.5 },
+  pressed: { opacity: 0.82 },
+  footer: {
+    alignItems: 'center',
+    marginTop: 'auto',
+    paddingTop: 40,
+  },
+  footerText: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#9B9BA7',
+  },
+  footerLink: {
+    color: '#F5F5F7',
   },
 });

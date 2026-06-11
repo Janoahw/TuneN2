@@ -48,7 +48,9 @@ export function Button({
           color={
             variant === 'outline' || variant === 'secondary' || variant === 'ghost'
               ? colors.accentPrimary
-              : colors.white
+              : variant === 'primary'
+                ? '#050506'
+                : colors.white
           }
           size="small"
         />
@@ -61,57 +63,32 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 12,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 52,
+    height: 48,
   },
-  pressed: {
-    opacity: 0.85,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
+  pressed: { opacity: 0.85 },
+  disabled: { opacity: 0.5 },
   text: {
-    fontFamily: fontFamilies.primarySemiBold,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 15,
+    fontWeight: '700',
   },
 });
 
 const variantStyles: Record<ButtonVariant, ViewStyle> = StyleSheet.create({
-  primary: {
-    backgroundColor: colors.accentPrimary,
-  },
-  secondary: {
-    backgroundColor: colors.bgSecondary,
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-  },
-  danger: {
-    backgroundColor: colors.error,
-  },
+  primary: { backgroundColor: colors.accentPrimary },
+  secondary: { backgroundColor: '#191920', borderWidth: 1, borderColor: '#2C2C3A' },
+  outline: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: '#2C2C3A' },
+  ghost: { backgroundColor: 'transparent' },
+  danger: { backgroundColor: colors.error },
 });
 
 const textVariantStyles = StyleSheet.create({
-  primary: {
-    color: colors.white,
-  },
-  secondary: {
-    color: colors.textPrimary,
-  },
-  outline: {
-    color: colors.textPrimary,
-  },
-  ghost: {
-    color: colors.accentPrimary,
-  },
-  danger: {
-    color: colors.white,
-  },
+  primary: { color: '#050506' },
+  secondary: { color: '#F5F5F7' },
+  outline: { color: '#F5F5F7' },
+  ghost: { color: colors.accentPrimary },
+  danger: { color: '#FFFFFF' },
 });

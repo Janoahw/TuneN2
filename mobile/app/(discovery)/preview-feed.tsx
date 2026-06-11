@@ -6,6 +6,7 @@ import {
   FlatList,
   Dimensions,
   TouchableOpacity,
+  Image,
   ImageBackground,
   ActivityIndicator,
   StatusBar as RNStatusBar,
@@ -102,11 +103,19 @@ function PreviewCard({
   return (
     <View style={styles.card}>
       {/* Cover art background */}
-      <ImageBackground
-        source={item.coverArtUrl ? { uri: item.coverArtUrl } : undefined}
-        style={styles.bg}
-        resizeMode="cover"
-      >
+      <View style={styles.bg}>
+        {item.coverArtUrl ? (
+          <Image
+            source={{ uri: item.coverArtUrl }}
+            style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+          />
+        ) : (
+          <LinearGradient
+            colors={['#0D2035', '#0A0A18']}
+            style={StyleSheet.absoluteFillObject}
+          />
+        )}
         {/* Dark gradient overlay */}
         <LinearGradient
           colors={['transparent', 'rgba(13,13,15,0.55)', 'rgba(13,13,15,0.92)']}
@@ -226,7 +235,7 @@ function PreviewCard({
             </TouchableOpacity>
           </View>
         </View>
-      </ImageBackground>
+      </View>
     </View>
   );
 }
@@ -398,25 +407,16 @@ export default function PreviewFeedScreen() {
 // ── Styles ────────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bgPrimary,
-  },
+  container: { flex: 1, backgroundColor: '#0D0D0F' },
   centered: {
     flex: 1,
-    backgroundColor: colors.bgPrimary,
+    backgroundColor: '#0D0D0F',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: spacing[2],
+    gap: 8,
   },
-  card: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-  },
-  bg: {
-    flex: 1,
-    backgroundColor: colors.bgCard,
-  },
+  card: { width: SCREEN_WIDTH, height: SCREEN_HEIGHT },
+  bg: { flex: 1, backgroundColor: '#15151B' },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -512,19 +512,14 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    marginRight: spacing[1],
+    marginRight: 4,
     overflow: 'hidden',
-    backgroundColor: colors.bgCard,
+    backgroundColor: '#15151B',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  artistAvatarImage: {
-    borderRadius: 14,
-  },
-  artistAvatarFallback: {
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-  },
+  artistAvatarImage: { borderRadius: 14 },
+  artistAvatarFallback: { borderWidth: 1, borderColor: '#2C2C3A' },
   artistName: {
     fontFamily: fontFamilies.primaryMedium,
     fontSize: fontSizes.sm,

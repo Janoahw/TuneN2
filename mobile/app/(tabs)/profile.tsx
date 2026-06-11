@@ -9,12 +9,21 @@ import { useUserProfile } from '@/hooks/useUser';
 import { colors, fontFamilies } from '@/theme';
 
 function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((p) => p[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  return name.split(' ').map((p) => p[0]).join('').toUpperCase().slice(0, 2);
+}
+
+function MenuItem({ icon, label, onPress, danger }: { icon: string; label: string; onPress: () => void; danger?: boolean }) {
+  return (
+    <Pressable style={styles.menuItem} onPress={onPress}>
+      <View style={styles.menuLeft}>
+        <View style={styles.menuIconWrap}>
+          <Feather name={icon as any} size={18} color={danger ? colors.error : '#9B9BA7'} />
+        </View>
+        <Text style={[styles.menuLabel, danger && styles.menuLabelDanger]}>{label}</Text>
+      </View>
+      <Feather name="chevron-right" size={18} color="#4A4A5A" />
+    </Pressable>
+  );
 }
 
 export default function ProfileScreen() {
@@ -40,47 +49,52 @@ export default function ProfileScreen() {
 
         {/* Avatar + Info */}
         <View style={styles.avatarSection}>
-          <Pressable onPress={() => router.push('/profile-edit')}>
+          <Pressable onPress={() => router.push('/profile-edit')} style={styles.avatarWrap}>
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
             ) : (
               <LinearGradient
-                colors={colors.gradientBrand as unknown as [string, string]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                colors={[colors.accentPrimary, colors.accentSecondary]}
                 style={styles.avatar}
               >
-                <Text style={styles.avatarText}>{initials}</Text>
+                <Text style={styles.avatarInitial}>{initials}</Text>
               </LinearGradient>
             )}
+            <View style={styles.avatarEditBadge}>
+              <Feather name="edit-2" size={12} color="#F5F5F7" />
+            </View>
           </Pressable>
           <Text style={styles.displayName}>{displayName}</Text>
           <Text style={styles.email}>{email}</Text>
-          <Pressable style={styles.editButton} onPress={() => router.push('/profile-edit')}>
-            <Feather name="edit-2" size={14} color={colors.accentPrimary} />
-            <Text style={styles.editLabel}>Edit Profile</Text>
+          <Pressable style={styles.editBtn} onPress={() => router.push('/profile-edit')}>
+            <Feather name="edit-2" size={13} color={colors.accentPrimary} />
+            <Text style={styles.editBtnLabel}>Edit Profile</Text>
           </Pressable>
         </View>
 
-        {/* Artist Section */}
+        {/* Artist Banner */}
         {storeUser?.isArtist ? (
           <Pressable style={styles.artistBanner} onPress={() => router.push('/artist-dashboard')}>
-            <View style={styles.artistBannerLeft}>
-              <Feather name="music" size={20} color={colors.accentPrimary} />
+            <View style={styles.bannerLeft}>
+              <View style={styles.bannerIcon}>
+                <Feather name="music" size={20} color={colors.accentPrimary} />
+              </View>
               <View>
-                <Text style={styles.artistBannerTitle}>Artist Dashboard</Text>
-                <Text style={styles.artistBannerSub}>Manage your music & earnings</Text>
+                <Text style={styles.bannerTitle}>Artist Dashboard</Text>
+                <Text style={styles.bannerSub}>Manage your music & earnings</Text>
               </View>
             </View>
             <Feather name="chevron-right" size={18} color={colors.accentPrimary} />
           </Pressable>
         ) : (
           <Pressable style={styles.artistBanner} onPress={() => router.push('/become-artist')}>
-            <View style={styles.artistBannerLeft}>
-              <Feather name="star" size={20} color={colors.accentPrimary} />
+            <View style={styles.bannerLeft}>
+              <View style={styles.bannerIcon}>
+                <Feather name="star" size={20} color={colors.accentPrimary} />
+              </View>
               <View>
-                <Text style={styles.artistBannerTitle}>Become an Artist</Text>
-                <Text style={styles.artistBannerSub}>Start sharing your music today</Text>
+                <Text style={styles.bannerTitle}>Become an Artist</Text>
+                <Text style={styles.bannerSub}>Start sharing your music today</Text>
               </View>
             </View>
             <Feather name="chevron-right" size={18} color={colors.accentPrimary} />
@@ -88,146 +102,176 @@ export default function ProfileScreen() {
         )}
 
         {/* Menu */}
-        <View style={styles.menu}>
+        <View style={styles.menuSection}>
           <MenuItem icon="settings" label="Settings" onPress={() => router.push('/settings')} />
           {storeUser?.isArtist && (
-            <MenuItem
-              icon="edit-2"
-              label="Edit Artist Profile"
-              onPress={() => router.push('/edit-artist-profile')}
-            />
+            <MenuItem icon="edit-2" label="Edit Artist Profile" onPress={() => router.push('/edit-artist-profile')} />
           )}
           <MenuItem icon="credit-card" label="Payment Methods" onPress={() => {}} />
-          <MenuItem icon="bar-chart-2" label="Listening History" onPress={() => {}} />
+          <MenuItem icon="shopping-bag" label="Purchase History" onPress={() => router.push('/purchase-history')} />
+          <MenuItem icon="bell" label="Notifications" onPress={() => router.push('/notifications')} />
           <MenuItem icon="help-circle" label="Help & Support" onPress={() => {}} />
         </View>
 
         {/* Logout */}
-        <Pressable style={styles.logoutButton} onPress={handleLogout}>
+        <Pressable style={styles.logoutBtn} onPress={handleLogout}>
           <Feather name="log-out" size={18} color={colors.error} />
-          <Text style={styles.logoutText}>Sign Out</Text>
+          <Text style={styles.logoutLabel}>Sign Out</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function MenuItem({ icon, label, onPress }: { icon: string; label: string; onPress: () => void }) {
-  return (
-    <Pressable style={styles.menuItem} onPress={onPress}>
-      <View style={styles.menuLeft}>
-        <Feather name={icon as any} size={20} color={colors.textSecondary} />
-        <Text style={styles.menuText}>{label}</Text>
-      </View>
-      <Feather name="chevron-right" size={18} color={colors.textTertiary} />
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
-  scroll: { padding: 24, paddingBottom: 48 },
+  safe: { flex: 1, backgroundColor: '#0D0D0F' },
+  scroll: { paddingHorizontal: 20, paddingBottom: 100 },
+
   heading: {
     fontFamily: fontFamilies.displayBold,
     fontSize: 28,
-    color: colors.textPrimary,
-    marginBottom: 32,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    paddingTop: 16,
+    marginBottom: 28,
   },
-  avatarSection: { alignItems: 'center', marginBottom: 40 },
+
+  avatarSection: { alignItems: 'center', marginBottom: 28 },
+  avatarWrap: { position: 'relative', marginBottom: 14 },
   avatar: {
     width: 96,
     height: 96,
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.094)',
   },
-  avatarText: {
+  avatarInitial: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 32,
-    color: colors.onPrimary,
+    fontSize: 34,
+    color: '#050506',
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#191920',
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   displayName: {
-    fontFamily: fontFamilies.displaySemiBold,
+    fontFamily: fontFamilies.displayBold,
     fontSize: 22,
-    color: colors.textPrimary,
+    fontWeight: '700',
+    color: '#F5F5F7',
     marginBottom: 4,
   },
   email: {
-    fontFamily: fontFamilies.primary,
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 12,
+    color: '#9B9BA7',
+    marginBottom: 14,
   },
-  editButton: {
+  editBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 9999,
+    paddingHorizontal: 18,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.accentPrimary,
   },
-  editLabel: {
-    fontFamily: fontFamilies.primarySemiBold,
+  editBtnLabel: {
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 13,
+    fontWeight: '700',
     color: colors.accentPrimary,
   },
-  menu: { gap: 4 },
+
   artistBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.accentBgSubtle,
-    padding: 18,
-    borderRadius: 12,
+    backgroundColor: 'rgba(0,204,204,0.094)',
+    padding: 16,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.accentPrimary,
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  artistBannerLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  artistBannerTitle: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 16,
+  bannerLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  bannerIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(0,204,204,0.149)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bannerTitle: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 15,
+    fontWeight: '700',
     color: colors.accentPrimary,
   },
-  artistBannerSub: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 13,
-    color: colors.textSecondary,
+  bannerSub: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 12,
+    color: '#9B9BA7',
     marginTop: 2,
   },
+
+  menuSection: { gap: 8, marginBottom: 28 },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.bgSecondary,
-    padding: 18,
-    borderRadius: 12,
+    backgroundColor: '#15151B',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.borderDefault,
+    borderColor: '#2C2C3A',
+    height: 60,
+    paddingHorizontal: 16,
   },
   menuLeft: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  menuText: {
-    fontFamily: fontFamilies.primaryMedium,
-    fontSize: 16,
-    color: colors.textPrimary,
+  menuIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#191920',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  logoutButton: {
+  menuLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#F5F5F7',
+  },
+  menuLabelDanger: { color: colors.error },
+
+  logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 24,
-    paddingVertical: 16,
-    borderRadius: 12,
+    height: 52,
+    borderRadius: 26,
     borderWidth: 1,
     borderColor: colors.error,
+    backgroundColor: 'rgba(255,59,48,0.063)',
   },
-  logoutText: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 16,
+  logoutLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 15,
+    fontWeight: '700',
     color: colors.error,
   },
 });

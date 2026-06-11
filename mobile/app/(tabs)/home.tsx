@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fontFamilies, fontSizes, spacing, radius } from '@/theme';
+import { colors, fontFamilies, fontSizes } from '@/theme';
 import { useDiscoverFeed } from '@/hooks/useDiscover';
 import type { ArtistSummary } from '@/services/discover.service';
 import type { SongDetail } from '@/services/song.service';
@@ -21,19 +21,14 @@ import { useAuthStore } from '@/stores/authStore';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good Morning';
-  if (hour < 17) return 'Good Afternoon';
-  return 'Good Evening';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
 }
 
 function formatPrice(price: string, isFree: boolean): string {
   if (isFree) return 'Free';
   return `$${parseFloat(price).toFixed(2)}`;
-}
-
-function formatFollowers(count: number): string {
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-  return String(count);
 }
 
 function formatDuration(seconds?: number | null): string {
@@ -43,62 +38,50 @@ function formatDuration(seconds?: number | null): string {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function ArtistCircle({ artist }: { artist: ArtistSummary }) {
+function ArtistBubble({ artist }: { artist: ArtistSummary }) {
   return (
     <Pressable
-      style={styles.artistCircleItem}
+      style={styles.bubbleItem}
       onPress={() => router.push({ pathname: '/artist-profile', params: { id: artist.id } })}
     >
       {artist.profileImageUrl ? (
-        <Image source={{ uri: artist.profileImageUrl }} style={styles.artistCircleImage} />
+        <Image source={{ uri: artist.profileImageUrl }} style={styles.bubbleImage} />
       ) : (
         <LinearGradient
           colors={[colors.accentPrimary, colors.accentSecondary]}
-          style={styles.artistCircleImage}
+          style={styles.bubbleImage}
         >
-          <Text style={styles.artistCircleInitial}>
-            {artist.artistName.charAt(0).toUpperCase()}
-          </Text>
+          <Text style={styles.bubbleInitial}>{artist.artistName.charAt(0).toUpperCase()}</Text>
         </LinearGradient>
       )}
-      <Text style={styles.artistCircleName} numberOfLines={1}>
-        {artist.artistName}
-      </Text>
-      {artist.genres.length > 0 && (
-        <Text style={styles.artistCircleGenre} numberOfLines={1}>
-          {artist.genres[0]}
-        </Text>
-      )}
+      <Text style={styles.bubbleName} numberOfLines={1}>{artist.artistName}</Text>
     </Pressable>
   );
 }
 
-function SongRow({ song }: { song: SongDetail & { _count?: { purchases: number } } }) {
+function SongCard({ song }: { song: SongDetail & { _count?: { purchases: number } } }) {
   return (
     <Pressable
-      style={styles.songRow}
+      style={styles.songCard}
       onPress={() => router.push({ pathname: '/song-detail', params: { id: song.id } })}
     >
       {song.coverArtUrl ? (
-        <Image source={{ uri: song.coverArtUrl }} style={styles.songCover} />
+        <Image source={{ uri: song.coverArtUrl }} style={styles.songArt} />
       ) : (
         <LinearGradient
           colors={[colors.accentPrimary, colors.accentSecondary]}
-          style={styles.songCover}
+          style={styles.songArt}
         />
       )}
-      <View style={styles.songRowInfo}>
-        <Text style={styles.songRowTitle} numberOfLines={1}>
-          {song.title}
-        </Text>
-        <Text style={styles.songRowArtist} numberOfLines={1}>
+      <View style={styles.songCardInfo}>
+        <Text style={styles.songCardTitle} numberOfLines={1}>{song.title}</Text>
+        <Text style={styles.songCardSub} numberOfLines={1}>
           {song.artist.artistName}
+          {song.genres?.[0] ? ` · ${song.genres[0]}` : ''}
         </Text>
       </View>
-      <View style={styles.songRowMeta}>
-        <Text style={styles.songPrice}>{formatPrice(song.price, song.isFree)}</Text>
-        <Text style={styles.songDuration}>{formatDuration(song.durationSeconds)}</Text>
-      </View>
+      <Text style={styles.songCardPrice}>{formatPrice(song.price, song.isFree)}</Text>
+      <Feather name="play-circle" size={22} color={colors.accentPrimary} />
     </Pressable>
   );
 }
@@ -136,50 +119,56 @@ export default function HomeScreen() {
       <ScrollView
         contentContainerStyle={styles.scroll}
         refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={refetch}
-            tintColor={colors.accentPrimary}
-          />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.accentPrimary} />
         }
+        showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>{greeting}</Text>
-            <Text style={styles.displayName}>{displayName} 👋</Text>
+          <View style={styles.headerLeft}>
+            <Text style={styles.greeting}>{greeting}, {displayName}</Text>
+            <Text style={styles.greetingSub}>Discover 30-second previews from rising artists</Text>
           </View>
+          <Pressable onPress={() => router.push('/(tabs)/search')} hitSlop={8}>
+            <Feather name="search" size={22} color="#9B9BA7" />
+          </Pressable>
         </View>
 
-        {/* Search bar shortcut */}
-        <Pressable style={styles.searchBar} onPress={() => router.push('/(tabs)/search')}>
-          <Feather name="search" size={18} color={colors.accentPrimary} />
-          <Text style={styles.searchPlaceholder}>Artists, songs, genres…</Text>
+        {/* Preview Feed CTA */}
+        <Pressable
+          style={({ pressed }) => [styles.previewCta, pressed && styles.pressed]}
+          onPress={() => router.push('/(discovery)/preview-feed')}
+        >
+          <Feather name="play" size={18} color="#050506" />
+          <Text style={styles.previewCtaLabel}>Open Preview Feed</Text>
         </Pressable>
 
-        {/* Discover hero card */}
+        {/* Feature Card */}
         <Pressable
-          style={styles.discoverCard}
+          style={({ pressed }) => [styles.featureCard, pressed && styles.pressed]}
           onPress={() => router.push('/(discovery)/preview-feed')}
-          android_ripple={{ color: 'rgba(0,204,204,0.15)' }}
         >
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1200&q=80' }}
+            style={styles.featurePhoto}
+            resizeMode="cover"
+          />
+          {/* dark scrim overlay */}
           <LinearGradient
-            colors={['#0A3A3A', colors.accentPrimary, colors.accentSecondary]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.discoverGradient}
-          >
-            <View style={styles.discoverContent}>
-              <View>
-                <Text style={styles.discoverLabel}>DISCOVER</Text>
-                <Text style={styles.discoverTitle}>Preview New Music</Text>
-                <Text style={styles.discoverSubtitle}>30-second clips · Swipe to explore</Text>
-              </View>
-              <View style={styles.discoverIconWrap}>
-                <Feather name="play-circle" size={40} color="rgba(255,255,255,0.9)" />
-              </View>
+            colors={['rgba(0,0,0,0.18)', 'rgba(0,0,0,0.64)']}
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={styles.featureContent}>
+            <View style={styles.featureLeft}>
+              <Text style={styles.featureLabel}>DIRECT MARKETPLACE</Text>
+              <Text style={styles.featureTitle}>Studio drops ready to own</Text>
+              <Text style={styles.featureCopy}>Buy once, keep it, and every sale pays the creator.</Text>
             </View>
-          </LinearGradient>
+            {/* Record decoration */}
+            <View style={styles.featureRecord}>
+              <Feather name="play" size={22} color="#FFFFFF" />
+            </View>
+          </View>
         </Pressable>
 
         {/* New Artists */}
@@ -191,8 +180,8 @@ export default function HomeScreen() {
               keyExtractor={(a) => a.id}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.artistRow}
-              renderItem={({ item }: { item: ArtistSummary }) => <ArtistCircle artist={item} />}
+              contentContainerStyle={styles.bubbleRow}
+              renderItem={({ item }) => <ArtistBubble artist={item} />}
             />
           </View>
         )}
@@ -201,11 +190,9 @@ export default function HomeScreen() {
         {data?.topPerformingSongs && data.topPerformingSongs.length > 0 && (
           <View style={styles.section}>
             <SectionHeader title="Top Performing" />
-            {data.topPerformingSongs
-              .slice(0, 5)
-              .map((song: SongDetail & { _count?: { purchases: number } }) => (
-                <SongRow key={song.id} song={song} />
-              ))}
+            {data.topPerformingSongs.slice(0, 5).map((song) => (
+              <SongCard key={song.id} song={song as any} />
+            ))}
           </View>
         )}
 
@@ -218,8 +205,8 @@ export default function HomeScreen() {
               keyExtractor={(a) => a.id}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.artistRow}
-              renderItem={({ item }: { item: ArtistSummary }) => <ArtistCircle artist={item} />}
+              contentContainerStyle={styles.bubbleRow}
+              renderItem={({ item }) => <ArtistBubble artist={item} />}
             />
           </View>
         )}
@@ -229,94 +216,124 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgPrimary },
-  loader: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scroll: { paddingHorizontal: spacing[5], paddingBottom: spacing[8] },
+  container: { flex: 1, backgroundColor: '#0D0D0F' },
+  loader: { flex: 1 },
+  scroll: { paddingHorizontal: 20, paddingBottom: 100 },
 
+  /* Header */
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: spacing[4],
-    paddingBottom: spacing[5],
+    alignItems: 'flex-start',
+    paddingTop: 16,
+    paddingBottom: 18,
   },
+  headerLeft: { flex: 1, marginRight: 12 },
   greeting: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-  },
-  displayName: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: fontSizes.xl,
-    color: colors.textPrimary,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    lineHeight: 30,
+  },
+  greetingSub: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 13,
+    color: '#9B9BA7',
+    marginTop: 4,
+    lineHeight: 18,
   },
 
-  searchBar: {
+  /* Preview CTA */
+  previewCta: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-    borderWidth: 1,
-    borderColor: colors.borderDefault,
-    marginBottom: spacing[4],
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: colors.accentPrimary,
+    borderRadius: 24,
+    height: 48,
+    marginBottom: 18,
   },
-  searchPlaceholder: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.base,
-    color: colors.textTertiary,
+  previewCtaLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#050506',
   },
-  discoverCard: {
-    borderRadius: radius.xl,
+
+  /* Feature Card */
+  featureCard: {
+    width: '100%',
+    height: 176,
+    borderRadius: 28,
     overflow: 'hidden',
-    marginBottom: spacing[6],
+    marginBottom: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.094)',
   },
-  discoverGradient: {
-    borderRadius: radius.xl,
-    padding: spacing[5],
+  featurePhoto: {
+    ...StyleSheet.absoluteFillObject,
   },
-  discoverContent: {
+  featureContent: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    padding: 22,
+    paddingBottom: 20,
   },
-  discoverLabel: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.xs,
-    color: 'rgba(255,255,255,0.7)',
-    letterSpacing: 1.5,
-    fontWeight: '700',
-    marginBottom: 4,
+  featureLeft: { flex: 1 },
+  featureLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#D8FFFF',
+    letterSpacing: 0.5,
+    marginBottom: 6,
   },
-  discoverTitle: {
+  featureTitle: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: fontSizes['2xl'],
-    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#F5F5F7',
+    lineHeight: 32,
+    marginBottom: 8,
+    width: 205,
+  },
+  featureCopy: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 13,
     fontWeight: '700',
-    marginBottom: 4,
+    color: '#E4F6F7',
+    lineHeight: 18,
+    width: 210,
   },
-  discoverSubtitle: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.sm,
-    color: 'rgba(255,255,255,0.75)',
-  },
-  discoverIconWrap: {
-    opacity: 0.9,
+  featureRecord: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: 'rgba(5,5,6,0.72)',
+    borderWidth: 8,
+    borderColor: 'rgba(255,255,255,0.333)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+    marginBottom: 8,
   },
 
-  section: { marginBottom: spacing[8] },
+  /* Sections */
+  section: { marginBottom: 28 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing[4],
+    marginBottom: 14,
   },
   sectionTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: fontSizes.md,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
   seeAll: {
     fontFamily: fontFamilies.primarySemiBold,
@@ -324,68 +341,67 @@ const styles = StyleSheet.create({
     color: colors.accentPrimary,
   },
 
-  artistRow: { gap: spacing[4], paddingRight: spacing[4] },
-  artistCircleItem: { width: 80, alignItems: 'center', gap: spacing[2] },
-  artistCircleImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
+  /* Artist bubbles */
+  bubbleRow: { gap: 16, paddingRight: 8 },
+  bubbleItem: { width: 82, alignItems: 'center', gap: 8 },
+  bubbleImage: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.094)',
   },
-  artistCircleInitial: {
+  bubbleInitial: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: fontSizes.xl,
-    color: colors.onPrimary,
+    fontSize: 28,
+    color: '#050506',
   },
-  artistCircleName: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.xs,
-    color: colors.textPrimary,
-    textAlign: 'center',
-  },
-  artistCircleGenre: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.xs,
-    color: colors.textSecondary,
+  bubbleName: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#F5F5F7',
     textAlign: 'center',
   },
 
-  songRow: {
+  /* Song cards */
+  songCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing[3],
-    gap: spacing[3],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderDefault,
+    gap: 12,
+    backgroundColor: '#15151B',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    height: 64,
+    paddingHorizontal: 12,
+    marginBottom: 8,
   },
-  songCover: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.sm,
+  songArt: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
   },
-  songRowInfo: { flex: 1 },
-  songRowTitle: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: fontSizes.base,
-    color: colors.textPrimary,
+  songCardInfo: { flex: 1 },
+  songCardTitle: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginBottom: 3,
   },
-  songRowArtist: {
-    fontFamily: fontFamilies.primary,
-    fontSize: fontSizes.sm,
-    color: colors.textSecondary,
-    marginTop: 2,
+  songCardSub: {
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 12,
+    color: '#9B9BA7',
   },
-  songRowMeta: { alignItems: 'flex-end' },
-  songPrice: {
-    fontFamily: fontFamilies.monoSemiBold,
-    fontSize: fontSizes.sm,
-    color: colors.accentPrimary,
-  },
-  songDuration: {
+  songCardPrice: {
     fontFamily: fontFamilies.mono,
-    fontSize: fontSizes.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FF9F0A',
   },
+  pressed: { opacity: 0.82 },
 });

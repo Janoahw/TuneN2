@@ -234,8 +234,8 @@ model Download {
   fileSizeBytes Int?     @map("file_size_bytes")
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  user User @relation(fields: [userId], references: [id])
-  song Song @relation(fields: [songId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([songId])

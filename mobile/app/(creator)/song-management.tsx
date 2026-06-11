@@ -194,146 +194,137 @@ export default function SongManagementScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
+  safe: { flex: 1, backgroundColor: '#0D0D0F' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[3],
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1E1E28',
   },
   headerTitle: {
-    fontFamily: fontFamilies.displaySemiBold,
+    fontFamily: fontFamilies.displayBold,
     fontSize: 18,
-    color: colors.textPrimary,
+    fontWeight: '700',
+    color: '#F5F5F7',
   },
   uploadBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.accentPrimary,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
-    gap: spacing[1],
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    height: 34,
+    gap: 5,
   },
   uploadBtnText: {
-    fontFamily: fontFamilies.primarySemiBold,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 13,
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: '#050506',
   },
 
-  // Tabs
   tabs: {
     flexDirection: 'row',
-    paddingHorizontal: spacing[4],
-    marginBottom: spacing[4],
-    gap: spacing[2],
+    paddingHorizontal: 20,
+    marginBottom: 14,
+    marginTop: 12,
+    gap: 8,
   },
   tab: {
-    paddingHorizontal: spacing[3],
-    paddingVertical: spacing[2],
-    borderRadius: radius.full,
-    backgroundColor: colors.bgSecondary,
-  },
-  tabActive: {
-    backgroundColor: colors.accentPrimary,
-  },
-  tabText: {
-    fontFamily: fontFamilies.primaryMedium,
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  tabTextActive: {
-    color: '#FFFFFF',
-  },
-
-  // List
-  list: { paddingHorizontal: spacing[4], paddingBottom: spacing[8] },
-
-  // Song Card
-  songCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.md,
-    padding: spacing[3],
-  },
-  songCover: {
-    width: 56,
-    height: 56,
-    borderRadius: radius.sm,
-  },
-  songCoverPlaceholder: {
-    backgroundColor: colors.bgSecondary,
+    paddingHorizontal: 14,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#191920',
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  songInfo: {
-    flex: 1,
-    marginLeft: spacing[3],
+  tabActive: {
+    backgroundColor: 'rgba(0,204,204,0.149)',
+    borderColor: colors.accentPrimary,
   },
+  tabText: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#9B9BA7',
+  },
+  tabTextActive: { color: colors.accentPrimary },
+
+  list: { paddingHorizontal: 20, paddingBottom: 100 },
+
+  songCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#15151B',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    padding: 12,
+  },
+  songCover: { width: 52, height: 52, borderRadius: 12 },
+  songCoverPlaceholder: {
+    backgroundColor: '#191920',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  songInfo: { flex: 1, marginLeft: 12 },
   songTitle: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 15,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#F5F5F7',
     marginBottom: 4,
   },
   songMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
-    gap: spacing[3],
+    gap: 12,
   },
   songMetaText: {
     fontFamily: fontFamilies.mono,
     fontSize: 12,
-    color: colors.textSecondary,
+    color: '#9B9BA7',
   },
   songStatText: {
     fontFamily: fontFamilies.mono,
     fontSize: 11,
-    color: colors.textTertiary,
+    color: '#4A4A5A',
   },
   revenueText: {
-    fontFamily: fontFamilies.monoSemiBold,
+    fontFamily: fontFamilies.mono,
     fontSize: 12,
+    fontWeight: '700',
     color: colors.success,
     marginTop: 2,
   },
-  optionsBtn: {
-    padding: spacing[2],
-  },
+  optionsBtn: { padding: 8 },
 
-  // Badge
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    paddingHorizontal: spacing[2],
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: radius.full,
+    borderRadius: 10,
     gap: 4,
   },
-  badgeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
+  badgeDot: { width: 6, height: 6, borderRadius: 3 },
   badgeText: {
-    fontFamily: fontFamilies.primaryMedium,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 11,
+    fontWeight: '700',
   },
 
-  // Empty / Loading
-  centered: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
   emptyText: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: spacing[3],
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 15,
+    color: '#9B9BA7',
   },
 });

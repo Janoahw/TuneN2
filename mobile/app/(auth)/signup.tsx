@@ -7,18 +7,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { ControlledInput } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { colors, fontFamilies } from '@/theme';
+
+const { width } = Dimensions.get('window');
+const PHOTO_HEIGHT = 420;
 
 const signupSchema = z
   .object({
@@ -37,6 +40,17 @@ const signupSchema = z
   });
 
 type SignupForm = z.infer<typeof signupSchema>;
+
+const INPUT_STYLE = {
+  inputContainerStyle: {
+    backgroundColor: '#191920',
+    borderRadius: 16,
+    borderColor: '#313142',
+    height: 52,
+    paddingVertical: 0,
+  } as const,
+  containerStyle: { marginBottom: 14 } as const,
+};
 
 export default function SignupScreen() {
   const { signupMutation } = useAuth();
@@ -61,21 +75,35 @@ export default function SignupScreen() {
         text1: 'Account Created',
         text2: 'Verify your email to complete signup',
       });
-      router.push({
-        pathname: '/(auth)/verify-otp',
-      });
+      router.push({ pathname: '/(auth)/verify-otp' });
     } catch (err: any) {
-      const message = err?.response?.data?.error?.message || 'Something went wrong. Try again.';
-      Toast.show({
-        type: 'error',
-        text1: 'Signup Failed',
-        text2: message,
-      });
+      const message =
+        err?.response?.data?.error?.message || err?.message || 'Something went wrong. Try again.';
+      Toast.show({ type: 'error', text1: 'Signup Failed', text2: message });
     }
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.container}>
+      {/* Studio photo */}
+      <Image
+        source={{
+          uri: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80',
+        }}
+        style={styles.photo}
+        resizeMode="cover"
+      />
+      <LinearGradient
+        colors={['#0D0D0FE6', '#0D0D0F00']}
+        style={styles.topScrim}
+        pointerEvents="none"
+      />
+      <LinearGradient
+        colors={['#0D0D0F00', '#0D0D0FFF']}
+        style={styles.bottomScrim}
+        pointerEvents="none"
+      />
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
@@ -85,227 +113,230 @@ export default function SignupScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Top bar */}
-          <View style={styles.topBar}>
-            <Pressable onPress={() => router.back()} hitSlop={12}>
-              <Feather name="arrow-left" size={24} color={colors.textPrimary} />
-            </Pressable>
-            <Text style={styles.topBarTitle}>Create Account</Text>
-            <View style={{ width: 24 }} />
+          {/* Centered logo mark */}
+          <View style={styles.logoWrap}>
+            <Image source={require('../../assets/logo-mark.jpg')} style={styles.logoMark} />
           </View>
 
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Join TuneN2</Text>
-            <Text style={styles.subtitle}>
-              Create your account to discover and support independent artists
-            </Text>
-          </View>
-
-          {/* Form */}
-          <View style={styles.form}>
-            <ControlledInput
-              control={control}
-              name="displayName"
-              placeholder="Full Name"
-              icon="user"
-              autoCapitalize="words"
-              autoComplete="name"
-              textContentType="name"
-            />
-
-            <ControlledInput
-              control={control}
-              name="email"
-              placeholder="Email Address"
-              icon="mail"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              textContentType="emailAddress"
-            />
-
-            <ControlledInput
-              control={control}
-              name="password"
-              placeholder="Password"
-              icon="lock"
-              secureTextEntry={!showPassword}
-              rightIcon={showPassword ? 'eye' : 'eye-off'}
-              onRightIconPress={() => setShowPassword((prev) => !prev)}
-              autoComplete="new-password"
-              textContentType="newPassword"
-            />
-
-            <ControlledInput
-              control={control}
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              icon="lock"
-              secureTextEntry={!showConfirm}
-              rightIcon={showConfirm ? 'eye' : 'eye-off'}
-              onRightIconPress={() => setShowConfirm((prev) => !prev)}
-              autoComplete="new-password"
-              textContentType="newPassword"
-            />
-          </View>
-
-          {/* Role selector */}
-          <View style={styles.roleSection}>
-            <Text style={styles.roleLabel}>I am a...</Text>
-            <View style={styles.roleRow}>
-              <Pressable
-                style={[styles.roleButton, role === 'fan' && styles.roleButtonActive]}
-                onPress={() => setRole('fan')}
-              >
-                <Feather
-                  name="headphones"
-                  size={16}
-                  color={role === 'fan' ? '#FFFFFF' : colors.textSecondary}
-                />
-                <Text style={[styles.roleText, role === 'fan' && styles.roleTextActive]}>Fan</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.roleButton, role === 'artist' && styles.roleButtonActive]}
-                onPress={() => setRole('artist')}
-              >
-                <Feather
-                  name="music"
-                  size={16}
-                  color={role === 'artist' ? '#FFFFFF' : colors.textSecondary}
-                />
-                <Text style={[styles.roleText, role === 'artist' && styles.roleTextActive]}>
-                  Artist
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-
-          {/* Terms */}
-          <Text style={styles.terms}>
-            By signing up, you agree to our <Text style={styles.termsLink}>Terms</Text>
+          <Text style={styles.title}>Create your account</Text>
+          <Text style={styles.copy}>
+            Choose fan or artist mode at signup and start with the same trusted wallet-ready
+            identity.
           </Text>
 
-          {/* CTA */}
-          <Button
-            title="Create Account"
-            onPress={handleSubmit(onSubmit)}
-            loading={signupMutation.isPending}
+          {/* Form */}
+          <ControlledInput
+            control={control}
+            name="email"
+            placeholder="Email"
+            icon="mail"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            textContentType="emailAddress"
+            containerStyle={INPUT_STYLE.containerStyle}
+            inputContainerStyle={INPUT_STYLE.inputContainerStyle}
           />
+
+          <ControlledInput
+            control={control}
+            name="displayName"
+            placeholder="Display name"
+            icon="user"
+            autoCapitalize="words"
+            autoComplete="name"
+            textContentType="name"
+            containerStyle={INPUT_STYLE.containerStyle}
+            inputContainerStyle={INPUT_STYLE.inputContainerStyle}
+          />
+
+          <ControlledInput
+            control={control}
+            name="password"
+            placeholder="Password"
+            icon="lock"
+            secureTextEntry={!showPassword}
+            rightIcon={showPassword ? 'eye' : 'eye-off'}
+            onRightIconPress={() => setShowPassword((p) => !p)}
+            autoComplete="new-password"
+            textContentType="newPassword"
+            containerStyle={INPUT_STYLE.containerStyle}
+            inputContainerStyle={INPUT_STYLE.inputContainerStyle}
+          />
+
+          <ControlledInput
+            control={control}
+            name="confirmPassword"
+            placeholder="Confirm password"
+            icon="lock"
+            secureTextEntry={!showConfirm}
+            rightIcon={showConfirm ? 'eye' : 'eye-off'}
+            onRightIconPress={() => setShowConfirm((p) => !p)}
+            autoComplete="new-password"
+            textContentType="newPassword"
+            containerStyle={INPUT_STYLE.containerStyle}
+            inputContainerStyle={INPUT_STYLE.inputContainerStyle}
+          />
+
+          {/* Role selector */}
+          <View style={styles.roleRow}>
+            <Pressable
+              style={[styles.roleBtn, role === 'fan' && styles.roleBtnActive]}
+              onPress={() => setRole('fan')}
+            >
+              <Text style={[styles.roleLabel, role === 'fan' && styles.roleLabelActive]}>Fan</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.roleBtn, role === 'artist' && styles.roleBtnActive]}
+              onPress={() => setRole('artist')}
+            >
+              <Text style={[styles.roleLabel, role === 'artist' && styles.roleLabelActive]}>
+                Artist
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Primary button */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              pressed && styles.pressed,
+              signupMutation.isPending && styles.btnDisabled,
+            ]}
+            onPress={handleSubmit(onSubmit)}
+            disabled={signupMutation.isPending}
+          >
+            <Text style={styles.primaryBtnLabel}>
+              {signupMutation.isPending ? 'Creating...' : 'Create Account'}
+            </Text>
+          </Pressable>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
             <Pressable onPress={() => router.replace('/(auth)/login')}>
-              <Text style={styles.footerLink}>Log In</Text>
+              <Text style={styles.footerText}>
+                Already selling music here? <Text style={styles.footerLink}>Sign in</Text>
+              </Text>
             </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bgPrimary },
+  container: { flex: 1, backgroundColor: '#0D0D0F' },
   flex: { flex: 1 },
+  photo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width,
+    height: PHOTO_HEIGHT,
+  },
+  topScrim: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width,
+    height: 160,
+  },
+  bottomScrim: {
+    position: 'absolute',
+    top: 230,
+    left: 0,
+    width,
+    height: 260,
+  },
   scroll: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 28,
     paddingBottom: 32,
   },
-  topBar: {
-    flexDirection: 'row',
+  logoWrap: {
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    marginBottom: 8,
+    marginTop: 82,
   },
-  topBarTitle: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 16,
-    color: colors.textPrimary,
-  },
-  header: {
-    marginBottom: 24,
+  logoMark: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.125)',
   },
   title: {
     fontFamily: fontFamilies.displayBold,
-    fontSize: 28,
-    color: colors.textPrimary,
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 15,
-    color: colors.textSecondary,
-    lineHeight: 22,
-  },
-  form: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#F5F5F7',
+    marginTop: 72,
     marginBottom: 16,
   },
-  roleSection: {
-    marginBottom: 20,
-  },
-  roleLabel: {
-    fontFamily: fontFamilies.primarySemiBold,
+  copy: {
+    fontFamily: fontFamilies.primaryMedium,
     fontSize: 15,
-    color: colors.textPrimary,
-    marginBottom: 10,
+    color: '#9B9BA7',
+    lineHeight: 20,
+    marginBottom: 30,
+    width: 320,
   },
   roleRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 16,
+    marginBottom: 22,
   },
-  roleButton: {
-    flexDirection: 'row',
+  roleBtn: {
+    flex: 1,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#2C2C3A',
+    backgroundColor: '#1F1F27',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    flex: 1,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: colors.bgTertiary,
-    backgroundColor: 'transparent',
   },
-  roleButtonActive: {
-    backgroundColor: colors.accentPrimary,
+  roleBtnActive: {
+    backgroundColor: 'rgba(0,204,204,0.149)',
     borderColor: colors.accentPrimary,
   },
-  roleText: {
-    fontFamily: fontFamilies.primarySemiBold,
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  roleTextActive: {
-    color: '#FFFFFF',
-  },
-  terms: {
-    fontFamily: fontFamilies.primary,
+  roleLabel: {
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 13,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 20,
+    fontWeight: '700',
+    color: '#9B9BA7',
   },
-  termsLink: {
-    fontFamily: fontFamilies.primarySemiBold,
+  roleLabelActive: {
     color: colors.accentPrimary,
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  primaryBtn: {
+    backgroundColor: colors.accentPrimary,
+    borderRadius: 24,
+    height: 48,
     alignItems: 'center',
-    marginTop: 24,
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  primaryBtnLabel: {
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#050506',
+  },
+  btnDisabled: { opacity: 0.5 },
+  pressed: { opacity: 0.82 },
+  footer: {
+    alignItems: 'center',
+    marginTop: 'auto',
+    paddingTop: 32,
   },
   footerText: {
-    fontFamily: fontFamilies.primary,
-    color: colors.textSecondary,
-    fontSize: 14,
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#9B9BA7',
   },
   footerLink: {
-    fontFamily: fontFamilies.primarySemiBold,
-    color: colors.accentPrimary,
-    fontSize: 14,
+    color: '#F5F5F7',
   },
 });

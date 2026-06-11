@@ -13,6 +13,8 @@ coverage/
 
 docs/
 .github/
+.claude/
 .vscode/
 TuneN2-Preview-Setup-Guide.pdf
 scripts/generate_setup_pdf.py
+.cv_work

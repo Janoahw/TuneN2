@@ -1,0 +1,191 @@
+[
+  {
+    "id": "01ktv",
+    "name": "component/Mini Player",
+    "type": "frame",
+    "width": 361,
+    "screen": {
+      "id": "8Yaqq",
+      "name": "Components",
+      "x": 0,
+      "y": 59
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Components (8Yaqq) -> component/Mini Player (01ktv)"
+  },
+  {
+    "id": "z5zKp",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "HOLEU",
+      "name": "Search Results",
+      "x": 18300,
+      "y": 1219
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Search Results (HOLEU) -> miniPlayer (z5zKp)"
+  },
+  {
+    "id": "z77hw",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "kQxFu",
+      "name": "Genre Browse",
+      "x": 18753,
+      "y": 1219
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Genre Browse (kQxFu) -> miniPlayer (z77hw)"
+  },
+  {
+    "id": "PdgFy",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "EHyNh",
+      "name": "Notifications",
+      "x": 19659,
+      "y": 3287
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Notifications (EHyNh) -> miniPlayer (PdgFy)"
+  },
+  {
+    "id": "8McQC",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "aWJZc",
+      "name": "Fan Profile",
+      "x": 17847,
+      "y": 3287
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Fan Profile (aWJZc) -> miniPlayer (8McQC)"
+  },
+  {
+    "id": "PtFxH",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "4Qug3",
+      "name": "Artist Dashboard",
+      "x": 17394,
+      "y": 6479
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Artist Dashboard (4Qug3) -> miniPlayer (PtFxH)"
+  },
+  {
+    "id": "glApg",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "TJuXI",
+      "name": "Song Management",
+      "x": 18300,
+      "y": 7531
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Song Management (TJuXI) -> miniPlayer (glApg)"
+  },
+  {
+    "id": "KrOjd",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "9LASh",
+      "name": "Wallet",
+      "x": 17394,
+      "y": 8583
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Wallet (9LASh) -> miniPlayer (KrOjd)"
+  },
+  {
+    "id": "4SmPv",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "vOVBO",
+      "name": "Home Screen",
+      "x": 17394,
+      "y": 1219
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Home Screen (vOVBO) -> miniPlayer (4SmPv)"
+  },
+  {
+    "id": "v5c85",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "AiGBE",
+      "name": "Search Screen",
+      "x": 17847,
+      "y": 1219
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Search Screen (AiGBE) -> miniPlayer (v5c85)"
+  },
+  {
+    "id": "M8f3w",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "T7tij",
+      "name": "Artist Profile",
+      "x": 19206,
+      "y": 1219
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Artist Profile (T7tij) -> miniPlayer (M8f3w)"
+  },
+  {
+    "id": "uQgrd",
+    "name": "miniPlayer",
+    "type": "ref",
+    "ref": "01ktv",
+    "x": 8,
+    "y": 718,
+    "height": "fit_content",
+    "screen": {
+      "id": "XIt8u",
+      "name": "Library",
+      "x": 17394,
+      "y": 3287
+    },
+    "path": "undefined (undefined) -> Frame (bi8Au) -> Library (XIt8u) -> miniPlayer (uQgrd)"
+  }
+]

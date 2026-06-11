@@ -51,31 +51,27 @@ export function WalletCard({ balance, monthlyEarnings, currency = '₦', style }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 16,
-    padding: 24,
-    gap: 8,
-  },
+  container: { borderRadius: 20, padding: 24, gap: 8 },
   label: {
-    fontFamily: fontFamilies.primaryMedium,
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
+    fontFamily: fontFamilies.primaryBold,
+    fontSize: 13,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.6)',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   balance: {
-    fontFamily: fontFamilies.monoBold,
-    fontSize: 36,
+    fontFamily: fontFamilies.mono,
+    fontSize: 40,
+    fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: -0.5,
   },
-  earningsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 4,
-  },
+  earningsRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   earningsText: {
-    fontFamily: fontFamilies.primaryMedium,
+    fontFamily: fontFamilies.primaryBold,
     fontSize: 13,
+    fontWeight: '700',
     color: 'rgba(255,255,255,0.8)',
   },
 });

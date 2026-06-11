@@ -37,35 +37,22 @@ export function ArtistCard({ name, genre, onPress, style }: ArtistCardProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: 140,
-    alignItems: 'center',
-    gap: 12,
-  },
-  pressed: {
-    opacity: 0.85,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  info: {
-    alignItems: 'center',
-    gap: 2,
-    width: '100%',
-  },
+  container: { width: 140, alignItems: 'center', gap: 10 },
+  pressed: { opacity: 0.85 },
+  avatar: { width: 78, height: 78, borderRadius: 39 },
+  info: { alignItems: 'center', gap: 2, width: '100%' },
   name: {
-    fontFamily: fontFamilies.displaySemiBold,
-    fontSize: 14,
-    color: colors.textPrimary,
+    fontFamily: fontFamilies.displayBold,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#F5F5F7',
     textAlign: 'center',
-    width: 140,
+    width: 120,
   },
   genre: {
-    fontFamily: fontFamilies.primary,
-    fontSize: 12,
-    color: colors.textSecondary,
+    fontFamily: fontFamilies.primaryMedium,
+    fontSize: 11,
+    color: '#9B9BA7',
     textAlign: 'center',
   },
 });
