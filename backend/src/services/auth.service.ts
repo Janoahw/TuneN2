@@ -9,6 +9,9 @@ import { ConflictError, ForbiddenError, UnauthorizedError } from '../utils/error
 import { logger } from '../utils/logger.js';
 
 import { sendOtpEmail } from './email.service.js';
+import { LegalService } from './legal.service.js';
+
+const legalService = new LegalService();
 
 type User = {
   id: string;
@@ -60,11 +63,18 @@ export class AuthService {
 
     const passwordHash = await hashPassword(data.password);
 
+    // Creating an account is agreement to the terms shown on the signup screen, so
+    // stamp the live version now — otherwise the new user is blocked by the
+    // acceptance modal the moment they land in the app.
+    const termsVersion = await legalService.getCurrentTermsVersion();
+
     const user = await prisma.user.create({
       data: {
         email: data.email,
         passwordHash,
         displayName: data.displayName,
+        acceptedTermsVersion: termsVersion,
+        acceptedTermsAt: termsVersion === null ? null : new Date(),
       },
     });
 

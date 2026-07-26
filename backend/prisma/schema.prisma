@@ -22,6 +22,8 @@ model User {
   isAdmin        Boolean  @default(false) @map("is_admin")
   isBanned       Boolean  @default(false) @map("is_banned")
   stripeCustomerId String?  @map("stripe_customer_id") @db.VarChar(255)
+  acceptedTermsVersion Int?      @map("accepted_terms_version")
+  acceptedTermsAt      DateTime? @map("accepted_terms_at") @db.Timestamptz()
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
 
@@ -37,6 +39,7 @@ model User {
   passwordResets  PasswordReset[]
   songLikes       SongLike[]
   songComments    SongComment[]
+  editedLegalDocs LegalDocument[] @relation("LegalDocumentEditor")
 
   @@index([email])
   @@map("users")
@@ -386,6 +389,27 @@ model ContentReport {
   artist   ArtistProfile? @relation(fields: [artistId], references: [id])
 
   @@map("content_reports")
+}
+
+// ─── LEGAL DOCUMENTS ─────────────────────────────────────
+
+model LegalDocument {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type        String    @db.VarChar(20) // 'terms' | 'privacy'
+  version     Int
+  title       String    @db.VarChar(200)
+  content     String    @db.Text // Markdown, sanitized on write
+  isPublished Boolean   @default(false) @map("is_published")
+  publishedAt DateTime? @map("published_at") @db.Timestamptz()
+  updatedById String?   @map("updated_by_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  updatedBy User? @relation("LegalDocumentEditor", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([type, version])
+  @@index([type, isPublished])
+  @@map("legal_documents")
 }
 
 // ─── SONG LIKES ──────────────────────────────────────────

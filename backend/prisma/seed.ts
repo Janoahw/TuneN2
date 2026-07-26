@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { sanitizeMarkdown } from '../src/utils/sanitizeMarkdown.js';
 
 const prisma = new PrismaClient();
 
@@ -29,6 +30,117 @@ const GENRES = [
   { name: 'Amapiano', slug: 'amapiano' },
   { name: 'Lo-Fi', slug: 'lo-fi' },
   { name: 'World', slug: 'world' },
+];
+
+const LEGAL_DOCUMENTS = [
+  {
+    type: 'terms',
+    title: 'Terms & Conditions',
+    content: `# Terms & Conditions
+
+_Last updated: 26 July 2026 · Placeholder copy — replace via the admin Legal editor._
+
+## 1. Acceptance of these terms
+
+By creating a TuneN2 account you agree to these Terms & Conditions. If you do not
+agree, do not use the service.
+
+## 2. Your account
+
+You are responsible for keeping your password secure and for all activity that
+happens under your account. You must be at least 13 years old to register.
+
+## 3. Buying music
+
+Purchases give you a personal, non-transferable licence to stream and download the
+track for your own use. They do not transfer ownership or any right to redistribute,
+resell, or publicly perform the recording.
+
+## 4. Selling music
+
+Artists keep 80% of every sale; TuneN2 retains 20% as a platform fee. By uploading a
+track you confirm that you own or control all rights to it, and you grant TuneN2 the
+licence needed to host, preview, and sell it.
+
+## 5. Payouts
+
+Artist earnings are held in a TuneN2 wallet and paid out on request through Stripe.
+A withdrawal fee applies, and a minimum balance is required before a payout can be
+requested.
+
+## 6. Prohibited conduct
+
+Do not upload content you do not have the rights to, attempt to circumvent payment,
+scrape the service, or interfere with its operation.
+
+## 7. Termination
+
+We may suspend or close accounts that breach these terms. You may close your account
+at any time from Settings.
+
+## 8. Changes to these terms
+
+We may update these terms. When we do, the version number increases and you will be
+asked to accept the new version before continuing to use the app.
+
+## 9. Contact
+
+Questions about these terms: [support@tunen2.com](mailto:support@tunen2.com)
+`,
+  },
+  {
+    type: 'privacy',
+    title: 'Privacy Policy',
+    content: `# Privacy Policy
+
+_Last updated: 26 July 2026 · Placeholder copy — replace via the admin Legal editor._
+
+## 1. What we collect
+
+- **Account data** — email address, display name, and profile image
+- **Purchase data** — the tracks you buy and when, plus Stripe payment identifiers
+- **Usage data** — plays, downloads, follows, likes, and comments
+- **Device data** — push notification tokens and basic device type
+
+We never store full card numbers. Payments are handled by Stripe.
+
+## 2. How we use it
+
+To run your account, process purchases and payouts, deliver the music you have
+bought, send service notifications, and detect abuse.
+
+## 3. Who we share it with
+
+- **Stripe** — payment processing and artist payouts
+- **Amazon Web Services** — audio storage and delivery
+- **Expo** — push notification delivery
+
+We do not sell your personal data.
+
+## 4. Retention
+
+Account and purchase records are kept while your account is open and for as long
+afterwards as tax and accounting rules require.
+
+## 5. Your rights
+
+You can access, correct, export, or delete your personal data. Deleting your account
+removes your profile and revokes access to downloads.
+
+## 6. Children
+
+TuneN2 is not intended for children under 13 and we do not knowingly collect their
+data.
+
+## 7. Changes to this policy
+
+Updates are published here with a new version number and date.
+
+## 8. Contact
+
+Privacy questions: [support@tunen2.com](mailto:support@tunen2.com)
+`,
+  },
 ];
 
 const ARTIST_DATA = [
@@ -142,7 +254,7 @@ async function main() {
 
   // ── Admin ─────────────────────────────────────────────────
   console.log('👤 Seeding admin...');
-  await prisma.user.upsert({
+  const admin = await prisma.user.upsert({
     where: { email: 'admin@tunen2.com' },
     update: {},
     create: {
@@ -154,6 +266,31 @@ async function main() {
       isArtist: false,
     },
   });
+
+  // ── Legal Documents ───────────────────────────────────────
+  // Seeded as published v1 so the mobile app has something to render and the
+  // acceptance flow is exercisable end to end. The copy is placeholder — real legal
+  // text lands in S12.13 / S12.14 via the admin editor.
+  console.log('📄 Seeding legal documents...');
+  for (const doc of LEGAL_DOCUMENTS) {
+    const existing = await prisma.legalDocument.findFirst({ where: { type: doc.type } });
+    if (existing) continue;
+
+    await prisma.legalDocument.create({
+      data: {
+        type: doc.type,
+        version: 1,
+        title: doc.title,
+        // Same sanitization the admin editor goes through, so seeded and authored
+        // content are stored in exactly the same shape.
+        content: sanitizeMarkdown(doc.content),
+        isPublished: true,
+        publishedAt: new Date(),
+        updatedById: admin.id,
+      },
+    });
+  }
+  console.log(`✅ Seeded ${LEGAL_DOCUMENTS.length} legal documents`);
 
   // ── Artists ───────────────────────────────────────────────
   console.log('🎤 Seeding artists...');

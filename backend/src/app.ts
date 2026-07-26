@@ -25,6 +25,7 @@ import { notificationRouter } from './routes/notification.routes.js';
 import { reportRouter } from './routes/report.routes.js';
 import { adminRouter } from './routes/admin.routes.js';
 import { songInteractionRouter } from './routes/song-interaction.routes.js';
+import { legalRouter } from './routes/legal.routes.js';
 
 const app = express();
 
@@ -88,6 +89,7 @@ app.use('/api/v1/wallet', walletRouter);
 app.use('/api/v1/devices', deviceRouter);
 app.use('/api/v1/notifications', notificationRouter);
 app.use('/api/v1/reports', reportRouter);
+app.use('/api/v1/legal', legalRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/webhooks', webhookRouter);
 

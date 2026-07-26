@@ -1,8 +1,15 @@
 import { Router } from 'express';
 import { AdminService } from '../services/admin.service.js';
+import { LegalService } from '../services/legal.service.js';
 import { authenticate } from '../middleware/auth.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 import { validate } from '../middleware/validate.js';
+import {
+  LEGAL_DOCUMENT_TYPES,
+  legalTypeParamSchema,
+  legalSaveDraftSchema,
+  type LegalDocumentType,
+} from '../schemas/legal.js';
 import {
   adminUsersQuerySchema,
   adminUserIdParamSchema,
@@ -26,6 +33,7 @@ import {
 
 const router = Router();
 const adminService = new AdminService();
+const legalService = new LegalService();
 
 // All admin routes require authentication and admin role
 router.use(authenticate, requireAdmin);
@@ -424,6 +432,82 @@ router.get(
       res.json({
         success: true,
         data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * LEGAL DOCUMENTS
+ *
+ * Authoring surface for Terms & Conditions and the Privacy Policy. Every route here
+ * inherits `authenticate` + `requireAdmin` from the router-level middleware above.
+ */
+
+// GET /api/v1/admin/legal
+// Every document type with its published version, working draft, and history
+router.get('/legal', async (_req, res, next) => {
+  try {
+    const result = await legalService.getAllForAdmin(LEGAL_DOCUMENT_TYPES);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/v1/admin/legal/:type
+// Published version + working draft + history for one type
+router.get('/legal/:type', validate({ params: legalTypeParamSchema }), async (req, res, next) => {
+  try {
+    const { type } = (req as any).validatedParams as { type: LegalDocumentType };
+    const result = await legalService.getForAdmin(type);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PUT /api/v1/admin/legal/:type
+// Create or update the working draft — never touches the live document
+router.put(
+  '/legal/:type',
+  validate({ params: legalTypeParamSchema, body: legalSaveDraftSchema }),
+  async (req, res, next) => {
+    try {
+      const { type } = (req as any).validatedParams as { type: LegalDocumentType };
+      const result = await legalService.saveDraft(type, req.body, req.user!.id);
+      res.json({
+        success: true,
+        data: result,
+        message: 'Draft saved successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+// POST /api/v1/admin/legal/:type/publish
+// Publish the working draft as the new live version
+router.post(
+  '/legal/:type/publish',
+  validate({ params: legalTypeParamSchema }),
+  async (req, res, next) => {
+    try {
+      const { type } = (req as any).validatedParams as { type: LegalDocumentType };
+      const result = await legalService.publish(type, req.user!.id);
+      res.json({
+        success: true,
+        data: result,
+        message: `Published ${type} v${result.version}`,
       });
     } catch (error) {
       next(error);
